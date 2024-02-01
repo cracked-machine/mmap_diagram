@@ -1,0 +1,4 @@
+argparse
+typeguard
+# may need to apt install libjpeg8-dev zlib1g-dev
+pillow
