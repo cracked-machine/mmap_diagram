@@ -19,25 +19,31 @@ class mmap():
    
 
     def __create_diagram(self, data_list: List[Dict]):
+
+        
         # init the main image
         img_main = PIL.Image.new("RGB", (self.w, self.h), color=(255,255,255))
         offset = 0
         for data in data_list:
-            offset = offset + 4
+            
 
             origin = int(data['origin'], 16)
             size = int(data['size'], 16)
-            # pick a colour for current region
             colorpick = random.choice(list(PIL.ImageColor.colormap))
-            print(str(data) + ":" + colorpick)
+            print("Origin:" + str(origin) + ",Size:" + str(size) +  " - " + colorpick)
+            if not size:
+                print("Zero size region skipped")
+                continue
+            offset = offset + 5
+            # pick a colour for current region
 
             # init the layer
-            region_img = PIL.Image.new("RGBA", (self.w - self.menu_size, size+500), color=(255,255,0, 5))
+            region_img = PIL.Image.new("RGBA", (self.w - self.menu_size, size), color=(255,255,0, 5))
             region_canvas = PIL.ImageDraw.Draw(region_img)
 
             # draw the region graphic
             region_canvas.rectangle(
-                (0, 0, self.w, origin + size), 
+                (0, 0, self.w-1, origin + size), 
                 fill=colorpick, 
                 outline="black", 
                 width=1)
