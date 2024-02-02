@@ -1,7 +1,7 @@
 
 ### Setup
 
-Run `make init` to install python deps.
+Run `sudo make init` to install python deps and linux packages.
 
 ### Usage:
 
