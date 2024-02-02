@@ -7,6 +7,7 @@ import PIL.ImageFont
 from typing import List, Dict
 import typeguard
 import random
+import sys
 
 class Diagram():
     def __init__(self):
@@ -14,7 +15,6 @@ class Diagram():
         self.w = 250
         self.menu_size = 50
         
-
         self.__create_diagram(self.__process_input())
    
 
@@ -67,6 +67,8 @@ class Diagram():
         parser = argparse.ArgumentParser()
         parser.add_argument('datapairs', nargs='*')
         self.args = parser.parse_args()
+        if len(sys.argv) == 1:
+            parser.error('must pass in data points')
         if len(self.args.datapairs) % 2:
             parser.error('datapairs arg should be pairs of values')
 
