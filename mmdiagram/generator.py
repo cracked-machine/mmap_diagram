@@ -8,7 +8,7 @@ from typing import List, Dict
 import typeguard
 import random
 
-class mmap():
+class Diagram():
     def __init__(self):
         self.h = 500
         self.w = 250
@@ -86,4 +86,4 @@ class mmap():
         
 
 if __name__ == '__main__':
-   mmap()
+   Diagram()
