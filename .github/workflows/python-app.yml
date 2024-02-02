@@ -34,3 +34,4 @@ jobs:
       with:
         name: code coverage
         path: ./tests/lcov/html/*
+        if-no-files-found: error
