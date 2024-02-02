@@ -27,9 +27,9 @@ jobs:
       run: |
         sudo make init
     - name: Test with pytest
+    - uses: actions/upload-artifact@v4
       run: |
         make test
-    - uses: actions/upload-artifact@v4
       with:
-        name: my-artifact
-        path: test/lcov/html
+        name: coverage
+        path: ./test/lcov/html/*
