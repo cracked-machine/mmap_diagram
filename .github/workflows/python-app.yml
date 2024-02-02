@@ -27,7 +27,7 @@ jobs:
       run: |
         sudo make init
     - name: Test with pytest
-    - uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v4
       run: |
         make test
       with:
