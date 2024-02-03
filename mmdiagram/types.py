@@ -3,6 +3,7 @@ import random
 import PIL.ImageColor
 from typing import Dict
 
+
 @typeguard.typechecked
 class Region:
 
@@ -18,7 +19,7 @@ class Region:
         """memory address"""
         self._size: str = size
         """size in bytes"""
-        self.colour = self._pick_remainging_colour()
+        self.colour = self._pick_available_colour()
         """random colour for region block"""
         self.remain = self._calc_remaining()
         """Number of bytes until next region block"""
@@ -42,13 +43,19 @@ class Region:
             + str(self.size) + "|"\
             + str(self.remain) + "|"
 
-    def _pick_remainging_colour(self):
-        # keep assigning colours to new objects until exhausted colourmap causes a KeyError
+    def _pick_available_colour(self):
+        # remove the picked colour from the list so it can't be picked again
         if not Region._remaining_colours:
             raise KeyError("Run out of region colours!")
-        chosen_colour = random.choice(list(Region._remaining_colours))
-        del Region._remaining_colours[chosen_colour]
-        return chosen_colour
+        
+        # make sure we don't pick a colour that is too bright.
+        # A0A0A0 was arbitrarily decided to be "too bright" :)
+        chosen_colour_name, chosen_colour_code = random.choice(list(Region._remaining_colours.items()))
+        while int(chosen_colour_code[1:], 16) > int("A0A0A0", 16):
+            chosen_colour_name, chosen_colour_code = random.choice(list(Region._remaining_colours.items()))
+        
+        del Region._remaining_colours[chosen_colour_name]
+        return chosen_colour_name
 
     def _calc_remaining(self):
         """Calculate the remaining number of bytes until next region block
