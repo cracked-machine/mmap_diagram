@@ -86,9 +86,9 @@ def test_generate_doc_example():
                               '0x60',
                               'rootfs',
                               '0x50',
-                              '0x60',
+                              '0x10',
                               'dtb',
-                              '0x100',
+                              '0x10',
                               '0x150',
                               "-o",
                               "doc/example/report.md"]):

@@ -15,16 +15,28 @@ import mmdiagram.types
 @typeguard.typechecked
 class Diagram:
     def __init__(self):
-        self.h = 500
-        self.w = 500
-        self.legend_width = 50
+        self._height = 500
+        """height of the diagram image"""
+        self._width = 500
+        """width of the diagram image"""
+        self._legend_width = 50
+        """width of the area used for text annotations/legend"""
+        self._region_list = None
+        """List of region objects"""
 
-        self._create_diagram(self._process_input())
+        # get the list of region objects populated with input data
+        self._region_list = self._process_input()
+        # sort in descending order so largest regions are drawn first in z-order (background)
+        self._region_list.sort(key=lambda x: x.size, reverse=True)
+        # output image diagram
+        self._create_diagram(self._region_list)
+        # output markdown report (refs image)
+        self._create_markdown(self._region_list)
 
     def _create_diagram(self, region_list: List[mmdiagram.types.Region]):
 
         # init the main image
-        img_main = PIL.Image.new("RGB", (self.w, self.h), color=(255, 255, 255))
+        img_main = PIL.Image.new("RGB", (self._width, self._height), color=(255, 255, 255))
 
         # this is the x-axis drawing offset for each region
         # we increment this each time we draw a region to clearly show overlaps
@@ -42,18 +54,18 @@ class Diagram:
             region_offset = region_offset + 5
 
             # init the layer
-            region_img = PIL.Image.new("RGBA", (self.w - self.legend_width, region.size), color=(255, 255, 0, 5))
+            region_img = PIL.Image.new("RGBA", (self._width - self._legend_width, region.size), color=(255, 255, 0, 5))
             region_canvas = PIL.ImageDraw.Draw(region_img)
 
             # draw the region graphic
             region_canvas.rectangle(
-                (0, 0, self.w - 1, region.origin + region.size),
+                (0, 0, self._width - 1, region.origin + region.size),
                 fill=region.colour,
                 outline="black",
                 width=1,
             )
 
-            img_main.paste(region_img, (self.legend_width + region_offset, region.origin), region_img)
+            img_main.paste(region_img, (self._legend_width + region_offset, region.origin), region_img)
 
             # add origin text for the region
             text_img = PIL.Image.new("RGB", (30, 10), color=(255, 255, 0))
@@ -69,10 +81,7 @@ class Diagram:
         img_file = pathlib.Path(self.args.out).stem + ".png"
         img_main.save(pathlib.Path(self.args.out).parent / img_file)
 
-        # output report
-        self._export(region_list)
-
-    def _export(self, region_list: List[mmdiagram.types.Region]):
+    def _create_markdown(self, region_list: List[mmdiagram.types.Region]):
         with open(self.args.out, "w") as f:
             f.write(f"""![memory map diagram]({pathlib.Path(self.args.out).stem}.png)\n""")
             f.write("|name|colour|origin|size|remaining|\n")
