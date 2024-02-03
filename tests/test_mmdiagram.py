@@ -77,8 +77,9 @@ def test_valid_custom_out_arg():
         assert pathlib.Path("/tmp/custom/myreport.png").exists()
 
 
-def test_no_more_colours():
-    ''' should create custom report dir/files '''
+def test_no_more_colours_but_white():
+    """ white is a forbidden colour and thare are not enough colours left for 3 regions
+    so it should pass with error """
     with unittest.mock.patch('sys.argv',
                              ['mmap_digram.diagram',
                               'kernel',
@@ -94,8 +95,31 @@ def test_no_more_colours():
                               "/tmp/custom/dupecolours.md"]):
         # deliberately restrict the dict len=1 so we can confirm the error is raised.
         with unittest.mock.patch('mmdiagram.types.Region._remaining_colours',
-                                 {"aliceblue": "#f0f8ff"}):
-            with pytest.raises(KeyError):
+                                 {"white": "#000000"}):
+            with pytest.raises(SystemExit):
+                mmdiagram.generator.Diagram()
+
+
+def test_no_more_colours_but_black():
+    """ black is not a forbidden colour but thare are not enough colours left for 3 regions
+    so it should pass with error """
+    with unittest.mock.patch('sys.argv',
+                             ['mmap_digram.diagram',
+                              'kernel',
+                              '0x10',
+                              '0x60',
+                              'rootfs',
+                              '0x50',
+                              '0x10',
+                              'dtb',
+                              '0x10',
+                              '0x150',
+                              "-o",
+                              "/tmp/custom/dupecolours.md"]):
+        # deliberately restrict the dict len=1 so we can confirm the error is raised.
+        with unittest.mock.patch('mmdiagram.types.Region._remaining_colours',
+                                 {"black": "#ffffff"}):
+            with pytest.raises(SystemExit):
                 mmdiagram.generator.Diagram()
 
 

@@ -1,7 +1,7 @@
 import typeguard
 import random
 import PIL.ImageColor
-from typing import Dict
+from typing import List, Dict
 
 
 @typeguard.typechecked
@@ -45,16 +45,18 @@ class Region:
 
     def _pick_available_colour(self):
         # remove the picked colour from the list so it can't be picked again
-        if not Region._remaining_colours:
-            raise KeyError("Run out of region colours!")
-        
-        # make sure we don't pick a colour that is too bright.
-        # A0A0A0 was arbitrarily decided to be "too bright" :)
-        chosen_colour_name, chosen_colour_code = random.choice(list(Region._remaining_colours.items()))
-        while int(chosen_colour_code[1:], 16) > int("A0A0A0", 16):
+        try:
+            # make sure we don't pick a colour that is too bright.
+            # A0A0A0 was arbitrarily decided to be "too bright" :)
             chosen_colour_name, chosen_colour_code = random.choice(list(Region._remaining_colours.items()))
+            while int(chosen_colour_code[1:], 16) > int("A0A0A0", 16):
+                del Region._remaining_colours[chosen_colour_name]
+                chosen_colour_name, chosen_colour_code = random.choice(list(Region._remaining_colours.items()))
+
+            del Region._remaining_colours[chosen_colour_name]
+        except (IndexError, KeyError):
+            raise SystemExit("Ran out of colours!")
         
-        del Region._remaining_colours[chosen_colour_name]
         return chosen_colour_name
 
     def _calc_remaining(self):
