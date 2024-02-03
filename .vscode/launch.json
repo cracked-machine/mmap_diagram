@@ -1,0 +1,19 @@
+{
+
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python Debugger",
+            "type": "debugpy",
+            "request": "launch",
+            "console": "integratedTerminal",
+            "module": "mmdiagram.generator",
+            "args": [
+                "a", "0x10", "0x10",
+                "b", "0x40", "0xDD",
+                "c", "0xCC", "0xCC",
+                "-o", "/tmp/report/report.md"
+            ]
+        }
+    ]
+}
