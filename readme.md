@@ -1,3 +1,4 @@
+[![Codecov](https://img.shields.io/codecov/c/github/cracked-machine/mmdiagram)](https://app.codecov.io/gh/cracked-machine/mmdiagram)
 
 ### Setup
 
