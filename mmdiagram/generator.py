@@ -16,7 +16,7 @@ import mmdiagram.types
 class Diagram:
     def __init__(self):
         self.h = 500
-        self.w = 350
+        self.w = 500
         self.legend_width = 50
 
         self._create_diagram(self._process_input())
