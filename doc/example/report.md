@@ -1,6 +1,6 @@
 ![memory map diagram](report.png)
 |name|colour|origin|size|remaining|
 |:-|:-|:-|:-|:-|
-|dtb|darkgrey|16|336|TODO|
-|kernel|lightcoral|16|96|TODO|
-|rootfs|darkgray|80|16|TODO|
+|dtb|darkslateblue|16|336|TODO|
+|kernel|lawngreen|16|96|TODO|
+|rootfs|deepskyblue|80|16|TODO|

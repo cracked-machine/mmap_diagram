@@ -2,7 +2,7 @@ import mmdiagram.generator
 import unittest
 import pytest
 import pathlib
-
+import mmdiagram.types
 # Test 'data' arguments
 
 
@@ -75,6 +75,28 @@ def test_valid_custom_out_arg():
         mmdiagram.generator.Diagram()
         assert pathlib.Path("/tmp/custom/myreport.md").exists()
         assert pathlib.Path("/tmp/custom/myreport.png").exists()
+
+
+def test_no_more_colours():
+    ''' should create custom report dir/files '''
+    with unittest.mock.patch('sys.argv',
+                             ['mmap_digram.diagram',
+                              'kernel',
+                              '0x10',
+                              '0x60',
+                              'rootfs',
+                              '0x50',
+                              '0x10',
+                              'dtb',
+                              '0x10',
+                              '0x150',
+                              "-o",
+                              "/tmp/custom/dupecolours.md"]):
+        # deliberately restrict the dict len=1 so we can confirm the error is raised.
+        with unittest.mock.patch('mmdiagram.types.Region._remaining_colours',
+                                 {"aliceblue": "#f0f8ff"}):
+            with pytest.raises(KeyError):
+                mmdiagram.generator.Diagram()
 
 
 def test_generate_doc_example():

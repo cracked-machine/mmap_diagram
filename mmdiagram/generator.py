@@ -109,8 +109,8 @@ class Diagram:
             self.parser.error("command line input data should be in multiples of three")
 
         region_list = []
-        for clituple in self._batched(self.args.regions, 3):
-            region_list.append(mmdiagram.types.Region(clituple[0], clituple[1], clituple[2]))
+        for r in self._batched(self.args.regions, 3):
+            region_list.append(mmdiagram.types.Region(r[0], r[1], r[2]))
 
         return region_list
 
