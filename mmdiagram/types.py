@@ -37,8 +37,7 @@ class Region:
 
     def __str__(self):
         return "|"\
-            + str(self.name) + "|"\
-            + str(self.colour) + "|"\
+            + "<span style='color:" + str(self.colour) + "'>" + str(self.name) + "</span>|"\
             + str(self.origin) + "|"\
             + str(self.size) + "|"\
             + str(self.remain) + "|"
