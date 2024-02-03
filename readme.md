@@ -5,11 +5,22 @@ Run `sudo make init` to install python deps and linux packages.
 
 ### Usage:
 
-Currently only CLI input data is supported. Data should be pairs of origin and size, one for each region to be plotted to the diagram.
+```
+usage: generator.py [-h] [-o OUT] [regions ...]
 
+positional arguments:
+regions            command line input for regions should be tuples of name, origin and size.
+
+options:
+-h, --help         show this help message and exit
+-o OUT, --out OUT  path to the markdown output report file. Defaults to "out/report.md"
 ```
-python3 -m mmdiagram.generator 0x10 0x10 0x40 0xDD 0xCC 0xCC
-```
+
+- Generate three regions called `kernel`, `rootfs` and `dtb` to default report output path.
+
+    ```
+    python3 -m mmdiagram.generator kernel 0x10 0x10 rootfs 0x40 0xDD dtb 0xCC 0xCC
+    ```
 
 
 

@@ -78,13 +78,13 @@ class Diagram:
             f.write("|name|colour|origin|size|remaining|\n")
             f.write("|:-|:-|:-|:-|:-|\n")
             for region in region_list:
-                f.write(f"|-|-|{region.origin}|{region.size}|-|\n")
+                f.write(f"{region}\n")
 
     def _process_input(self) -> List[mmdiagram.types.Region]:
 
         self.parser = argparse.ArgumentParser()
-        self.parser.add_argument("clidata", help='command line input should be tuples of name, origin and size.', nargs="*")
-        self.parser.add_argument("-o", "--out", help='path to the output report file', default="out/report.md")
+        self.parser.add_argument("regions", help='command line input for regions should be tuples of name, origin and size.', nargs="*")
+        self.parser.add_argument("-o", "--out", help='path to the markdown output report file. Defaults to "out/report.md"', default="out/report.md")
         self.args = self.parser.parse_args()
 
         # make sure the output path is valid and parent dir exists
@@ -94,11 +94,11 @@ class Diagram:
 
         if len(sys.argv) == 1:
             self.parser.error("must pass in data points")
-        if len(self.args.clidata) % 3:
+        if len(self.args.regions) % 3:
             self.parser.error("command line input data should be in multiples of three")
 
         region_list = []
-        for clituple in self._batched(self.args.clidata, 3):
+        for clituple in self._batched(self.args.regions, 3):
             region_list.append(mmdiagram.types.Region(clituple[0], clituple[1], clituple[2]))
 
         return region_list
