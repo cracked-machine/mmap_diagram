@@ -63,6 +63,20 @@ def test_valid_default_out_arg():
         assert pathlib.Path("out/report.png").exists()
 
 
+def test_invalid_duplicate_name_arg():
+    """there can only be one."""
+    with unittest.mock.patch('sys.argv',
+                             ['mmap_digram.diagram',
+                              'a',
+                              '0x10',
+                              '0x10',
+                              'a',
+                              '0x10',
+                              '0x10']):
+        with pytest.warns(RuntimeWarning):
+            mmdiagram.generator.Diagram()
+
+
 def test_valid_custom_out_arg():
     ''' should create custom report dir/files '''
     with unittest.mock.patch('sys.argv',

@@ -1,7 +1,7 @@
 import typeguard
 import random
 import PIL.ImageColor
-from typing import List, Dict
+from typing import Dict
 
 
 @typeguard.typechecked

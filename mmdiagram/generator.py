@@ -10,6 +10,7 @@ import typeguard
 import sys
 import pathlib
 import mmdiagram.types
+import warnings
 
 
 @typeguard.typechecked
@@ -24,7 +25,7 @@ class Diagram:
         self._region_list = None
         """List of region objects"""
 
-        # get the list of region objects populated with input data
+        # create a list of region objects populated with input data
         self._region_list = self._process_input()
         # sort in descending order so largest regions are drawn first in z-order (background)
         self._region_list.sort(key=lambda x: x.size, reverse=True)
@@ -98,19 +99,25 @@ class Diagram:
                                  default="out/report.md")
         self.args = self.parser.parse_args()
 
-        # make sure the output path is valid and parent dir exists
-        if not pathlib.Path(self.args.out).suffix == ".md":
-            raise NameError("Output file should end with .md")
-        pathlib.Path(self.args.out).parent.mkdir(parents=True, exist_ok=True)
-
         if len(sys.argv) == 1:
             self.parser.error("must pass in data points")
         if len(self.args.regions) % 3:
             self.parser.error("command line input data should be in multiples of three")
 
+        # make sure the output path is valid and parent dir exists
+        if not pathlib.Path(self.args.out).suffix == ".md":
+            raise NameError("Output file should end with .md")
+        pathlib.Path(self.args.out).parent.mkdir(parents=True, exist_ok=True)
+
         region_list = []
         for r in self._batched(self.args.regions, 3):
-            region_list.append(mmdiagram.types.Region(r[0], r[1], r[2]))
+            name = r[0]
+            origin = r[1]
+            size = r[2]
+            if any(x.name == name for x in region_list):
+                warnings.warn(f"Duplicate region names ({name}) are not permitted. Region will be skipped.", RuntimeWarning)
+            else:
+                region_list.append(mmdiagram.types.Region(name, origin, size))
 
         return region_list
 
