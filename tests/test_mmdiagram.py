@@ -75,3 +75,23 @@ def test_valid_custom_out_arg():
         mmdiagram.generator.Diagram()
         assert pathlib.Path("/tmp/custom/myreport.md").exists()
         assert pathlib.Path("/tmp/custom/myreport.png").exists()
+
+
+def test_generate_doc_example():
+    ''' should create custom report dir/files '''
+    with unittest.mock.patch('sys.argv',
+                             ['mmap_digram.diagram',
+                              'kernel',
+                              '0x10',
+                              '0x60',
+                              'rootfs',
+                              '0x50',
+                              '0x60',
+                              'dtb',
+                              '0x100',
+                              '0x150',
+                              "-o",
+                              "doc/example/report.md"]):
+        mmdiagram.generator.Diagram()
+        assert pathlib.Path("doc/example/report.md").exists()
+        assert pathlib.Path("doc/example/report.png").exists()

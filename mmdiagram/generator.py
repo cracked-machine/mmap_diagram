@@ -16,7 +16,7 @@ import mmdiagram.types
 class Diagram:
     def __init__(self):
         self.h = 500
-        self.w = 250
+        self.w = 350
         self.legend_width = 50
 
         self._create_diagram(self._process_input())
@@ -83,8 +83,10 @@ class Diagram:
     def _process_input(self) -> List[mmdiagram.types.Region]:
 
         self.parser = argparse.ArgumentParser()
-        self.parser.add_argument("regions", help='command line input for regions should be tuples of name, origin and size.', nargs="*")
-        self.parser.add_argument("-o", "--out", help='path to the markdown output report file. Defaults to "out/report.md"', default="out/report.md")
+        self.parser.add_argument("regions", help='command line input for regions should be tuples of name, origin and size.',
+                                 nargs="*")
+        self.parser.add_argument("-o", "--out", help='path to the markdown output report file. Defaults to "out/report.md"',
+                                 default="out/report.md")
         self.args = self.parser.parse_args()
 
         # make sure the output path is valid and parent dir exists
