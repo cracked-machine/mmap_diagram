@@ -39,6 +39,38 @@ def test_distance_three_regions_same_size_no_collisions():
                 assert region.remain == "0x328"
 
 
+def test_distance_three_regions_touching_no_collisions():
+    """  """
+    with unittest.mock.patch('sys.argv',
+                             ['mmap_digram.diagram',
+                              'kernel',
+                              '0x10',
+                              '0x30',
+                              'rootfs',
+                              '0x40',
+                              '0x30',
+                              'dtb',
+                              '0x70',
+                              '0x30',
+                              "-o",
+                              f"/tmp/pytest/{__name__}.md"],
+                             mmdiagram.generator.height, 1000):
+
+        d = mmdiagram.generator.Diagram()
+        for region in d._region_list:
+            if region.name == "kernel":
+                assert region._origin == "0x10"
+                assert region._size == "0x30"
+                assert region.remain == "0x0"
+            if region.name == "rootfs":
+                assert region._origin == "0x40"
+                assert region._size == "0x30"
+                assert region.remain == "0x0"
+            if region.name == "dtb":
+                assert region._origin == "0x70"
+                assert region._size == "0x30"
+                assert region.remain == "0x348"
+
 def test_distance_three_regions_diff_size_no_collisions():
     """  """
     with unittest.mock.patch('sys.argv',
