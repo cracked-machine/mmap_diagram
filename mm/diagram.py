@@ -30,6 +30,7 @@ class MemoryMap:
     """height of the diagram image"""
     width = 500
     """width of the diagram image"""
+    bgcolour = "oldlace"
 
     def __init__(self):
         self._legend_width = 50
@@ -50,7 +51,7 @@ class MemoryMap:
     def _create_diagram(self, region_list: List[mm.types.Region]):
 
         # init the main image
-        img_main = PIL.Image.new("RGB", (MemoryMap.width, MemoryMap.height), color=(255, 255, 255))
+        img_main = PIL.Image.new("RGB", (MemoryMap.width, MemoryMap.height), color=MemoryMap.bgcolour)
 
         # this is the x-axis drawing offset for each region
         # we increment this each time we draw a region to clearly show overlaps
@@ -77,12 +78,31 @@ class MemoryMap:
                 outline="black",
                 width=1,
             )
-            name_text_font = PIL.ImageFont.load_default(10)
-            name_text_img = PIL.Image.new("RGB", (60, 15), color=(255, 255, 255))
-            name_text_canvas = PIL.ImageDraw.Draw(name_text_img)
-            name_text_canvas.text((0, 0), region.name, fill="black", font=name_text_font)
-            name_text_img = name_text_img.rotate(180)
-            region_img.paste(name_text_img, (10, 10))
+            
+            # draw name text
+            ntext_img_width = 60
+            ntext_img_height = 7
+            ntext_font = PIL.ImageFont.load_default(ntext_img_height)
+            ntext_img = PIL.Image.new(
+                "RGB",
+                (ntext_img_width, ntext_img_height),
+                color=MemoryMap.bgcolour)
+            
+            ntext_canvas = PIL.ImageDraw.Draw(ntext_img)
+            
+            _, _, ntext_width, ntext_height = ntext_canvas.textbbox(
+                (0, 0),
+                region.name, 
+                font=ntext_font)
+            
+            ntext_canvas.text(
+                ((ntext_img_width-ntext_width)/2,
+                 (ntext_img_height-ntext_height)/2-1),
+                region.name, fill="black",
+                font=ntext_font)
+            
+            ntext_img = ntext_img.rotate(180)
+            region_img.paste(ntext_img, (5, 5))
 
 
             ### Address Text
