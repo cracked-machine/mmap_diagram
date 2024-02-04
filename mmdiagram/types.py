@@ -73,7 +73,7 @@ class Region:
     def calc_nearest_region(self, region_list: List['Region']):
         """Calculate the remaining number of bytes until next region block"""
         region_distances = {}
-        logging.debug(f"Calculating distances for {self.name}:")
+        logging.debug(f"Calculating nearest distances to {self.name} region:")
         this_region_end = 0
 
         for probed_region in region_list:
@@ -90,7 +90,7 @@ class Region:
                 continue
 
             probed_region_distance: int = probed_region.origin - this_region_end
-            logging.debug(f"\t{hex(probed_region_distance)} to {probed_region.name}")
+            logging.debug(f"\t{hex(probed_region_distance)} bytes to {probed_region.name}")
 
             # collision detected
             if probed_region_distance < 0:
@@ -117,7 +117,7 @@ class Region:
                 elif not self.remain:
                     self.remain = hex(probed_region_distance)
 
-        logging.debug(region_distances)
+        logging.debug(f"Non-collision distances - {region_distances}")
         # after probing each region we must now pick the lowest distance ()
         if not self.collisons:
             if region_distances:
