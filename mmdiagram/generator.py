@@ -72,10 +72,10 @@ class Diagram:
             # add origin text for the region
             text_img = PIL.Image.new("RGB", (30, 10), color=(255, 255, 0))
             text_canvas = PIL.ImageDraw.Draw(text_img)
-            text_canvas.text((0, 0), str(region.origin), fill="black")
+            text_canvas.text((0, 0), str(region._origin), fill="black")
             text_img = text_img.rotate(180)
             img_main.paste(text_img, (0, region.origin))
-
+            
         # horizontal flip and write to file
         img_main = img_main.rotate(180)
 

@@ -16,7 +16,7 @@ class Region:
         self.name: str = name
         """region legend"""
         self._origin: str = origin
-        """memory address"""
+        """region address as hex"""
         self._size: str = size
         """size in bytes"""
         self.colour = self._pick_available_colour()
@@ -28,24 +28,22 @@ class Region:
         # and we don't want duplicate colours in our diagram
         if "lightslategray" in Region._remaining_colours:
             del Region._remaining_colours["lightslategray"]
-            
+
     @property
     def origin(self):
+        """get region address as integer"""
         return int(self._origin, 16)
-
-    @origin.setter
-    def origin(self, val):
-        self._origin = val
 
     @property
     def size(self):
+        """get region size as integer"""
         return int(self._size, 16)
 
     def __str__(self):
         return "|"\
             + "<span style='color:" + str(self.colour) + "'>" + str(self.name) + "</span>|"\
-            + str(self.origin) + "|"\
-            + str(self.size) + "|"\
+            + str(self._origin) + "|"\
+            + str(self._size) + "|"\
             + str(self.remain) + "|"
 
     def _pick_available_colour(self):
