@@ -12,6 +12,15 @@ import pathlib
 import mmdiagram.types
 import warnings
 
+import logging
+root = logging.getLogger()
+root.setLevel(logging.INFO)
+
+handler = logging.StreamHandler(sys.stdout)
+formatter = logging.Formatter('%(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+root.addHandler(handler)
+
 height = 1000
 """height of the diagram image"""
 width = 500
@@ -25,7 +34,7 @@ class Diagram:
         self._region_list = None
         """List of region objects"""
 
-        print("")
+        logging.debug("")
         # create a list of region objects populated with input data
         self._region_list = self._process_input()
         # sort in descending order so largest regions are drawn first in z-order (background)
@@ -48,9 +57,9 @@ class Diagram:
         # to the main image object (img_main)
         for region in region_list:
 
-            print(region)
+            logging.info(region)
             if not region.size:
-                print("Zero size region skipped")
+                logging.warning("Zero size region skipped")
                 continue
 
             region_offset = region_offset + 5

@@ -3,6 +3,8 @@ import random
 import PIL.ImageColor
 from typing import List, Dict
 import mmdiagram.generator
+import logging
+
 
 @typeguard.typechecked
 class Region:
@@ -26,7 +28,7 @@ class Region:
         self.collisons: Dict(str, str) = {}
         """Map of collision regions by name (str) and distance (hex)"""
 
-        # both 'lightslategray' and 'lightslategrey' are the same colour 
+        # both 'lightslategray' and 'lightslategrey' are the same colour
         # and we don't want duplicate colours in our diagram
         if "lightslategray" in Region._remaining_colours:
             del Region._remaining_colours["lightslategray"]
@@ -52,52 +54,44 @@ class Region:
     def _pick_available_colour(self):
         # remove the picked colour from the list so it can't be picked again
         try:
-            print(f"{self.name}:")
+            logging.debug(f"{self.name}:")
             # make sure we don't pick a colour that is too bright.
             # A0A0A0 was arbitrarily decided to be "too bright" :)
             chosen_colour_name, chosen_colour_code = random.choice(list(Region._remaining_colours.items()))
             while int(chosen_colour_code[1:], 16) > int("A0A0A0", 16):
-                print(f"\tRejected {chosen_colour_name}({chosen_colour_code})")
+                logging.debug(f"\tRejected {chosen_colour_name}({chosen_colour_code})")
                 del Region._remaining_colours[chosen_colour_name]
                 chosen_colour_name, chosen_colour_code = random.choice(list(Region._remaining_colours.items()))
 
             del Region._remaining_colours[chosen_colour_name]
-            print(f"\tSelected {chosen_colour_name}({chosen_colour_code})")
+            logging.debug(f"\tSelected {chosen_colour_name}({chosen_colour_code})")
         except (IndexError, KeyError):
             raise SystemExit("Ran out of colours!")
-        print(f"\t### {len(Region._remaining_colours)} colours left ###")
+        logging.debug(f"\t### {len(Region._remaining_colours)} colours left ###")
         return chosen_colour_name
 
     def calc_nearest_region(self, region_list: List['Region']):
-        """Calculate the remaining number of bytes until next region block
-
-        TODO iterate all other region blocks, determine which is nearest,
-        calc the distance from origin + size of current region block
-        
-
-        Returns:
-            None: TODO
-        """
+        """Calculate the remaining number of bytes until next region block"""
         region_distances = {}
-        print(f"Calculating distances for {self.name}:")
+        logging.debug(f"Calculating distances for {self.name}:")
         this_region_end = 0
 
         for probed_region in region_list:
             # calc the end address of this and inspected region
             this_region_end: int = self.origin + self.size
             probed_region_end: int = probed_region.origin + probed_region.size
-            
+
             # skip calculating distance from yourself.
             if self.name == probed_region.name:
                 continue
-            
+
             # skip if 'this' region origin is ahead of the probed region end address
             if self.origin > probed_region_end:
                 continue
 
             probed_region_distance: int = probed_region.origin - this_region_end
-            print(f"\t{hex(probed_region_distance)} to {probed_region.name}")
-            
+            logging.debug(f"\t{hex(probed_region_distance)} to {probed_region.name}")
+
             # collision detected
             if probed_region_distance < 0:
                 # was the region that collided into us at a lower or higher origin address
@@ -107,7 +101,7 @@ class Region:
                 else:
                     # higher so use their origin address as the collion point
                     self.collisons[probed_region.name] = hex(probed_region.origin)
-                
+
                 if self.origin < probed_region.origin:
                     # no distance left
                     self.remain = hex(probed_region_distance)
@@ -122,8 +116,8 @@ class Region:
                 # # if remain not already set to no distance left then set the positive remain distance
                 elif not self.remain:
                     self.remain = hex(probed_region_distance)
-        
-        print(region_distances)
+
+        logging.debug(region_distances)
         # after probing each region we must now pick the lowest distance ()
         if not self.collisons:
             if region_distances:
@@ -133,4 +127,3 @@ class Region:
                 self.remain = hex(mmdiagram.generator.height - this_region_end)
         elif self.collisons and not self.remain:
             self.remain = hex(mmdiagram.generator.height - this_region_end)
-        
