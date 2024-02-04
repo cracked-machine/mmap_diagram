@@ -25,6 +25,7 @@ class Diagram:
         self._region_list = None
         """List of region objects"""
 
+        print("")
         # create a list of region objects populated with input data
         self._region_list = self._process_input()
         # sort in descending order so largest regions are drawn first in z-order (background)

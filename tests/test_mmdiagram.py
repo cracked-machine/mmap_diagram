@@ -137,6 +137,19 @@ def test_no_more_colours_but_black():
                 mmdiagram.generator.Diagram()
 
 
+def test_only_one_lightslategr_y():
+    """ make sure 'lightslategray' is removed from the colour list """
+    with unittest.mock.patch('sys.argv',
+                             ['mmap_digram.diagram',
+                              'kernel', '0x10', '0x60',
+                              'rootfs', '0x50', '0x10'
+                              "-o", "/tmp/custom/onlytwocolours.md"],
+                             'mmdiagram.types.Region._remaining_colours',
+                             {"lightslategray": "#778899", "lightslategrey": "#778899"}):
+        with pytest.raises(SystemExit):
+            mmdiagram.generator.Diagram()
+
+
 def test_generate_doc_example():
     ''' should create custom report dir/files '''
     with unittest.mock.patch('sys.argv',
