@@ -1,6 +1,6 @@
 import unittest
 import pytest
-import mmdiagram.generator
+import mm.diagram
 import pathlib
 
 # Check the output report at /tmp/pytest/tests.test_args.md
@@ -11,7 +11,7 @@ def test_no_args():
                              ['mmap_digram.diagram',
                               '']):
         with pytest.raises(SystemExit):
-            mmdiagram.generator.Diagram()
+            mm.diagram.MemoryMap()
 
 
 def test_arg_tuple():
@@ -19,21 +19,21 @@ def test_arg_tuple():
                              ['mmap_digram.diagram',
                               '0x10']):
         with pytest.raises(SystemExit):
-            mmdiagram.generator.Diagram()
+            mm.diagram.MemoryMap()
 
     with unittest.mock.patch('sys.argv',
                              ['mmap_digram.diagram',
                               '0x10',
                               '0x10']):
         with pytest.raises(SystemExit):
-            mmdiagram.generator.Diagram()
+            mm.diagram.MemoryMap()
 
     with unittest.mock.patch('sys.argv',
                              ['mmap_digram.diagram',
                               'a',
                               '0x10',
                               '0x10']):
-        mmdiagram.generator.Diagram()
+        mm.diagram.MemoryMap()
 
 
 def test_invalid_out_arg():
@@ -46,7 +46,7 @@ def test_invalid_out_arg():
                               "-o",
                               f"/tmp/pytest/{__name__}.txt"]):
         with pytest.raises(NameError):
-            mmdiagram.generator.Diagram()
+            mm.diagram.MemoryMap()
 
 
 def test_valid_default_out_arg():
@@ -56,7 +56,7 @@ def test_valid_default_out_arg():
                               'a',
                               '0x10',
                               '0x10']):
-        mmdiagram.generator.Diagram()
+        mm.diagram.MemoryMap()
         assert pathlib.Path("out/report.md").exists()
         assert pathlib.Path("out/report.png").exists()
 
@@ -72,7 +72,7 @@ def test_invalid_duplicate_name_arg():
                               '0x10',
                               '0x10']):
         with pytest.warns(RuntimeWarning):
-            mmdiagram.generator.Diagram()
+            mm.diagram.MemoryMap()
 
 
 def test_valid_custom_out_arg():
@@ -84,6 +84,6 @@ def test_valid_custom_out_arg():
                               '0x10',
                               "-o",
                               f"/tmp/pytest/{__name__}.md"]):
-        mmdiagram.generator.Diagram()
+        mm.diagram.MemoryMap()
         assert pathlib.Path(f"/tmp/pytest/{__name__}.md").exists()
         assert pathlib.Path(f"/tmp/pytest/{__name__}.png").exists()

@@ -1,7 +1,7 @@
-import mmdiagram.generator
+import mm.diagram
 import unittest
 import pytest
-import mmdiagram.types
+import mm.types
 
 
 def test_no_more_colours_but_white():
@@ -21,10 +21,10 @@ def test_no_more_colours_but_white():
                               "-o",
                               f"/tmp/pytest/{__name__}.md"]):
         # deliberately restrict the dict len=1 so we can confirm the error is raised.
-        with unittest.mock.patch('mmdiagram.types.Region._remaining_colours',
+        with unittest.mock.patch('mm.types.Region._remaining_colours',
                                  {"white": "#000000"}):
             with pytest.raises(SystemExit):
-                mmdiagram.generator.Diagram()
+                mm.diagram.MemoryMap()
 
 
 def test_no_more_colours_but_black():
@@ -44,10 +44,10 @@ def test_no_more_colours_but_black():
                               "-o",
                               f"/tmp/pytest/{__name__}.md"]):
         # deliberately restrict the dict len=1 so we can confirm the error is raised.
-        with unittest.mock.patch('mmdiagram.types.Region._remaining_colours',
+        with unittest.mock.patch('mm.types.Region._remaining_colours',
                                  {"black": "#ffffff"}):
             with pytest.raises(SystemExit):
-                mmdiagram.generator.Diagram()
+                mm.diagram.MemoryMap()
 
 
 def test_only_one_lightslategr_y():
@@ -57,10 +57,10 @@ def test_only_one_lightslategr_y():
                               'kernel', '0x10', '0x60',
                               'rootfs', '0x50', '0x10'
                               "-o", f"/tmp/pytest/{__name__}.md"],
-                             'mmdiagram.types.Region._remaining_colours',
+                             'mm.types.Region._remaining_colours',
                              {"lightslategray": "#778899", "lightslategrey": "#778899"}):
         with pytest.raises(SystemExit):
-            mmdiagram.generator.Diagram()
+            mm.diagram.MemoryMap()
 
 
 

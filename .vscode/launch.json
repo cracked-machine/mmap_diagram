@@ -7,10 +7,10 @@
             "type": "debugpy",
             "request": "launch",
             "console": "integratedTerminal",
-            "module": "mmdiagram.generator",
+            "module": "mm.diagram",
             "args": [
                 "kernel", "0x10", "0x10",
-                "kernel", "0x40", "0xDD",
+                "rootfs", "0x40", "0xDD",
                 "dtb", "0xCC", "0xCC",
                 "-o", "doc/example/report.md"
             ],

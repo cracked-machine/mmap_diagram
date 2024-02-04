@@ -2,7 +2,6 @@ import typeguard
 import random
 import PIL.ImageColor
 from typing import List, Dict
-import mmdiagram.generator
 import logging
 
 
@@ -71,6 +70,7 @@ class Region:
         return chosen_colour_name
 
     def calc_nearest_region(self, region_list: List['Region']):
+        import mm.diagram
         """Calculate the remaining number of bytes until next region block"""
         region_distances = {}
         logging.debug(f"Calculating nearest distances to {self.name} region:")
@@ -124,6 +124,6 @@ class Region:
                 lowest = min(region_distances, key=region_distances.get)
                 self.remain = hex(region_distances[lowest])
             else:
-                self.remain = hex(mmdiagram.generator.height - this_region_end)
+                self.remain = hex(mm.diagram.MemoryMap.height - this_region_end)
         elif self.collisons and not self.remain:
-            self.remain = hex(mmdiagram.generator.height - this_region_end)
+            self.remain = hex(mm.diagram.MemoryMap.height - this_region_end)

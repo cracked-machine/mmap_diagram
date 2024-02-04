@@ -1,6 +1,5 @@
 import unittest
-import pathlib
-import mmdiagram.generator
+import mm.diagram
 
 
 def test_generate_doc_example():
@@ -24,8 +23,8 @@ def test_generate_doc_example():
                               '0x30',
                               "-o",
                               "doc/example/report.md"],
-                             mmdiagram.generator.height, 1000):
-        d = mmdiagram.generator.Diagram()
+                             mm.diagram.MemoryMap.height, 1000):
+        d = mm.diagram.MemoryMap()
         for region in d._region_list:
             if region.name == "kernel":
                 assert region._origin == "0x10"
