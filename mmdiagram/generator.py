@@ -86,8 +86,8 @@ class Diagram:
     def _create_markdown(self, region_list: List[mmdiagram.types.Region]):
         with open(self.args.out, "w") as f:
             f.write(f"""![memory map diagram]({pathlib.Path(self.args.out).stem}.png)\n""")
-            f.write("|name|origin|size|remaining|\n")
-            f.write("|:-|:-|:-|:-|\n")
+            f.write("|name|origin|size|remaining|collisions\n")
+            f.write("|:-|:-|:-|:-|:-|\n")
             for region in region_list:
                 f.write(f"{region}\n")
 
