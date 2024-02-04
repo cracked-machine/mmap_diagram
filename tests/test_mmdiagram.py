@@ -158,11 +158,11 @@ def test_generate_doc_example():
                               '0x10',
                               '0x60',
                               'rootfs',
-                              '0x50',
+                              '0x70',
                               '0x10',
                               'dtb',
-                              '0x10',
-                              '0x150',
+                              '0x90',
+                              '0x100',
                               "-o",
                               "doc/example/report.md"]):
         mmdiagram.generator.Diagram()

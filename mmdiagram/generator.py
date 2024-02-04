@@ -12,14 +12,14 @@ import pathlib
 import mmdiagram.types
 import warnings
 
+height = 1000
+"""height of the diagram image"""
+width = 500
+"""width of the diagram image"""
 
 @typeguard.typechecked
 class Diagram:
     def __init__(self):
-        self._height = 500
-        """height of the diagram image"""
-        self._width = 500
-        """width of the diagram image"""
         self._legend_width = 50
         """width of the area used for text annotations/legend"""
         self._region_list = None
@@ -38,7 +38,7 @@ class Diagram:
     def _create_diagram(self, region_list: List[mmdiagram.types.Region]):
 
         # init the main image
-        img_main = PIL.Image.new("RGB", (self._width, self._height), color=(255, 255, 255))
+        img_main = PIL.Image.new("RGB", (width, height), color=(255, 255, 255))
 
         # this is the x-axis drawing offset for each region
         # we increment this each time we draw a region to clearly show overlaps
@@ -56,12 +56,12 @@ class Diagram:
             region_offset = region_offset + 5
 
             # init the layer
-            region_img = PIL.Image.new("RGBA", (self._width - self._legend_width, region.size), color=(255, 255, 0, 5))
+            region_img = PIL.Image.new("RGBA", (width - self._legend_width, region.size), color=(255, 255, 0, 5))
             region_canvas = PIL.ImageDraw.Draw(region_img)
 
             # draw the region graphic
             region_canvas.rectangle(
-                (0, 0, self._width - 1, region.origin + region.size),
+                (0, 0, width - 1, region.origin + region.size),
                 fill=region.colour,
                 outline="black",
                 width=1,
@@ -119,6 +119,9 @@ class Diagram:
                 warnings.warn(f"Duplicate region names ({name}) are not permitted. Region will be skipped.", RuntimeWarning)
             else:
                 region_list.append(mmdiagram.types.Region(name, origin, size))
+
+        for r in region_list:
+            r.calc_nearest_region(region_list)
 
         return region_list
 

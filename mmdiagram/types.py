@@ -1,8 +1,8 @@
 import typeguard
 import random
 import PIL.ImageColor
-from typing import Dict
-
+from typing import List, Dict
+import mmdiagram.generator
 
 @typeguard.typechecked
 class Region:
@@ -21,7 +21,7 @@ class Region:
         """size in bytes"""
         self.colour = self._pick_available_colour()
         """random colour for region block"""
-        self.remain = self._calc_remaining()
+        self.remain: str = None
         """Number of bytes until next region block"""
 
         # both 'lightslategray' and 'lightslategrey' are the same colour 
@@ -65,13 +65,36 @@ class Region:
         print(f"\t### {len(Region._remaining_colours)} colours left ###")
         return chosen_colour_name
 
-    def _calc_remaining(self):
+    def calc_nearest_region(self, region_list: List['Region']):
         """Calculate the remaining number of bytes until next region block
 
         TODO iterate all other region blocks, determine which is nearest,
         calc the distance from origin + size of current region block
+        
 
         Returns:
             None: TODO
         """
+        region_distances = {}
+        print(f"Calculating distances for {self.name}:")
+        this_region_end = 0
+        for next_region in region_list:
+            # skip calculating distance from yourself.
+            if self.name == next_region.name:
+                continue
+            this_region_end: int = self.origin + self.size
+            next_region_end: int = next_region.origin + next_region.size
+            if self.origin > next_region_end:
+                continue
+            next_region_distance: int = next_region.origin - this_region_end
+            print(f"\t{next_region_distance} to {next_region.name}")
+            if next_region_distance >= 0:
+                region_distances[next_region.name] = next_region_distance
+        
+        print(region_distances)
+        if region_distances:
+            lowest = min(region_distances, key=region_distances.get)
+            self.remain = hex(region_distances[lowest])
+        else:
+            self.remain = hex(mmdiagram.generator.height - this_region_end)
         return "TODO"
