@@ -26,6 +26,7 @@ class Region:
         """Number of bytes until next region block"""
         self.collisons: Dict(str, str) = {}
         """Map of collision regions by name (str) and distance (hex)"""
+        self.draw_indent = 0
 
         # both 'lightslategray' and 'lightslategrey' are the same colour
         # and we don't want duplicate colours in our diagram

@@ -41,8 +41,17 @@ class MemoryMap:
         logging.debug("")
         # create a list of region objects populated with input data
         self._region_list = self._process_input()
+        
+        # temporarily sort by ascending origin attribute and assign the draw indent
+        self._region_list.sort(key=lambda x: x.origin, reverse=False)
+        region_indent = 0
+        for r in self._region_list:
+            r.draw_indent = region_indent
+            region_indent += 5
+
         # sort in descending order so largest regions are drawn first in z-order (background)
         self._region_list.sort(key=lambda x: x.size, reverse=True)
+
         # output image diagram
         self._create_diagram(self._region_list)
         # output markdown report (refs image)
@@ -53,10 +62,6 @@ class MemoryMap:
         # init the main image
         img_main = PIL.Image.new("RGB", (MemoryMap.width, MemoryMap.height), color=MemoryMap.bgcolour)
 
-        # this is the x-axis drawing offset for each region
-        # we increment this each time we draw a region to clearly show overlaps
-        region_offset = 0
-
         # add a new layer (region_img) for each region block
         # to the main image object (img_main)
         for region in region_list:
@@ -65,8 +70,6 @@ class MemoryMap:
             if not region.size:
                 logging.warning("Zero size region skipped")
                 continue
-
-            region_offset = region_offset + 5
 
             ### Region Blocks and text
             region_img = PIL.Image.new("RGBA", (MemoryMap.width - self._legend_width, region.size), color=(255, 255, 0, 5))
@@ -120,7 +123,7 @@ class MemoryMap:
             endaddr_text_img = endaddr_text_img.rotate(180)
 
             # paste all the layers onto the main image
-            img_main.paste(region_img, (self._legend_width + region_offset, region.origin), region_img)
+            img_main.paste(region_img, (self._legend_width + region.draw_indent, region.origin), region_img)
             img_main.paste(endaddr_text_img, (0, endaddr - 6))
             img_main.paste(origin_text_img, (0, region.origin - 4))
             
