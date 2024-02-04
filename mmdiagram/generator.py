@@ -64,37 +64,44 @@ class Diagram:
 
             region_offset = region_offset + 5
 
-            # init the layer
+            ### Region Blocks and text
             region_img = PIL.Image.new("RGBA", (width - self._legend_width, region.size), color=(255, 255, 0, 5))
             region_canvas = PIL.ImageDraw.Draw(region_img)
 
-            # draw the region graphic
             region_canvas.rectangle(
                 (0, 0, width - 1, region.origin + region.size),
                 fill=region.colour,
                 outline="black",
                 width=1,
             )
+            name_text_font = PIL.ImageFont.load_default(10)
+            name_text_img = PIL.Image.new("RGB", (60, 15), color=(255, 255, 255))
+            name_text_canvas = PIL.ImageDraw.Draw(name_text_img)
+            name_text_canvas.text((0, 0), region.name, fill="black", font=name_text_font)
+            name_text_img = name_text_img.rotate(180)
+            region_img.paste(name_text_img, (10, 10))
 
-            img_main.paste(region_img, (self._legend_width + region_offset, region.origin), region_img)
 
-            text_font = PIL.ImageFont.load_default(8)
+            ### Address Text
+            addr_text_font = PIL.ImageFont.load_default(8)
             # add text for the region origin
             origin_text_img = PIL.Image.new("RGB", (30, 10), color=(255, 255, 255))
             origin_text_canvas = PIL.ImageDraw.Draw(origin_text_img)
-            origin_text_canvas.text((0, 0), region._origin, fill="black", font=text_font)
+            origin_text_canvas.text((0, 0), region._origin, fill="black", font=addr_text_font)
             origin_text_img = origin_text_img.rotate(180)
             # add text for the region end
             endaddr = region.origin + region.size
             endaddr_text_img = PIL.Image.new("RGB", (30, 10), color=(255, 255, 255))
             endaddr_text_canvas = PIL.ImageDraw.Draw(endaddr_text_img)
-            endaddr_text_canvas.text((0, 0), hex(endaddr), fill="black", font=text_font)
+            endaddr_text_canvas.text((0, 0), hex(endaddr), fill="black", font=addr_text_font)
             endaddr_text_img = endaddr_text_img.rotate(180)
 
+            # paste all the layers onto the main image
+            img_main.paste(region_img, (self._legend_width + region_offset, region.origin), region_img)
             img_main.paste(endaddr_text_img, (0, endaddr - 6))
             img_main.paste(origin_text_img, (0, region.origin - 4))
             
-        # horizontal flip and write to file
+        # 0,0 should start lower right, not upper left
         img_main = img_main.rotate(180)
 
         # output image file
