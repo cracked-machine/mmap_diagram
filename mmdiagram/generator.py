@@ -69,12 +69,21 @@ class Diagram:
 
             img_main.paste(region_img, (self._legend_width + region_offset, region.origin), region_img)
 
-            # add origin text for the region
-            text_img = PIL.Image.new("RGB", (30, 10), color=(255, 255, 0))
-            text_canvas = PIL.ImageDraw.Draw(text_img)
-            text_canvas.text((0, 0), str(region._origin), fill="black")
-            text_img = text_img.rotate(180)
-            img_main.paste(text_img, (0, region.origin))
+            text_font = PIL.ImageFont.load_default(8)
+            # add text for the region origin
+            origin_text_img = PIL.Image.new("RGB", (30, 10), color=(255, 255, 255))
+            origin_text_canvas = PIL.ImageDraw.Draw(origin_text_img)
+            origin_text_canvas.text((0, 0), region._origin, fill="black", font=text_font)
+            origin_text_img = origin_text_img.rotate(180)
+            # add text for the region end
+            endaddr = region.origin + region.size
+            endaddr_text_img = PIL.Image.new("RGB", (30, 10), color=(255, 255, 255))
+            endaddr_text_canvas = PIL.ImageDraw.Draw(endaddr_text_img)
+            endaddr_text_canvas.text((0, 0), hex(endaddr), fill="black", font=text_font)
+            endaddr_text_img = endaddr_text_img.rotate(180)
+
+            img_main.paste(endaddr_text_img, (0, endaddr - 6))
+            img_main.paste(origin_text_img, (0, region.origin - 4))
             
         # horizontal flip and write to file
         img_main = img_main.rotate(180)
