@@ -19,7 +19,7 @@ def test_no_more_colours_but_white():
                               '0x10',
                               '0x150',
                               "-o",
-                              "/tmp/custom/dupecolours.md"]):
+                              f"/tmp/pytest/{__name__}.md"]):
         # deliberately restrict the dict len=1 so we can confirm the error is raised.
         with unittest.mock.patch('mmdiagram.types.Region._remaining_colours',
                                  {"white": "#000000"}):
@@ -42,7 +42,7 @@ def test_no_more_colours_but_black():
                               '0x10',
                               '0x150',
                               "-o",
-                              "/tmp/custom/dupecolours.md"]):
+                              f"/tmp/pytest/{__name__}.md"]):
         # deliberately restrict the dict len=1 so we can confirm the error is raised.
         with unittest.mock.patch('mmdiagram.types.Region._remaining_colours',
                                  {"black": "#ffffff"}):
@@ -56,7 +56,7 @@ def test_only_one_lightslategr_y():
                              ['mmap_digram.diagram',
                               'kernel', '0x10', '0x60',
                               'rootfs', '0x50', '0x10'
-                              "-o", "/tmp/custom/onlytwocolours.md"],
+                              "-o", f"/tmp/pytest/{__name__}.md"],
                              'mmdiagram.types.Region._remaining_colours',
                              {"lightslategray": "#778899", "lightslategrey": "#778899"}):
         with pytest.raises(SystemExit):
