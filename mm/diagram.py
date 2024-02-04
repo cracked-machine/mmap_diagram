@@ -28,12 +28,12 @@ class MemoryMap:
 
     height = 1000
     """height of the diagram image"""
-    width = 500
+    width = 400
     """width of the diagram image"""
     bgcolour = "oldlace"
 
     def __init__(self):
-        self._legend_width = 50
+        self._legend_width = 100
         """width of the area used for text annotations/legend"""
         self._region_list = None
         """List of region objects"""
