@@ -75,7 +75,7 @@ class MemoryMap:
             region_canvas = PIL.ImageDraw.Draw(region_img)
 
             region_canvas.rectangle(
-                (0, 0, MemoryMap.width - 1, region.origin + region.size),
+                (0, 0, MemoryMap.width - 1, region.size - 1),
                 fill=region.colour,
                 outline="black",
                 width=1,
