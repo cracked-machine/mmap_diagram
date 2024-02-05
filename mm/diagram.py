@@ -85,17 +85,12 @@ class MemoryMap:
             ntext_img_width = 60
             ntext_img_height = 7
             ntext_font = PIL.ImageFont.load_default(ntext_img_height)
-            ntext_img = PIL.Image.new(
-                "RGB",
-                (ntext_img_width, ntext_img_height),
-                color=MemoryMap.bgcolour)
+            ntext_img = PIL.Image.new("RGB", (ntext_img_width, ntext_img_height), color=MemoryMap.bgcolour)
 
             ntext_canvas = PIL.ImageDraw.Draw(ntext_img)
 
             _, _, ntext_width, ntext_height = ntext_canvas.textbbox(
-                (0, 0),
-                region.name,
-                font=ntext_font)
+                (0, 0), region.name, font=ntext_font)
 
             ntext_canvas.text(
                 ((ntext_img_width-ntext_width)/2,
