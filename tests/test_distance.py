@@ -19,7 +19,9 @@ def test_distance_three_regions_same_size_no_collisions():
                               '0x90',
                               '0x30',
                               "-o",
-                              f"/tmp/pytest/{__name__}.md"],
+                              f"/tmp/pytest/{__name__}.md",
+                              "-l",
+                              "1000"],
                              mm.diagram.MemoryMap.height, 1000):
 
         d = mm.diagram.MemoryMap()
@@ -52,7 +54,9 @@ def test_distance_three_regions_touching_no_collisions():
                               '0x70',
                               '0x30',
                               "-o",
-                              f"/tmp/pytest/{__name__}.md"],
+                              f"/tmp/pytest/{__name__}.md",
+                              "-l",
+                              "1000"],
                              mm.diagram.MemoryMap.height, 1000):
 
         d = mm.diagram.MemoryMap()
@@ -84,7 +88,9 @@ def test_distance_three_regions_diff_size_no_collisions():
                               '0x90',
                               '0x30',
                               "-o",
-                              f"/tmp/pytest/{__name__}.md"],
+                              f"/tmp/pytest/{__name__}.md",
+                              "-l",
+                              "1000"],
                              mm.diagram.MemoryMap.height, 1000):
         d = mm.diagram.MemoryMap()
         for region in d._region_list:
@@ -116,7 +122,9 @@ def test_distance_three_regions_bottom_collision():
                               '0x90',
                               '0x30',
                               "-o",
-                              f"/tmp/pytest/{__name__}.md"],
+                              f"/tmp/pytest/{__name__}.md",
+                              "-l",
+                              "1000"],
                              mm.diagram.MemoryMap.height, 1000):
         d = mm.diagram.MemoryMap()
         for region in d._region_list:
@@ -148,7 +156,9 @@ def test_distance_three_regions_bottom_middle_collision():
                               '0x90',
                               '0x30',
                               "-o",
-                              f"/tmp/pytest/{__name__}.md"],
+                              f"/tmp/pytest/{__name__}.md",
+                              "-l",
+                              "1000"],
                              mm.diagram.MemoryMap.height, 1000):
         d = mm.diagram.MemoryMap()
         for region in d._region_list:
@@ -186,7 +196,9 @@ def test_distance_five_regions_bottom_top_collision():
                               '0x110',
                               '0x30',
                               "-o",
-                              f"/tmp/pytest/{__name__}.md"],
+                              f"/tmp/pytest/{__name__}.md",
+                              "-l",
+                              "1000"],
                              mm.diagram.MemoryMap.height, 1000):
         d = mm.diagram.MemoryMap()
         for region in d._region_list:

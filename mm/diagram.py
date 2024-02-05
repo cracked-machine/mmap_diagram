@@ -25,7 +25,7 @@ root.addHandler(handler)
 @typeguard.typechecked
 class MemoryMap:
 
-    height = 1000
+    height = 400
     """height of the diagram image"""
     width = 400
     """width of the diagram image"""
@@ -37,7 +37,6 @@ class MemoryMap:
         self._region_list = None
         """List of region objects"""
 
-        logging.debug("")
         # create a list of region objects populated with input data
         self._region_list = self._process_input()
 
@@ -145,9 +144,13 @@ class MemoryMap:
         self.parser = argparse.ArgumentParser()
         self.parser.add_argument("regions", help='command line input for regions should be tuples of name, origin and size.',
                                  nargs="*")
-        self.parser.add_argument("-o", "--out", help='path to the markdown output report file. Defaults to "out/report.md"',
+        self.parser.add_argument("-o", "--out", help='path to the markdown output report file. Default: "out/report.md"',
                                  default="out/report.md")
+        self.parser.add_argument("-l", "--limit", help="The maximum memory address for the diagram. Default: 400", default=400, type=int)
         self.args = self.parser.parse_args()
+
+        if self.args.limit:
+            MemoryMap.height = self.args.limit
 
         if len(sys.argv) == 1:
             self.parser.error("must pass in data points")
