@@ -22,7 +22,6 @@ handler.setFormatter(formatter)
 root.addHandler(handler)
 
 
-
 @typeguard.typechecked
 class MemoryMap:
 
@@ -41,7 +40,7 @@ class MemoryMap:
         logging.debug("")
         # create a list of region objects populated with input data
         self._region_list = self._process_input()
-        
+
         # temporarily sort by ascending origin attribute and assign the draw indent
         self._region_list.sort(key=lambda x: x.origin, reverse=False)
         region_indent = 0
@@ -71,7 +70,7 @@ class MemoryMap:
                 logging.warning("Zero size region skipped")
                 continue
 
-            ### Region Blocks and text
+            # Region Blocks and text
             region_img = PIL.Image.new("RGBA", (MemoryMap.width - self._legend_width, region.size), color=(255, 255, 0, 5))
             region_canvas = PIL.ImageDraw.Draw(region_img)
 
@@ -81,7 +80,7 @@ class MemoryMap:
                 outline="black",
                 width=1,
             )
-            
+
             # draw name text
             ntext_img_width = 60
             ntext_img_height = 7
@@ -90,25 +89,24 @@ class MemoryMap:
                 "RGB",
                 (ntext_img_width, ntext_img_height),
                 color=MemoryMap.bgcolour)
-            
+
             ntext_canvas = PIL.ImageDraw.Draw(ntext_img)
-            
+
             _, _, ntext_width, ntext_height = ntext_canvas.textbbox(
                 (0, 0),
-                region.name, 
+                region.name,
                 font=ntext_font)
-            
+
             ntext_canvas.text(
                 ((ntext_img_width-ntext_width)/2,
                  (ntext_img_height-ntext_height)/2-1),
                 region.name, fill="black",
                 font=ntext_font)
-            
+
             ntext_img = ntext_img.rotate(180)
             region_img.paste(ntext_img, (5, 5))
 
-
-            ### Address Text
+            # Address Text
             addr_text_font = PIL.ImageFont.load_default(8)
             # add text for the region origin
             origin_text_img = PIL.Image.new("RGB", (30, 10), color=(255, 255, 255))
@@ -122,12 +120,18 @@ class MemoryMap:
             endaddr_text_canvas.text((0, 0), hex(endaddr), fill="black", font=addr_text_font)
             endaddr_text_img = endaddr_text_img.rotate(180)
 
+            line_width = 1
+            line_canvas = PIL.ImageDraw.Draw(img_main)
+            for x in range(40, 90, 4):
+                line_canvas.line((x, endaddr - line_width, x+2, endaddr - line_width), fill="black", width=line_width)
+                line_canvas.line((x, region.origin - line_width, x+2, region.origin - line_width), fill="black", width=1)
+
             # paste all the layers onto the main image
             img_main.paste(region_img, (self._legend_width + region.draw_indent, region.origin), region_img)
             img_main.paste(endaddr_text_img, (0, endaddr - 6))
             img_main.paste(origin_text_img, (0, region.origin - 4))
-            
-        # 0,0 should start lower right, not upper left
+
+        # rotate so the origin is at the bottom
         img_main = img_main.rotate(180)
 
         # output image file
