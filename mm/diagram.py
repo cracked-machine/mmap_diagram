@@ -92,11 +92,10 @@ class MemoryMap:
             _, _, ntext_width, ntext_height = ntext_canvas.textbbox(
                 (0, 0), region.name, font=ntext_font)
 
-            ntext_canvas.text(
-                ((ntext_img_width-ntext_width)/2,
-                 (ntext_img_height-ntext_height)/2-1),
-                region.name, fill="black",
-                font=ntext_font)
+            ntext_canvas.text(((ntext_img_width-ntext_width)/2,
+                              (ntext_img_height-ntext_height)/2-1),
+                              region.name, fill="black",
+                              font=ntext_font)
 
             ntext_img = ntext_img.rotate(180)
             region_img.paste(ntext_img, (5, 5))
