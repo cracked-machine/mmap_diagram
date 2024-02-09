@@ -6,8 +6,7 @@ import logging
 
 
 @typeguard.typechecked
-class MemoryRegion:
-
+class Region():
     _remaining_colours: Dict = PIL.ImageColor.colormap.copy()
     """Copy of the PIL colour string map, we remove colours until all are gone.
     Therefore avoiding random picking of duplicate colours"""
@@ -128,3 +127,13 @@ class MemoryRegion:
                 self.remain = hex(mm.diagram.MemoryMap.height - this_region_end)
         elif self.collisons and not self.remain:
             self.remain = hex(mm.diagram.MemoryMap.height - this_region_end)
+
+
+@typeguard.typechecked
+class MemoryRegion(Region):
+    pass
+
+
+@typeguard.typechecked
+class SkippableRegion(Region):
+    pass
