@@ -14,7 +14,7 @@ An example can be found in [doc/example/report.md](doc/example/report.md)
 ### Usage:
 
 ```
-usage: mm.diagram [-h] [-o OUT] [-l LIMIT] [regions ...]
+usage: diagram.py [-h] [-o OUT] [-l LIMIT] [-s SCALE] [regions ...]
 
 positional arguments:
   regions               command line input for regions should be tuples of name, origin and size.
@@ -24,6 +24,8 @@ options:
   -o OUT, --out OUT     path to the markdown output report file. Default: "out/report.md"
   -l LIMIT, --limit LIMIT
                         The maximum memory address for the diagram. Default: 400
+  -s SCALE, --scale SCALE
+                        The scale factor for the diagram. Default: 1
 ```
 
 - Generate five regions called `kernel`, `rootfs`, `dtb`, `uboot` and `uboot-scr` where four of the five regions intersect/collide. The default report output path is used. Diagram output is shown at the top of the page.

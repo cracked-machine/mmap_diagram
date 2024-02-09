@@ -1,8 +1,8 @@
 ![memory map diagram](report.png)
 |name|origin|size|remaining|collisions
 |:-|:-|:-|:-|:-|
-|<span style='color:gray'>kernel</span>|0x10|0x50|-0x10|{'rootfs': '0x50'}|
-|<span style='color:dimgray'>uboot</span>|0xD0|0x50|-0x10|{'uboot-scr': '0x110'}|
-|<span style='color:slategrey'>rootfs</span>|0x50|0x30|0x10|{'kernel': '0x50'}|
-|<span style='color:lawngreen'>dtb</span>|0x90|0x30|0x10|{}|
-|<span style='color:sienna'>uboot-scr</span>|0x110|0x30|0x50|{'uboot': '0x110'}|
+|<span style='color:steelblue'>kernel</span>|0x10|0x50|-0x10|{'rootfs': '0x50'}|
+|<span style='color:darkcyan'>uboot</span>|0xD0|0x50|-0x10|{'uboot-scr': '0x110'}|
+|<span style='color:aqua'>rootfs</span>|0x50|0x30|0x10|{'kernel': '0x50'}|
+|<span style='color:cornflowerblue'>dtb</span>|0x90|0x30|0x10|{}|
+|<span style='color:blue'>uboot-scr</span>|0x110|0x30|0x50|{'uboot': '0x110'}|

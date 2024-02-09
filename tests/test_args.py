@@ -3,6 +3,7 @@ import pytest
 import mm.diagram
 import pathlib
 
+
 # Check the output report at /tmp/pytest/tests.test_args.md
 
 
@@ -51,14 +52,20 @@ def test_invalid_out_arg():
 
 def test_valid_default_out_arg():
     ''' should create default report dir/files  '''
+
+    report = pathlib.Path("out/report.md")
+    image = pathlib.Path("out/report.png")
+    report.unlink(missing_ok=True)
+    image.unlink(missing_ok=True)
+    
     with unittest.mock.patch('sys.argv',
                              ['mmap_digram.diagram',
                               'a',
                               '0x10',
                               '0x10']):
         mm.diagram.MemoryMap()
-        assert pathlib.Path("out/report.md").exists()
-        assert pathlib.Path("out/report.png").exists()
+        assert report.exists()
+        assert image.exists()
 
 
 def test_invalid_duplicate_name_arg():
@@ -77,13 +84,19 @@ def test_invalid_duplicate_name_arg():
 
 def test_valid_custom_out_arg():
     ''' should create custom report dir/files '''
+    
+    report = pathlib.Path(f"/tmp/pytest/{__name__}.md")
+    image = pathlib.Path(f"/tmp/pytest/{__name__}.png")
+    report.unlink(missing_ok=True)
+    image.unlink(missing_ok=True)
+
     with unittest.mock.patch('sys.argv',
                              ['mmap_digram.diagram',
                               'a',
                               '0x10',
                               '0x10',
                               "-o",
-                              f"/tmp/pytest/{__name__}.md"]):
+                              str(report)]):
         mm.diagram.MemoryMap()
-        assert pathlib.Path(f"/tmp/pytest/{__name__}.md").exists()
-        assert pathlib.Path(f"/tmp/pytest/{__name__}.png").exists()
+        assert report.exists()
+        assert image.exists()

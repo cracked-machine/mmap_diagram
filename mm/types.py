@@ -77,8 +77,8 @@ class Region():
         logging.debug(f"\t### {len(MemoryRegion._remaining_colours)} colours left ###")
         return chosen_colour_name
 
-    def calc_nearest_region(self, region_list: List['MemoryRegion']):
-        import mm.diagram
+    def calc_nearest_region(self, region_list: List['MemoryRegion'], diagram_height: int):
+        
         """Calculate the remaining number of bytes until next region block"""
         region_distances = {}
         logging.debug(f"Calculating nearest distances to {self.name} region:")
@@ -132,15 +132,15 @@ class Region():
                 lowest = min(region_distances, key=region_distances.get)
                 self.remain = hex(region_distances[lowest])
             else:
-                self.remain = hex(mm.diagram.MemoryMap.height - this_region_end)
+                self.remain = hex(diagram_height - this_region_end)
         elif self.collisons and not self.remain:
-            self.remain = hex(mm.diagram.MemoryMap.height - this_region_end)
+            self.remain = hex(diagram_height - this_region_end)
 
 
 @typeguard.typechecked
 class MemoryRegion(Region):
 
-    def create_img(self, img_width: int):
+    def create_img(self, img_width: int, font_size: int):
 
         logging.info(self)
         if not self.size:
@@ -160,7 +160,7 @@ class MemoryRegion(Region):
         )
 
         # draw name text
-        region_img.paste(TextLabel(text=self.name, font_size=7).img, (5, 5))
+        region_img.paste(TextLabel(text=self.name, font_size=font_size).img, (5, 5))
 
         self.img = region_img
 

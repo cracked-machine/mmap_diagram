@@ -25,20 +25,28 @@ root.addHandler(handler)
 @typeguard.typechecked
 class MemoryMap:
 
-    height: int = 400
-    """height of the diagram image"""
-    width: int = 400
-    """width of the diagram image"""
-    bgcolour = "oldlace"
-
     def __init__(self):
-        self._legend_width = 100
-        """width of the area used for text annotations/legend"""
+        self.bgcolour = "oldlace"
+
+        self.height: int = 400
+        """height of the diagram image"""
+        self.width: int = 400
+        """width of the diagram image"""
+
+        self.default_region_text_size: int = 12
+        self.fixed_legend_text_size = 12
+
         self._region_list = None
         """List of region objects"""
 
         # create a list of region objects populated with input data
         self._region_list = self._process_input()
+
+        self.scale_factor: int = self.args.scale
+        self._rescale()
+
+        self._legend_width = self.width // 2
+        """width of the area used for text annotations/legend"""
 
         # temporarily sort by ascending origin attribute and assign the draw indent
         self._region_list.sort(key=lambda x: x.origin, reverse=False)
@@ -50,40 +58,50 @@ class MemoryMap:
         # sort in descending order so largest regions are drawn first in z-order (background)
         self._region_list.sort(key=lambda x: x.size, reverse=True)
 
+        self._generate()
+
+    def _generate(self):
         # output image diagram
         self._create_diagram(self._region_list)
         # output markdown report (refs image)
         self._create_markdown(self._region_list)
 
+    def _rescale(self):
+        self.height = self.height * self.scale_factor
+        self.width = self.width * self.scale_factor
+        # self.default_region_text_size = self.default_region_text_size * self.scale_factor
+
     def _create_diagram(self, region_list: List[mm.types.MemoryRegion]):
 
         # init the main image
-        img_main = PIL.Image.new("RGB", (MemoryMap.width, MemoryMap.height), color=MemoryMap.bgcolour)
+        img_main = PIL.Image.new("RGB", (self.width, self.height), color=self.bgcolour)
 
-        # add a new layer (region_img) for each region block
-        # to the main image object (img_main)
+        # paste each new graphic element image to main image
         for region in region_list:
 
-            region.create_img(img_width=MemoryMap.width - self._legend_width)
+            # Regions
+            region.create_img(img_width=(self.width - self._legend_width), font_size=self.default_region_text_size)
             if not region.img:
                 continue
             img_main.paste(region.img, (self._legend_width + region.draw_indent, region.origin), region.img)
 
             # Origin Address Text
-            origin_text_label = mm.types.TextLabel(region._origin, 8)
+            origin_text_label = mm.types.TextLabel(region._origin, self.fixed_legend_text_size)
             img_main.paste(origin_text_label.img, (0, region.origin - origin_text_label.height + 1))
 
             # Region End Address Text
             end_addr_val = region.origin + region.size
-            end_addr_text_label = mm.types.TextLabel(hex(end_addr_val).upper(), 8)
+            end_addr_text_label = mm.types.TextLabel(hex(end_addr_val), self.fixed_legend_text_size)
             img_main.paste(end_addr_text_label.img, (0, end_addr_val - end_addr_text_label.height + 1))
 
+            # Dash Lines from text to region
             line_width = 1
             line_canvas = PIL.ImageDraw.Draw(img_main)
             dash_gap = 4
             dash_len = dash_gap / 2
-            for x in range(40, 90, dash_gap):
+            for x in range(end_addr_text_label.width * 2, self._legend_width - 10, dash_gap):
                 line_canvas.line((x, end_addr_val - line_width, x + dash_len, end_addr_val - line_width), fill="black", width=line_width)
+            for x in range(origin_text_label.width * 2, self._legend_width - 10, dash_gap):
                 line_canvas.line((x, region.origin - line_width, x + dash_len, region.origin - line_width), fill="black", width=1)
 
         # rotate the entire diagram so the origin is at the bottom
@@ -109,10 +127,12 @@ class MemoryMap:
         self.parser.add_argument("-o", "--out", help='path to the markdown output report file. Default: "out/report.md"',
                                  default="out/report.md")
         self.parser.add_argument("-l", "--limit", help="The maximum memory address for the diagram. Default: 400", default=400, type=int)
+        self.parser.add_argument("-s", "--scale", help="The scale factor for the diagram. Default: 1", default=1, type=int)
+
         self.args = self.parser.parse_args()
 
         if self.args.limit:
-            MemoryMap.height = self.args.limit
+            self.height = self.args.limit
 
         if len(sys.argv) == 1:
             self.parser.error("must pass in data points")
@@ -135,7 +155,7 @@ class MemoryMap:
                 region_list.append(mm.types.MemoryRegion(name, origin, size))
 
         for r in region_list:
-            r.calc_nearest_region(region_list)
+            r.calc_nearest_region(region_list, self.height)
 
         return region_list
 
@@ -149,4 +169,5 @@ class MemoryMap:
 
 
 if __name__ == "__main__":
-    MemoryMap()
+    d = MemoryMap()
+

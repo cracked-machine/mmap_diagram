@@ -12,7 +12,8 @@
                 "kernel", "0x10", "0x10",
                 "rootfs", "0x40", "0xDD",
                 "dtb", "0xCC", "0xCC",
-                "-o", "doc/example/report.md"
+                "-o", "doc/example/report.md",
+                "-s", "3"
             ],
             "justMyCode": false
         }

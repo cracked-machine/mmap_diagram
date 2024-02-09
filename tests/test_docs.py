@@ -21,8 +21,8 @@ def test_generate_doc_example():
                               'uboot-scr',
                               '0x110',
                               '0x30',
-                              "-o",
-                              "doc/example/report.md"],
+                              "-o", "doc/example/report.md",
+                              "-s", "2"],
                              ):
         d = mm.diagram.MemoryMap()
         for region in d._region_list:
