@@ -1,5 +1,7 @@
 import typeguard
 import random
+import PIL.Image
+import PIL.ImageDraw
 import PIL.ImageColor
 from typing import List, Dict
 import logging
@@ -21,11 +23,19 @@ class Region():
         """size in bytes"""
         self.colour = self._pick_available_colour()
         """random colour for region block"""
+        self.bordercolour = "black"
+        """The border colour to use for the region"""
         self.remain: str = None
         """Number of bytes until next region block"""
         self.collisons: Dict(str, str) = {}
         """Map of collision regions by name (str) and distance (hex)"""
         self.draw_indent = 0
+        """Index counter for incrementally shrinking the drawing indent"""
+        self.txtlbl_bgcolour = "oldlace"
+        """The background colour to use for the region text label"""
+        self.txtlbl_fgcolour = "black"
+        """The foreground colour to use for the region text label"""
+        self.img: PIL.Image
 
         # both 'lightslategray' and 'lightslategrey' are the same colour
         # and we don't want duplicate colours in our diagram
@@ -131,9 +141,51 @@ class Region():
 
 @typeguard.typechecked
 class MemoryRegion(Region):
-    pass
+    
+    def create_img(self, img_width: int):
+
+        logging.info(self)
+        if not self.size:
+            logging.warning("Zero size region skipped")
+            return None
+
+        # MemoryRegion Blocks and text
+        region_img = PIL.Image.new("RGBA", (img_width, self.size), color="white")
+        self.region_canvas = PIL.ImageDraw.Draw(region_img)
+
+        # height is -1 to avoid clipping the top border
+        self.region_canvas.rectangle(
+            (0, 0, img_width, self.size - 1),
+            fill=self.colour,
+            outline=self.bordercolour,
+            width=1,
+        )
+
+        # draw name text
+        ntext_img_width = 60
+        ntext_img_height = 7
+        ntext_font = PIL.ImageFont.load_default(ntext_img_height)
+        ntext_img = PIL.Image.new("RGB", (ntext_img_width, ntext_img_height), color=self.txtlbl_bgcolour)
+
+        ntext_canvas = PIL.ImageDraw.Draw(ntext_img)
+
+        _, _, ntext_width, ntext_height = ntext_canvas.textbbox(
+            (0, 0), self.name, font=ntext_font)
+
+        ntext_canvas.text(((ntext_img_width-ntext_width)/2,
+                          (ntext_img_height-ntext_height)/2-1),
+                          self.name, fill=self.txtlbl_fgcolour,
+                          font=ntext_font)
+
+        ntext_img = ntext_img.rotate(180)
+        region_img.paste(ntext_img, (5, 5))
+
+        self.img = region_img
 
 
 @typeguard.typechecked
 class SkippableRegion(Region):
     pass
+
+
+

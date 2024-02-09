@@ -25,9 +25,9 @@ root.addHandler(handler)
 @typeguard.typechecked
 class MemoryMap:
 
-    height = 400
+    height: int = 400
     """height of the diagram image"""
-    width = 400
+    width: int = 400
     """width of the diagram image"""
     bgcolour = "oldlace"
 
@@ -64,40 +64,9 @@ class MemoryMap:
         # to the main image object (img_main)
         for region in region_list:
 
-            logging.info(region)
-            if not region.size:
-                logging.warning("Zero size region skipped")
+            region.create_img(img_width=MemoryMap.width - self._legend_width)
+            if not region.img:
                 continue
-
-            # MemoryRegion Blocks and text
-            region_img = PIL.Image.new("RGBA", (MemoryMap.width - self._legend_width, region.size), color=(255, 255, 0, 5))
-            region_canvas = PIL.ImageDraw.Draw(region_img)
-
-            region_canvas.rectangle(
-                (0, 0, MemoryMap.width - 1, region.size - 1),
-                fill=region.colour,
-                outline="black",
-                width=1,
-            )
-
-            # draw name text
-            ntext_img_width = 60
-            ntext_img_height = 7
-            ntext_font = PIL.ImageFont.load_default(ntext_img_height)
-            ntext_img = PIL.Image.new("RGB", (ntext_img_width, ntext_img_height), color=MemoryMap.bgcolour)
-
-            ntext_canvas = PIL.ImageDraw.Draw(ntext_img)
-
-            _, _, ntext_width, ntext_height = ntext_canvas.textbbox(
-                (0, 0), region.name, font=ntext_font)
-
-            ntext_canvas.text(((ntext_img_width-ntext_width)/2,
-                              (ntext_img_height-ntext_height)/2-1),
-                              region.name, fill="black",
-                              font=ntext_font)
-
-            ntext_img = ntext_img.rotate(180)
-            region_img.paste(ntext_img, (5, 5))
 
             # Address Text
             addr_text_font = PIL.ImageFont.load_default(8)
@@ -118,9 +87,9 @@ class MemoryMap:
             for x in range(40, 90, 4):
                 line_canvas.line((x, endaddr - line_width, x+2, endaddr - line_width), fill="black", width=line_width)
                 line_canvas.line((x, region.origin - line_width, x+2, region.origin - line_width), fill="black", width=1)
-
+            
             # paste all the layers onto the main image
-            img_main.paste(region_img, (self._legend_width + region.draw_indent, region.origin), region_img)
+            img_main.paste(region.img, (self._legend_width + region.draw_indent, region.origin), region.img)
             img_main.paste(endaddr_text_img, (0, endaddr - 6))
             img_main.paste(origin_text_img, (0, region.origin - 4))
 
