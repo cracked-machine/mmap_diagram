@@ -6,7 +6,7 @@ import logging
 
 
 @typeguard.typechecked
-class Region:
+class MemoryRegion:
 
     _remaining_colours: Dict = PIL.ImageColor.colormap.copy()
     """Copy of the PIL colour string map, we remove colours until all are gone.
@@ -30,8 +30,8 @@ class Region:
 
         # both 'lightslategray' and 'lightslategrey' are the same colour
         # and we don't want duplicate colours in our diagram
-        if "lightslategray" in Region._remaining_colours:
-            del Region._remaining_colours["lightslategray"]
+        if "lightslategray" in MemoryRegion._remaining_colours:
+            del MemoryRegion._remaining_colours["lightslategray"]
 
     @property
     def origin(self):
@@ -57,20 +57,20 @@ class Region:
             logging.debug(f"{self.name}:")
             # make sure we don't pick a colour that is too bright.
             # A0A0A0 was arbitrarily decided to be "too bright" :)
-            chosen_colour_name, chosen_colour_code = random.choice(list(Region._remaining_colours.items()))
+            chosen_colour_name, chosen_colour_code = random.choice(list(MemoryRegion._remaining_colours.items()))
             while int(chosen_colour_code[1:], 16) > int("A0A0A0", 16):
                 logging.debug(f"\tRejected {chosen_colour_name}({chosen_colour_code})")
-                del Region._remaining_colours[chosen_colour_name]
-                chosen_colour_name, chosen_colour_code = random.choice(list(Region._remaining_colours.items()))
+                del MemoryRegion._remaining_colours[chosen_colour_name]
+                chosen_colour_name, chosen_colour_code = random.choice(list(MemoryRegion._remaining_colours.items()))
 
-            del Region._remaining_colours[chosen_colour_name]
+            del MemoryRegion._remaining_colours[chosen_colour_name]
             logging.debug(f"\tSelected {chosen_colour_name}({chosen_colour_code})")
         except (IndexError, KeyError):
             raise SystemExit("Ran out of colours!")
-        logging.debug(f"\t### {len(Region._remaining_colours)} colours left ###")
+        logging.debug(f"\t### {len(MemoryRegion._remaining_colours)} colours left ###")
         return chosen_colour_name
 
-    def calc_nearest_region(self, region_list: List['Region']):
+    def calc_nearest_region(self, region_list: List['MemoryRegion']):
         import mm.diagram
         """Calculate the remaining number of bytes until next region block"""
         region_distances = {}

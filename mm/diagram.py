@@ -55,7 +55,7 @@ class MemoryMap:
         # output markdown report (refs image)
         self._create_markdown(self._region_list)
 
-    def _create_diagram(self, region_list: List[mm.types.Region]):
+    def _create_diagram(self, region_list: List[mm.types.MemoryRegion]):
 
         # init the main image
         img_main = PIL.Image.new("RGB", (MemoryMap.width, MemoryMap.height), color=MemoryMap.bgcolour)
@@ -69,7 +69,7 @@ class MemoryMap:
                 logging.warning("Zero size region skipped")
                 continue
 
-            # Region Blocks and text
+            # MemoryRegion Blocks and text
             region_img = PIL.Image.new("RGBA", (MemoryMap.width - self._legend_width, region.size), color=(255, 255, 0, 5))
             region_canvas = PIL.ImageDraw.Draw(region_img)
 
@@ -131,7 +131,7 @@ class MemoryMap:
         img_file = pathlib.Path(self.args.out).stem + ".png"
         img_main.save(pathlib.Path(self.args.out).parent / img_file)
 
-    def _create_markdown(self, region_list: List[mm.types.Region]):
+    def _create_markdown(self, region_list: List[mm.types.MemoryRegion]):
         with open(self.args.out, "w") as f:
             f.write(f"""![memory map diagram]({pathlib.Path(self.args.out).stem}.png)\n""")
             f.write("|name|origin|size|remaining|collisions\n")
@@ -139,7 +139,7 @@ class MemoryMap:
             for region in region_list:
                 f.write(f"{region}\n")
 
-    def _process_input(self) -> List[mm.types.Region]:
+    def _process_input(self) -> List[mm.types.MemoryRegion]:
 
         self.parser = argparse.ArgumentParser()
         self.parser.add_argument("regions", help='command line input for regions should be tuples of name, origin and size.',
@@ -168,9 +168,9 @@ class MemoryMap:
             origin = r[1]
             size = r[2]
             if any(x.name == name for x in region_list):
-                warnings.warn(f"Duplicate region names ({name}) are not permitted. Region will be skipped.", RuntimeWarning)
+                warnings.warn(f"Duplicate region names ({name}) are not permitted. MemoryRegion will be skipped.", RuntimeWarning)
             else:
-                region_list.append(mm.types.Region(name, origin, size))
+                region_list.append(mm.types.MemoryRegion(name, origin, size))
 
         for r in region_list:
             r.calc_nearest_region(region_list)
