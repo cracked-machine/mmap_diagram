@@ -3,6 +3,7 @@ import random
 import PIL.Image
 import PIL.ImageDraw
 import PIL.ImageColor
+import PIL.ImageFont
 from typing import List, Dict
 import logging
 
@@ -31,10 +32,7 @@ class Region():
         """Map of collision regions by name (str) and distance (hex)"""
         self.draw_indent = 0
         """Index counter for incrementally shrinking the drawing indent"""
-        self.txtlbl_bgcolour = "oldlace"
-        """The background colour to use for the region text label"""
-        self.txtlbl_fgcolour = "black"
-        """The foreground colour to use for the region text label"""
+
         self.img: PIL.Image
 
         # both 'lightslategray' and 'lightslategrey' are the same colour
@@ -141,7 +139,7 @@ class Region():
 
 @typeguard.typechecked
 class MemoryRegion(Region):
-    
+
     def create_img(self, img_width: int):
 
         logging.info(self)
@@ -162,25 +160,53 @@ class MemoryRegion(Region):
         )
 
         # draw name text
-        ntext_img_width = 60
-        ntext_img_height = 7
-        ntext_font = PIL.ImageFont.load_default(ntext_img_height)
-        ntext_img = PIL.Image.new("RGB", (ntext_img_width, ntext_img_height), color=self.txtlbl_bgcolour)
-
-        ntext_canvas = PIL.ImageDraw.Draw(ntext_img)
-
-        _, _, ntext_width, ntext_height = ntext_canvas.textbbox(
-            (0, 0), self.name, font=ntext_font)
-
-        ntext_canvas.text(((ntext_img_width-ntext_width)/2,
-                          (ntext_img_height-ntext_height)/2-1),
-                          self.name, fill=self.txtlbl_fgcolour,
-                          font=ntext_font)
-
-        ntext_img = ntext_img.rotate(180)
-        region_img.paste(ntext_img, (5, 5))
+        region_img.paste(TextLabel(text=self.name, font_size=7).img, (5, 5))
 
         self.img = region_img
+
+
+@typeguard.typechecked
+class TextLabel():
+    def __init__(self, text: str, font_size: int):
+        self.text = text
+        """The display label text"""
+
+        self.font = PIL.ImageFont.load_default(font_size)
+        """The font used to display the text"""
+
+        _, top, right, bottom = self.font.getbbox(self.text)
+        """The dimensions required for the text"""
+        
+        self.width = right
+        """The label width"""
+
+        self.height = bottom - top
+        """The label height"""
+
+        self.bgcolour = "oldlace"
+        """The background colour to use for the region text label"""
+
+        self.fgcolour = "black"
+        """The foreground colour to use for the region text label"""
+
+        self.img: PIL.Image
+        """The image object. Use this with PIL.Image.paste()"""
+
+        self._create_img()
+
+    def _create_img(self):
+
+        # make the image bigger than the actual text bbox so there is plenty of space for the text
+        self.img = PIL.Image.new("RGB", (self.width * 2, self.height * 2), color=self.bgcolour)
+        canvas = PIL.ImageDraw.Draw(self.img)
+        # center the text in the oversized image, bias the y-pos by 1/5
+        canvas.text(xy=(self.width / 2, (self.height / 2 - (self.height / 5))),
+                    text=self.text,
+                    fill=self.fgcolour,
+                    font=self.font)
+
+        # the final diagram image will be flipped so start with the text upside down
+        self.img = self.img.rotate(180)
 
 
 @typeguard.typechecked

@@ -67,33 +67,26 @@ class MemoryMap:
             region.create_img(img_width=MemoryMap.width - self._legend_width)
             if not region.img:
                 continue
+            img_main.paste(region.img, (self._legend_width + region.draw_indent, region.origin), region.img)
 
-            # Address Text
-            addr_text_font = PIL.ImageFont.load_default(8)
-            # add text for the region origin
-            origin_text_img = PIL.Image.new("RGB", (30, 10), color=(255, 255, 255))
-            origin_text_canvas = PIL.ImageDraw.Draw(origin_text_img)
-            origin_text_canvas.text((0, 0), region._origin, fill="black", font=addr_text_font)
-            origin_text_img = origin_text_img.rotate(180)
-            # add text for the region end
-            endaddr = region.origin + region.size
-            endaddr_text_img = PIL.Image.new("RGB", (30, 10), color=(255, 255, 255))
-            endaddr_text_canvas = PIL.ImageDraw.Draw(endaddr_text_img)
-            endaddr_text_canvas.text((0, 0), hex(endaddr), fill="black", font=addr_text_font)
-            endaddr_text_img = endaddr_text_img.rotate(180)
+            # Origin Address Text
+            origin_text_label = mm.types.TextLabel(region._origin, 8)
+            img_main.paste(origin_text_label.img, (0, region.origin - origin_text_label.height + 1))
+
+            # Region End Address Text
+            end_addr_val = region.origin + region.size
+            end_addr_text_label = mm.types.TextLabel(hex(end_addr_val).upper(), 8)
+            img_main.paste(end_addr_text_label.img, (0, end_addr_val - end_addr_text_label.height + 1))
 
             line_width = 1
             line_canvas = PIL.ImageDraw.Draw(img_main)
-            for x in range(40, 90, 4):
-                line_canvas.line((x, endaddr - line_width, x+2, endaddr - line_width), fill="black", width=line_width)
-                line_canvas.line((x, region.origin - line_width, x+2, region.origin - line_width), fill="black", width=1)
-            
-            # paste all the layers onto the main image
-            img_main.paste(region.img, (self._legend_width + region.draw_indent, region.origin), region.img)
-            img_main.paste(endaddr_text_img, (0, endaddr - 6))
-            img_main.paste(origin_text_img, (0, region.origin - 4))
+            dash_gap = 4
+            dash_len = dash_gap / 2
+            for x in range(40, 90, dash_gap):
+                line_canvas.line((x, end_addr_val - line_width, x + dash_len, end_addr_val - line_width), fill="black", width=line_width)
+                line_canvas.line((x, region.origin - line_width, x + dash_len, region.origin - line_width), fill="black", width=1)
 
-        # rotate so the origin is at the bottom
+        # rotate the entire diagram so the origin is at the bottom
         img_main = img_main.rotate(180)
 
         # output image file
