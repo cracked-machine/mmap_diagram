@@ -166,6 +166,41 @@ class MemoryRegion(Region):
 
 
 @typeguard.typechecked
+class SkippableRegion(Region):
+
+    def __init__(self, size: str):
+
+        self.name: str = "~~~~~ SKIPPED ~~~~~"
+        
+        super().__init__(self.name, "0x0", size)
+
+    def create_img(self, img_width: int, font_size: int):
+
+        logging.info(self)
+        if not self.size:
+            logging.warning("Zero size region skipped")
+            return None
+
+        # MemoryRegion Blocks and text
+        region_img = PIL.Image.new("RGBA", (img_width + 1, self.size), color="white")
+        self.region_canvas = PIL.ImageDraw.Draw(region_img)
+
+        # height is -1 to avoid clipping the top border
+        self.region_canvas.rectangle(
+            (0, 0, img_width, self.size - 1),
+            fill="oldlace",
+            outline="black",
+            width=1,
+        )
+
+        # draw name text
+        region_w, region_h = region_img.size
+        region_img.paste(TextLabel(text=self.name, font_size=font_size).img, (region_w // 5, region_h // 3))
+
+        self.img = region_img
+
+
+@typeguard.typechecked
 class TextLabel():
     def __init__(self, text: str, font_size: int):
         self.text = text
@@ -207,11 +242,3 @@ class TextLabel():
 
         # the final diagram image will be flipped so start with the text upside down
         self.img = self.img.rotate(180)
-
-
-@typeguard.typechecked
-class SkippableRegion(Region):
-    pass
-
-
-

@@ -36,6 +36,8 @@ class MemoryMap:
         self.default_region_text_size: int = 12
         self.fixed_legend_text_size = 12
 
+        self.skip_threshold: int = 100
+
         self._region_list = None
         """List of region objects"""
 
@@ -74,7 +76,7 @@ class MemoryMap:
     def _create_diagram(self, region_list: List[mm.types.MemoryRegion]):
 
         # init the main image
-        img_main = PIL.Image.new("RGB", (self.width, self.height), color=self.bgcolour)
+        img_main_full = PIL.Image.new("RGB", (self.width, self.height), color=self.bgcolour)
 
         # paste each new graphic element image to main image
         for region in region_list:
@@ -83,33 +85,101 @@ class MemoryMap:
             region.create_img(img_width=(self.width - self._legend_width), font_size=self.default_region_text_size)
             if not region.img:
                 continue
-            img_main.paste(region.img, (self._legend_width + region.draw_indent, region.origin), region.img)
+            img_main_full.paste(region.img, (self._legend_width + region.draw_indent, region.origin), region.img)
 
             # Origin Address Text
             origin_text_label = mm.types.TextLabel(region._origin, self.fixed_legend_text_size)
-            img_main.paste(origin_text_label.img, (0, region.origin - origin_text_label.height + 1))
+            img_main_full.paste(origin_text_label.img, (0, region.origin - origin_text_label.height + 1))
 
             # Region End Address Text
             end_addr_val = region.origin + region.size
             end_addr_text_label = mm.types.TextLabel(hex(end_addr_val), self.fixed_legend_text_size)
-            img_main.paste(end_addr_text_label.img, (0, end_addr_val - end_addr_text_label.height + 1))
+            img_main_full.paste(end_addr_text_label.img, (0, end_addr_val - end_addr_text_label.height + 1))
+
+            # Diagram End Address Text
+            diagram_end_addr_val = self.height
+            diagram_end_addr_label = mm.types.TextLabel(hex(diagram_end_addr_val), self.fixed_legend_text_size)
+            img_main_full.paste(diagram_end_addr_label.img, (0, diagram_end_addr_val - diagram_end_addr_label.height - 5))
 
             # Dash Lines from text to region
             line_width = 1
-            line_canvas = PIL.ImageDraw.Draw(img_main)
+            line_canvas = PIL.ImageDraw.Draw(img_main_full)
             dash_gap = 4
             dash_len = dash_gap / 2
+            
             for x in range(end_addr_text_label.width * 2, self._legend_width - 10, dash_gap):
                 line_canvas.line((x, end_addr_val - line_width, x + dash_len, end_addr_val - line_width), fill="black", width=line_width)
+            
             for x in range(origin_text_label.width * 2, self._legend_width - 10, dash_gap):
                 line_canvas.line((x, region.origin - line_width, x + dash_len, region.origin - line_width), fill="black", width=1)
 
+            for x in range(diagram_end_addr_label.width * 2, self.width - 10, dash_gap):
+                line_canvas.line((x, diagram_end_addr_val - 7, x + dash_len, diagram_end_addr_val - 7), fill="black", width=line_width)                
+
+        self._truncate_diagram(img_main_full, region_list)
+
         # rotate the entire diagram so the origin is at the bottom
-        img_main = img_main.rotate(180)
+        img_main_full = img_main_full.rotate(180)
 
         # output image file
-        img_file = pathlib.Path(self.args.out).stem + ".png"
-        img_main.save(pathlib.Path(self.args.out).parent / img_file)
+        img_file_path = pathlib.Path(self.args.out).stem + "_full.png"
+        img_main_full.save(pathlib.Path(self.args.out).parent / img_file_path)
+
+    def _truncate_diagram(self, img_to_crop: PIL.Image.Image, region_list: List[mm.types.MemoryRegion]):
+        """Remove large empty spaces and replace them with fixed size SkippableRegion objects"""
+        # gather up the clusters of regions divided by large spaces
+        region_cluster_list = []
+        address_cursor = 0
+        for region in region_list:
+            end_addr_val = region.origin + region.size
+            if int(region.remain, 16) > self.skip_threshold:
+ 
+                # dont forget the image is upside down at this stage, so upper and lower are reversed.
+                (left, upper, right, lower) = (0, address_cursor - 10, img_to_crop.width, end_addr_val + 10)
+                cropped_img = img_to_crop.crop((left, upper, right, lower))
+                region_cluster_list.append(cropped_img)
+
+                # move the cursor up past the end of the current region and the empty space
+                address_cursor = end_addr_val + int(region.remain, 16)
+
+        # join all the cropped images together into a smaller main image
+        skip_region = mm.types.SkippableRegion(size=hex(40))
+        skip_region.create_img(img_width=(self.width - 20), font_size=self.default_region_text_size)
+        total_cropped_height = sum(r.height for r in region_cluster_list)
+        total_cropped_height = total_cropped_height + (len(region_cluster_list) * skip_region.img.height) + 20
+        img_main_cropped = PIL.Image.new("RGB", (self.width, total_cropped_height), color=self.bgcolour)
+        y_pos = 0
+        for region_cluster in region_cluster_list:
+            img_main_cropped.paste(region_cluster, (0, y_pos))
+            y_pos = y_pos + region_cluster.height
+
+            img_main_cropped.paste(skip_region.img, (10, y_pos))
+            y_pos = y_pos + skip_region.img.height
+            
+        # Diagram End Address Text
+        diagram_end_addr_val = self.height
+        diagram_end_addr_label = mm.types.TextLabel(hex(diagram_end_addr_val), self.fixed_legend_text_size)
+        img_main_cropped.paste(diagram_end_addr_label.img, (0, img_main_cropped.height - diagram_end_addr_label.height - 10))
+        
+        # Diagram End Dash Line
+        line_width = 1
+        line_canvas = PIL.ImageDraw.Draw(img_main_cropped)
+        dash_gap = 4
+        dash_len = dash_gap / 2
+        for x in range(diagram_end_addr_label.width * 2, self.width - 10, dash_gap):
+            line_canvas.line((x, img_main_cropped.height - diagram_end_addr_label.height - 3,
+                             x + dash_len,
+                             img_main_cropped.height - diagram_end_addr_label.height - 3),
+                             fill="black",
+                             width=line_width)
+
+        # no large empty regions were found so just copy in the existing image
+        if not region_cluster_list:
+            img_main_cropped = img_to_crop
+
+        img_main_cropped = img_main_cropped.rotate(180)
+        img_file_path = pathlib.Path(self.args.out).stem + "_cropped.png"
+        img_main_cropped.save(pathlib.Path(self.args.out).parent / img_file_path)
 
     def _create_markdown(self, region_list: List[mm.types.MemoryRegion]):
         with open(self.args.out, "w") as f:

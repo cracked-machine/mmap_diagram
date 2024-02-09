@@ -64,8 +64,8 @@ def test_valid_default_out_arg():
                               '0x10',
                               '0x10']):
         mm.diagram.MemoryMap()
-        assert report.exists()
-        assert image.exists()
+        assert report.is_file
+        assert image.is_file
 
 
 def test_invalid_duplicate_name_arg():
@@ -98,5 +98,5 @@ def test_valid_custom_out_arg():
                               "-o",
                               str(report)]):
         mm.diagram.MemoryMap()
-        assert report.exists()
-        assert image.exists()
+        assert report.is_file
+        assert image.is_file
