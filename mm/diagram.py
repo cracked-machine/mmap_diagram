@@ -4,6 +4,7 @@ import PIL.Image
 import PIL.ImageDraw
 import PIL.ImageColor
 import PIL.ImageFont
+
 from typing import List, Tuple
 import typeguard
 
@@ -80,6 +81,7 @@ class MemoryMap:
         self._region_list.sort(key=lambda x: x.size, reverse=True)
 
         self._generate()
+        self._create_summary_table(self._region_list)
 
     def _generate(self):
         # output image diagram
@@ -206,6 +208,19 @@ class MemoryMap:
             f.write("|:-|:-|:-|:-|:-|\n")
             for memregion in region_list:
                 f.write(f"{memregion}\n")
+
+    def _create_summary_table(self, region_list: List[mm.types.MemoryRegion]):
+        table_data = []
+        for memregion in region_list:
+            table_data.append(memregion.get_data_as_list())
+
+        table: PIL.Image.Image = mm.types.Table().draw_table(
+            table=table_data,
+            header=["Name", "Origin", "Size", "Remains", "Collisions"],
+            font=PIL.ImageFont.load_default(12)
+        )
+        tableimg_file_path = pathlib.Path(self.args.out).stem + "_table.png"
+        table.save(pathlib.Path(self.args.out).parent / tableimg_file_path)
 
     def _process_input(self):
 
