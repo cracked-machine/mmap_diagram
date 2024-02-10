@@ -39,16 +39,4 @@ jobs:
       uses: codecov/codecov-action@v3
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-    - name: Convert doc markdown to pdf
-      env:
-        DEBIAN_FRONTEND: noninteractive
-      run: |
-        sudo apt install -y pandoc texlive-latex-base texlive-fonts-recommended texlive-extra-utils texlive-latex-extra
-        cd  ./doc/example
-        pandoc report.md -f markdown+pipe_tables -t pdf -o report.pdf
-    - name: upload doc artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: doc pdf
-        path: ./doc/example/report.pdf
-        if-no-files-found: error
+
