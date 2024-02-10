@@ -44,7 +44,8 @@ jobs:
         DEBIAN_FRONTEND: noninteractive
       run: |
         sudo apt install -y pandoc texlive-latex-base texlive-fonts-recommended texlive-extra-utils texlive-latex-extra
-        pandoc ./doc/example/report.md -o ./doc/example/report.pdf
+        cd  ./doc/example
+        pandoc report.md -o report.pdf
     - name: upload doc artifacts
       uses: actions/upload-artifact@v4
       with:
