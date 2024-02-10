@@ -42,6 +42,9 @@ class MemoryMap:
         self.fixed_legend_text_size = 12
         """Fixed size for legend text"""
 
+        self.table_text_size = 15
+        """Fixed size for table text"""
+
         self.void_thres: int = None
         """Void space threshold for adding VoidRegion objs"""
 
@@ -217,7 +220,7 @@ class MemoryMap:
         table: PIL.Image.Image = mm.types.Table().draw_table(
             table=table_data,
             header=["Name", "Origin", "Size", "Remains", "Collisions"],
-            font=PIL.ImageFont.load_default(12)
+            font=PIL.ImageFont.load_default(self.table_text_size)
         )
         tableimg_file_path = pathlib.Path(self.args.out).stem + "_table.png"
         table.save(pathlib.Path(self.args.out).parent / tableimg_file_path)
