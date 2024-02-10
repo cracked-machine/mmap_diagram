@@ -36,7 +36,7 @@ class MemoryMap:
         """width of the diagram image"""
 
         self.default_region_text_size: int = 12
-        """Default size for region text"""
+        """Default size for memregion text"""
 
         self.fixed_legend_text_size = 12
         """Fixed size for legend text"""
@@ -45,7 +45,7 @@ class MemoryMap:
         """Void space threshold for adding VoidRegion objs"""
 
         self._region_list: List[mm.types.MemoryRegion] = []
-        """List of region objects"""
+        """List of memregion objects"""
 
         self._process_input()
         self._rescale()
@@ -57,11 +57,11 @@ class MemoryMap:
             origin = t[1]
             size = t[2]
             if self._region_list and any(x.name == name for x in self._region_list):
-                warnings.warn(f"Duplicate region names ({name}) are not permitted. MemoryRegion will not be added.", RuntimeWarning)
+                warnings.warn(f"Duplicate memregion names ({name}) are not permitted. MemoryRegion will not be added.", RuntimeWarning)
             else:
                 self._region_list.append(mm.types.MemoryRegion(name, origin, size))
 
-        # calculate each regions distance to the next region and for any overlaps
+        # calculate each regions distance to the next memregion and for any overlaps
         r: mm.types.MemoryRegion
         for r in self._region_list:
             r.calc_nearest_region(self._region_list, self.height)
@@ -98,20 +98,20 @@ class MemoryMap:
         img_main_full = PIL.Image.new("RGB", (self.width, self.height), color=self.bgcolour)
 
         # paste each new graphic element image to main image
-        for region in region_list:
+        for memregion in region_list:
 
             # Regions
-            region.create_img(img_width=(self.width - self._legend_width), font_size=self.default_region_text_size)
-            if not region.img:
+            memregion.create_img(img_width=(self.width - self._legend_width), font_size=self.default_region_text_size)
+            if not memregion.img:
                 continue
-            img_main_full.paste(region.img, (self._legend_width + region.draw_indent, region.origin), region.img)
+            img_main_full.paste(memregion.img, (self._legend_width + memregion.draw_indent, memregion.origin), memregion.img)
 
             # Origin Address Text
-            origin_text_label = mm.types.TextLabel(region._origin, self.fixed_legend_text_size)
-            img_main_full.paste(origin_text_label.img, (0, region.origin - origin_text_label.height + 1))
+            origin_text_label = mm.types.TextLabel(memregion._origin, self.fixed_legend_text_size)
+            img_main_full.paste(origin_text_label.img, (0, memregion.origin - origin_text_label.height + 1))
 
             # Region End Address Text
-            end_addr_val = region.origin + region.size
+            end_addr_val = memregion.origin + memregion.size
             end_addr_text_label = mm.types.TextLabel(hex(end_addr_val), self.fixed_legend_text_size)
             img_main_full.paste(end_addr_text_label.img, (0, end_addr_val - end_addr_text_label.height + 1))
 
@@ -120,7 +120,7 @@ class MemoryMap:
             diagram_end_addr_label = mm.types.TextLabel(hex(diagram_end_addr_val), self.fixed_legend_text_size)
             img_main_full.paste(diagram_end_addr_label.img, (0, diagram_end_addr_val - diagram_end_addr_label.height - 5))
 
-            # Dash Lines from text to region
+            # Dash Lines from text to memregion
             line_width = 1
             line_canvas = PIL.ImageDraw.Draw(img_main_full)
             dash_gap = 4
@@ -130,7 +130,7 @@ class MemoryMap:
                 line_canvas.line((x, end_addr_val - line_width, x + dash_len, end_addr_val - line_width), fill="black", width=line_width)
 
             for x in range(origin_text_label.width * 2, self._legend_width - 10, dash_gap):
-                line_canvas.line((x, region.origin - line_width, x + dash_len, region.origin - line_width), fill="black", width=1)
+                line_canvas.line((x, memregion.origin - line_width, x + dash_len, memregion.origin - line_width), fill="black", width=1)
 
             for x in range(diagram_end_addr_label.width * 2, self.width - 10, dash_gap):
                 line_canvas.line((x, diagram_end_addr_val - 7, x + dash_len, diagram_end_addr_val - 7), fill="black", width=line_width)                
@@ -144,35 +144,35 @@ class MemoryMap:
         img_file_path = pathlib.Path(self.args.out).stem + "_full.png"
         img_main_full.save(pathlib.Path(self.args.out).parent / img_file_path)
 
-    def _truncate_diagram(self, img_to_crop: PIL.Image.Image, region_list: List[mm.types.MemoryRegion]):
+    def _truncate_diagram(self, img_to_crop: PIL.Image.Image, memregion_list: List[mm.types.MemoryRegion]):
         """Remove large empty spaces and replace them with fixed size VoidRegion objects"""
         # gather up the clusters of regions divided by large spaces
-        region_cluster_list = []
+        memregion_cluster_list = []
         address_cursor = 0
-        for region in region_list:
-            end_addr_val = region.origin + region.size
-            if int(region.remain, 16) > self.void_threshold:
+        for memregion in memregion_list:
+            end_addr_val = memregion.origin + memregion.size
+            if int(memregion.remain, 16) > self.void_threshold:
                 # dont forget the image is upside down at this stage, so upper and lower are reversed.
                 (left, upper, right, lower) = (0, address_cursor - 10, img_to_crop.width, end_addr_val + 10)
                 cropped_img = img_to_crop.crop((left, upper, right, lower))
-                region_cluster_list.append(cropped_img)
+                memregion_cluster_list.append(cropped_img)
 
-                # move the cursor up past the end of the current region and the empty space
-                address_cursor = end_addr_val + int(region.remain, 16)
+                # move the cursor up past the end of the current memregion and the empty space
+                address_cursor = end_addr_val + int(memregion.remain, 16)
 
         # join all the cropped images together into a smaller main image
-        skip_region = mm.types.VoidRegion(size=hex(40))
-        skip_region.create_img(img_width=(self.width - 20), font_size=self.default_region_text_size)
-        total_cropped_height = sum(r.height for r in region_cluster_list)
-        total_cropped_height = total_cropped_height + (len(region_cluster_list) * skip_region.img.height) + 20
+        voidregion = mm.types.VoidRegion(size=hex(40))
+        voidregion.create_img(img_width=(self.width - 20), font_size=self.default_region_text_size)
+        total_cropped_height = sum(r.height for r in memregion_cluster_list)
+        total_cropped_height = total_cropped_height + (len(memregion_cluster_list) * voidregion.img.height) + 20
         img_main_cropped = PIL.Image.new("RGB", (self.width, total_cropped_height), color=self.bgcolour)
         y_pos = 0
-        for region_cluster in region_cluster_list:
+        for region_cluster in memregion_cluster_list:
             img_main_cropped.paste(region_cluster, (0, y_pos))
             y_pos = y_pos + region_cluster.height
 
-            img_main_cropped.paste(skip_region.img, (10, y_pos))
-            y_pos = y_pos + skip_region.img.height
+            img_main_cropped.paste(voidregion.img, (10, y_pos))
+            y_pos = y_pos + voidregion.img.height
             
         # Diagram End Address Text
         diagram_end_addr_val = self.height
@@ -192,7 +192,7 @@ class MemoryMap:
                              width=line_width)
 
         # no large empty regions were found so just copy in the existing image
-        if not region_cluster_list:
+        if not memregion_cluster_list:
             img_main_cropped = img_to_crop
 
         img_main_cropped = img_main_cropped.rotate(180)
@@ -204,8 +204,8 @@ class MemoryMap:
             f.write(f"""![memory map diagram]({pathlib.Path(self.args.out).stem}.png)\n""")
             f.write("|name|origin|size|remaining|collisions\n")
             f.write("|:-|:-|:-|:-|:-|\n")
-            for region in region_list:
-                f.write(f"{region}\n")
+            for memregion in region_list:
+                f.write(f"{memregion}\n")
 
     def _process_input(self):
 
