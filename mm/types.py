@@ -70,10 +70,10 @@ class Region():
             chosen_colour_name, chosen_colour_code = random.choice(list(MemoryRegion._remaining_colours.items()))
             while int(chosen_colour_code[1:], 16) > int("A0A0A0", 16):
                 logging.debug(f"\tRejected {chosen_colour_name}({chosen_colour_code})")
-                del MemoryRegion._remaining_colours[chosen_colour_name]
+                # del MemoryRegion._remaining_colours[chosen_colour_name]
                 chosen_colour_name, chosen_colour_code = random.choice(list(MemoryRegion._remaining_colours.items()))
 
-            del MemoryRegion._remaining_colours[chosen_colour_name]
+            # del MemoryRegion._remaining_colours[chosen_colour_name]
             logging.debug(f"\tSelected {chosen_colour_name}({chosen_colour_code})")
         except (IndexError, KeyError):
             raise SystemExit("Ran out of colours!")
