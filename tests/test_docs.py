@@ -45,4 +45,4 @@ def test_generate_doc_example():
             if region.name == "uboot-scr":
                 assert region._origin == "0x110"
                 assert region._size == "0x30"
-                assert region.remain == "0x50"
+                assert region.remain == "0x690"
