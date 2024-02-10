@@ -40,6 +40,8 @@ jobs:
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     - name: Convert doc markdown to pdf
+      env:
+        DEBIAN_FRONTEND: noninteractive
       run: |
         apt install pandoc texlive-latex-base texlive-fonts-recommended texlive-extra-utils texlive-latex-extra
         pandoc ./doc/example/report.md -o ./doc/example/report.pdf
