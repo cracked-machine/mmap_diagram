@@ -25,7 +25,7 @@ jobs:
         python-version: "3.10"
     - name: Install dependencies
       run: |
-        sudo make init pandoc texlive-latex-base texlive-fonts-recommended texlive-extra-utils texlive-latex-extra
+        sudo make init 
     - name: Test with pytest
       run: |
         make test
@@ -41,6 +41,7 @@ jobs:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     - name: Convert doc markdown to pdf
       run: |
+        apt install pandoc texlive-latex-base texlive-fonts-recommended texlive-extra-utils texlive-latex-extra
         pandoc ./doc/example/report.md -o ./doc/example/report.pdf
     - name: upload doc artifacts
       uses: actions/upload-artifact@v4
