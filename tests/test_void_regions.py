@@ -20,7 +20,7 @@ def setup():
     return {"report": report, "image_full": image_full, "image_cropped": image_cropped}
 
 
-def test_skip_region_default(setup):
+def test_void_region_default(setup):
     """  """
 
     diagram_height = 2000
@@ -70,7 +70,7 @@ def test_skip_region_default(setup):
         assert found_size == (400, 528)
 
 
-def test_skip_region_uservalue(setup):
+def test_void_region_uservalue(setup):
     """  """
 
     diagram_height = 1000
