@@ -29,7 +29,7 @@ class MemoryMap:
         self.bgcolour = "oldlace"
         """background colour for diagram"""
 
-        self.height: int = 400
+        self.height: int = None
         """height of the diagram image"""
 
         self.width: int = 400
@@ -48,6 +48,7 @@ class MemoryMap:
         """List of region objects"""
 
         self._process_input()
+        self._rescale()
 
         # create mm.types.MemoryRegion objs for each data tuple
         t: Tuple
@@ -65,7 +66,6 @@ class MemoryMap:
         for r in self._region_list:
             r.calc_nearest_region(self._region_list, self.height)
 
-        self._rescale()
 
         self._legend_width = self.width // 2
         """width of the area used for text annotations/legend"""
@@ -126,10 +126,10 @@ class MemoryMap:
             line_canvas = PIL.ImageDraw.Draw(img_main_full)
             dash_gap = 4
             dash_len = dash_gap / 2
-            
+
             for x in range(end_addr_text_label.width * 2, self._legend_width - 10, dash_gap):
                 line_canvas.line((x, end_addr_val - line_width, x + dash_len, end_addr_val - line_width), fill="black", width=line_width)
-            
+
             for x in range(origin_text_label.width * 2, self._legend_width - 10, dash_gap):
                 line_canvas.line((x, region.origin - line_width, x + dash_len, region.origin - line_width), fill="black", width=1)
 
@@ -210,33 +210,34 @@ class MemoryMap:
 
     def _process_input(self):
 
-        self.parser = argparse.ArgumentParser()
+        self.parser = argparse.ArgumentParser(
+            description="""Generate a diagram showing how binary regions co-exist within memory.""")
         self.parser.add_argument("regions", help='command line input for regions should be tuples of name, origin and size.',
                                  nargs="*")
         self.parser.add_argument("-o", "--out", help='path to the markdown output report file. Default: "out/report.md"',
                                  default="out/report.md")
-        self.parser.add_argument("-l", "--limit", help="The maximum memory address for the diagram. Default: 400", default=400)
-        self.parser.add_argument("-s", "--scale", help="The scale factor for the diagram. Default: 1", default=1)
-        self.parser.add_argument("-v", "--voidthreshold", help="The threshold for skipping void sections. In Bytes. Default: 1000",
-                                 default=100)
+        self.parser.add_argument("-l", "--limit",
+                                 help="The maximum memory address for the diagram. Please use hex. Default: " + hex(1000) + " (1000)",
+                                 default=hex(1000), type=str)
+        self.parser.add_argument("-s", "--scale", help="The scale factor for the diagram. Default: 1",
+                                 default=1, type=int)
+        self.parser.add_argument("-v", "--voidthreshold",
+                                 help="The threshold for skipping void sections. Please use hex. Default: " + hex(1000) + " (1000)",
+                                 default=hex(1000), type=str)
 
         self.args = self.parser.parse_args()
 
         # parse hex/int inputs
-        if isinstance(self.args.limit, str):
-            self.height: int = int(self.args.limit, 16)
-        else:
-            self.height: int = self.args.limit
+        if not self.args.limit[:2] == "0x":
+            self.parser.error("'limit' argument should be in hex format: 0x")
+        self.height: int = int(self.args.limit, 16)
 
-        if isinstance(self.args.scale, str):
-            self.scale_factor: int = int(self.args.scale, 16)
-        else:
-            self.scale_factor: int = self.args.scale
+        self.scale_factor: int = int(self.args.scale)
+        
+        if not self.args.voidthreshold[:2] == "0x":
+            self.parser.error("'voidthreshold' argument should be in hex format: 0x")        
+        self.void_threshold: int = int(self.args.voidthreshold, 16)
 
-        if isinstance(self.args.voidthreshold, str):
-            self.void_threshold: int = int(self.args.voidthreshold, 16)
-        else:
-            self.void_threshold: int = self.args.voidthreshold
 
         # make sure the output path is valid and parent dir exists
         if not pathlib.Path(self.args.out).suffix == ".md":

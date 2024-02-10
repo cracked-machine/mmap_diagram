@@ -2,7 +2,7 @@ import unittest
 import pytest
 import mm.diagram
 import pathlib
-
+import PIL.Image
 
 @pytest.fixture
 def setup():
@@ -97,7 +97,7 @@ def test_scale_arg_as_hex(setup):
                               '0x10',
                               '0x10',
                               "-o", str(setup['report']),
-                              "-s", "0x3"]):
+                              "-s", "3"]):
         mm.diagram.MemoryMap()
         assert setup['report'].exists()
         assert setup['image_full'].exists()
@@ -120,7 +120,7 @@ def test_scale_arg_as_int(setup):
         assert setup['image_cropped'].exists()
 
 
-def test_limit_arg_as_hex(setup):
+def test_invalid_2000_limit_arg_format(setup):
     ''' should create custom report dir/files '''
 
     with unittest.mock.patch('sys.argv',
@@ -129,14 +129,44 @@ def test_limit_arg_as_hex(setup):
                               '0x10',
                               '0x10',
                               "-o", str(setup['report']),
-                              "-l", "0x3e8"]):
-        mm.diagram.MemoryMap()
+                              "-l", "2000"]):
+        with pytest.raises(SystemExit):
+            mm.diagram.MemoryMap()
+        assert not setup['report'].exists()
+        assert not setup['image_full'].exists()
+        assert not setup['image_cropped'].exists()
+
+
+def test_default_limit_arg_format(setup):
+    ''' should create custom report dir/files '''
+
+    with unittest.mock.patch('sys.argv',
+                             ['mmap_digram.diagram',
+                              'a',
+                              '0x10',
+                              '0x10',
+                              "-o", str(setup['report'])
+                              ]):
+
+        d = mm.diagram.MemoryMap()
+        default_limit = d.args.limit
+
+        # this test assumes the default 'voidthreshold' is 0x3e8 (1000)
+        assert d.args.voidthreshold == hex(1000)
+        assert not d.args.voidthreshold == 1000
+
         assert setup['report'].exists()
+
         assert setup['image_full'].exists()
+        outimg = PIL.Image.open(str(setup['image_full']))
+        assert hex(outimg.size[1]) == default_limit
+
         assert setup['image_cropped'].exists()
+        outimg = PIL.Image.open(str(setup['image_cropped']))
+        assert hex(outimg.size[1]) == default_limit
 
 
-def test_limit_arg_as_int(setup):
+def test_valid_2000_limit_arg_format(setup):
     ''' should create custom report dir/files '''
 
     with unittest.mock.patch('sys.argv',
@@ -145,14 +175,26 @@ def test_limit_arg_as_int(setup):
                               '0x10',
                               '0x10',
                               "-o", str(setup['report']),
-                              "-l", "1000"]):
-        mm.diagram.MemoryMap()
+                              "-l", hex(2000)]):
+
+        d = mm.diagram.MemoryMap()
+
+        # make sure arg was set as hex
+        assert d.args.limit == hex(2000)
+        assert not d.args.limit == 2000
+
         assert setup['report'].exists()
+
         assert setup['image_full'].exists()
+        outimg = PIL.Image.open(str(setup['image_full']))
+        assert outimg.size[1] == 2000
+
         assert setup['image_cropped'].exists()
+        outimg = PIL.Image.open(str(setup['image_cropped']))
+        assert outimg.size[1] == 112
 
 
-def test_voidthresh_arg_as_hex(setup):
+def test_voidthresh_arg(setup):
     ''' should create custom report dir/files '''
 
     with unittest.mock.patch('sys.argv',
@@ -168,17 +210,3 @@ def test_voidthresh_arg_as_hex(setup):
         assert setup['image_cropped'].exists()
 
 
-def test_voidthresh_arg_as_int(setup):
-    ''' should create custom report dir/files '''
-
-    with unittest.mock.patch('sys.argv',
-                             ['mmap_digram.diagram',
-                              'a',
-                              '0x10',
-                              '0x10',
-                              "-o", str(setup['report']),
-                              "-v", "1000"]):
-        mm.diagram.MemoryMap()
-        assert setup['report'].exists()
-        assert setup['image_full'].exists()
-        assert setup['image_cropped'].exists()

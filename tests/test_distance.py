@@ -2,12 +2,12 @@ import mm.diagram
 import unittest
 import mm.types
 
-# Check the output report at /tmp/pytest/tests.test_distance.md
-
+# These tests only check the distance between adjacent regions
+# They don't check the output image sizes so we don't care what value we set to the voidthreshold.
 
 def test_distance_three_regions_same_size_no_collisions():
     """  """
-    diagram_height = 1000
+    diagram_height = hex(1000)
     with unittest.mock.patch('sys.argv',
                              ['mmap_digram.diagram',
                               'kernel',
@@ -20,10 +20,11 @@ def test_distance_three_regions_same_size_no_collisions():
                               '0x90',
                               '0x30',
                               "-o", f"/tmp/pytest/{__name__}.md",
-                              "-l", str(diagram_height)
+                              "-l", diagram_height
                               ]):
 
         d = mm.diagram.MemoryMap()
+
         for region in d._region_list:
             if region.name == "kernel":
                 assert region._origin == "0x10"
@@ -41,7 +42,7 @@ def test_distance_three_regions_same_size_no_collisions():
 
 def test_distance_three_regions_touching_no_collisions():
     """  """
-    diagram_height = 1000
+    diagram_height = hex(1000)
     with unittest.mock.patch('sys.argv',
                              ['mmap_digram.diagram',
                               'kernel',
@@ -54,10 +55,11 @@ def test_distance_three_regions_touching_no_collisions():
                               '0x70',
                               '0x30',
                               "-o", f"/tmp/pytest/{__name__}.md",
-                              "-l", str(diagram_height)
+                              "-l", diagram_height
                               ]):
 
         d = mm.diagram.MemoryMap()
+
         for region in d._region_list:
             if region.name == "kernel":
                 assert region._origin == "0x10"
@@ -75,7 +77,7 @@ def test_distance_three_regions_touching_no_collisions():
 
 def test_distance_three_regions_diff_size_no_collisions():
     """  """
-    diagram_height = 1000
+    diagram_height = hex(1000)
     with unittest.mock.patch('sys.argv',
                              ['mmap_digram.diagram',
                               'kernel',
@@ -88,10 +90,11 @@ def test_distance_three_regions_diff_size_no_collisions():
                               '0x90',
                               '0x30',
                               "-o", f"/tmp/pytest/{__name__}.md",
-                              "-l", str(diagram_height)
+                              "-l", diagram_height
                               ]):
 
         d = mm.diagram.MemoryMap()
+
         for region in d._region_list:
             if region.name == "kernel":
                 assert region._origin == "0x10"
@@ -109,7 +112,7 @@ def test_distance_three_regions_diff_size_no_collisions():
 
 def test_distance_three_regions_bottom_collision():
     """  """
-    diagram_height = 1000
+    diagram_height = hex(1000)
     with unittest.mock.patch('sys.argv',
                              ['mmap_digram.diagram',
                               'kernel',
@@ -122,10 +125,11 @@ def test_distance_three_regions_bottom_collision():
                               '0x90',
                               '0x30',
                               "-o", f"/tmp/pytest/{__name__}.md",
-                              "-l", str(diagram_height)
+                              "-l", diagram_height
                               ]):
 
         d = mm.diagram.MemoryMap()
+
         for region in d._region_list:
             if region.name == "kernel":
                 assert region._origin == "0x10"
@@ -143,7 +147,7 @@ def test_distance_three_regions_bottom_collision():
 
 def test_distance_three_regions_bottom_middle_collision():
     """  """
-    diagram_height = 1000
+    diagram_height = hex(1000)
     with unittest.mock.patch('sys.argv',
                              ['mmap_digram.diagram',
                               'kernel',
@@ -156,10 +160,11 @@ def test_distance_three_regions_bottom_middle_collision():
                               '0x90',
                               '0x30',
                               "-o", f"/tmp/pytest/{__name__}.md",
-                              "-l", str(diagram_height)
+                              "-l", diagram_height
                               ]):
 
         d = mm.diagram.MemoryMap()
+
         for region in d._region_list:
             if region.name == "kernel":
                 assert region._origin == "0x10"
@@ -177,7 +182,7 @@ def test_distance_three_regions_bottom_middle_collision():
 
 def test_distance_five_regions_bottom_top_collision():
     """  """
-    diagram_height = 1000
+    diagram_height = hex(1000)
     with unittest.mock.patch('sys.argv',
                              ['mmap_digram.diagram',
                               'kernel',
@@ -200,6 +205,7 @@ def test_distance_five_regions_bottom_top_collision():
                               ]):
 
         d = mm.diagram.MemoryMap()
+
         for region in d._region_list:
             if region.name == "kernel":
                 assert region._origin == "0x10"

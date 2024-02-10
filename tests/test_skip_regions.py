@@ -20,7 +20,57 @@ def setup():
     return {"report": report, "image_full": image_full, "image_cropped": image_cropped}
 
 
-def test_skip_region(setup):
+def test_skip_region_default(setup):
+    """  """
+
+    diagram_height = 2000
+    with unittest.mock.patch('sys.argv',
+                             ['mmap_digram.diagram',
+                              'kernel',
+                              '0x10',
+                              '0x30',
+                              'rootfs',
+                              '0x50',
+                              '0x30',
+                              'dtb',
+                              '0x190',
+                              '0x30',
+                              "-o", str(setup['report']),
+                              "-l", hex(diagram_height)
+                              ]):
+
+        d = mm.diagram.MemoryMap()
+
+        # assumes the defaults haven't changed
+        assert d.args.scale == 1
+        assert d.args.voidthreshold == hex(1000)
+
+        for region in d._region_list:
+            if region.name == "kernel":
+                assert region._origin == "0x10"
+                assert region._size == "0x30"
+                assert region.remain == "0x10"
+            if region.name == "rootfs":
+                assert region._origin == "0x50"
+                assert region._size == "0x30"
+                assert region.remain == "0x110"
+            if region.name == "dtb":
+                assert region._origin == "0x190"
+                assert region._size == "0x30"
+                assert region.remain == "0x610"
+
+        assert setup['report'].exists()
+
+        assert setup['image_full'].exists()
+        found_size = PIL.Image.open(str(setup['image_full'])).size
+        assert found_size == (400, diagram_height)
+
+        assert setup['image_cropped'].exists()
+        found_size = PIL.Image.open(str(setup['image_cropped'])).size
+        assert found_size == (400, 528)
+
+
+def test_skip_region_uservalue(setup):
     """  """
 
     diagram_height = 1000
@@ -36,9 +86,15 @@ def test_skip_region(setup):
                               '0x190',
                               '0x30',
                               "-o", str(setup['report']),
-                              "-l", str(diagram_height)]):
+                              "-l", hex(diagram_height),
+                              "-v", hex(500)
+                              ]):
 
         d = mm.diagram.MemoryMap()
+
+        # assumes the defaults haven't changed
+        assert d.args.scale == 1
+
         for region in d._region_list:
             if region.name == "kernel":
                 assert region._origin == "0x10"
@@ -56,9 +112,9 @@ def test_skip_region(setup):
         assert setup['report'].exists()
 
         assert setup['image_full'].exists()
-        assert PIL.Image.open(str(setup['image_full'])).width == 400
-        assert PIL.Image.open(str(setup['image_full'])).height == 1000
-
+        found_size = PIL.Image.open(str(setup['image_full'])).size
+        assert found_size == (400, diagram_height)
+        
         assert setup['image_cropped'].exists()
-        assert PIL.Image.open(str(setup['image_cropped'])).width == 400
-        assert PIL.Image.open(str(setup['image_cropped'])).height == 316
+        found_size = PIL.Image.open(str(setup['image_cropped'])).size
+        assert found_size == (400, 528)
