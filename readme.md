@@ -1,17 +1,18 @@
 [![Build](https://github.com/cracked-machine/mmdiagram/actions/workflows/python-app.yml/badge.svg)](https://github.com/cracked-machine/mmdiagram/actions/workflows/python-app.yml)
 [![Codecov](https://img.shields.io/codecov/c/github/cracked-machine/mmdiagram)](https://app.codecov.io/gh/cracked-machine/mmdiagram)
 
-Tool for mapping of regions in memory, specifcally for visualising and troubleshooting region overlap/collision.
+Tool for generating diagrams that show the mapping of regions in memory, specifcally for visualising and troubleshooting region overlap/collision.
 
-![](doc/example/tests.test_docs_normal_cropped.png)
-
-![](doc/example/tests.test_docs_normal_table.png)
+||
+|:-:|
+|![](doc/example/tests.test_docs_normal_cropped.png)|
+|![](doc/example/tests.test_docs_normal_table.png)|
 
 As well as the `png` format diagram image, a `markdown` report is also created:
 - inline image of the diagram
 - collision data table
 
-An example can be found in [doc/example/main.md](doc/example/main.md)
+More examples can be found in [doc/example/main.md](doc/example/main.md)
 
 ### Usage:
 
