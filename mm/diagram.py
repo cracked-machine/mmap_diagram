@@ -146,7 +146,7 @@ class MemoryMap:
         img_main_full.save(pathlib.Path(self.args.out).parent / img_file_path)
 
     def _truncate_diagram(self, img_to_crop: PIL.Image.Image, region_list: List[mm.types.MemoryRegion]):
-        """Remove large empty spaces and replace them with fixed size SkippableRegion objects"""
+        """Remove large empty spaces and replace them with fixed size VoidRegion objects"""
         # gather up the clusters of regions divided by large spaces
         region_cluster_list = []
         address_cursor = 0
@@ -162,7 +162,7 @@ class MemoryMap:
                 address_cursor = end_addr_val + int(region.remain, 16)
 
         # join all the cropped images together into a smaller main image
-        skip_region = mm.types.SkippableRegion(size=hex(40))
+        skip_region = mm.types.VoidRegion(size=hex(40))
         skip_region.create_img(img_width=(self.width - 20), font_size=self.default_region_text_size)
         total_cropped_height = sum(r.height for r in region_cluster_list)
         total_cropped_height = total_cropped_height + (len(region_cluster_list) * skip_region.img.height) + 20

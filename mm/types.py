@@ -166,7 +166,7 @@ class MemoryRegion(Region):
 
 
 @typeguard.typechecked
-class SkippableRegion(Region):
+class VoidRegion(Region):
 
     def __init__(self, size: str):
 
