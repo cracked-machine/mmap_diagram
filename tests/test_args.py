@@ -4,7 +4,15 @@ import mm.diagram
 import pathlib
 
 
-# Check the output report at /tmp/pytest/tests.test_args.md
+@pytest.fixture
+def setup():
+    report = pathlib.Path(f"/tmp/pytest/{__name__}.md")
+    image_full = pathlib.Path(f"/tmp/pytest/{__name__}_full.png")
+    image_cropped = pathlib.Path(f"/tmp/pytest/{__name__}_cropped.png")
+    report.unlink(missing_ok=True)
+    image_full.unlink(missing_ok=True)
+    image_cropped.unlink(missing_ok=True)
+    return {"report": report, "image_full": image_full, "image_cropped": image_cropped}
 
 
 def test_no_args():
@@ -50,24 +58,6 @@ def test_invalid_out_arg():
             mm.diagram.MemoryMap()
 
 
-def test_valid_default_out_arg():
-    ''' should create default report dir/files  '''
-
-    report = pathlib.Path("out/report.md")
-    image = pathlib.Path("out/report.png")
-    report.unlink(missing_ok=True)
-    image.unlink(missing_ok=True)
-    
-    with unittest.mock.patch('sys.argv',
-                             ['mmap_digram.diagram',
-                              'a',
-                              '0x10',
-                              '0x10']):
-        mm.diagram.MemoryMap()
-        assert report.is_file
-        assert image.is_file
-
-
 def test_invalid_duplicate_name_arg():
     """there can only be one."""
     with unittest.mock.patch('sys.argv',
@@ -82,21 +72,113 @@ def test_invalid_duplicate_name_arg():
             mm.diagram.MemoryMap()
 
 
-def test_valid_custom_out_arg():
+def test_valid_custom_out_arg(setup):
     ''' should create custom report dir/files '''
     
-    report = pathlib.Path(f"/tmp/pytest/{__name__}.md")
-    image = pathlib.Path(f"/tmp/pytest/{__name__}.png")
-    report.unlink(missing_ok=True)
-    image.unlink(missing_ok=True)
+    with unittest.mock.patch('sys.argv',
+                             ['mmap_digram.diagram',
+                              'a',
+                              '0x10',
+                              '0x10',
+                              "-o", str(setup['report'])
+                              ]):
+        mm.diagram.MemoryMap()
+        assert setup['report'].exists()
+        assert setup['image_full'].exists()
+        assert setup['image_cropped'].exists()
+
+
+def test_scale_arg_as_hex(setup):
+    ''' should create custom report dir/files '''
+    
+    with unittest.mock.patch('sys.argv',
+                             ['mmap_digram.diagram',
+                              'a',
+                              '0x10',
+                              '0x10',
+                              "-o", str(setup['report']),
+                              "-s", "0x3"]):
+        mm.diagram.MemoryMap()
+        assert setup['report'].exists()
+        assert setup['image_full'].exists()
+        assert setup['image_cropped'].exists()
+
+
+def test_scale_arg_as_int(setup):
+    ''' should create custom report dir/files '''
+    
+    with unittest.mock.patch('sys.argv',
+                             ['mmap_digram.diagram',
+                              'a',
+                              '0x10',
+                              '0x10',
+                              "-o", str(setup['report']),
+                              "-s", "3"]):
+        mm.diagram.MemoryMap()
+        assert setup['report'].exists()
+        assert setup['image_full'].exists()
+        assert setup['image_cropped'].exists()
+
+
+def test_limit_arg_as_hex(setup):
+    ''' should create custom report dir/files '''
 
     with unittest.mock.patch('sys.argv',
                              ['mmap_digram.diagram',
                               'a',
                               '0x10',
                               '0x10',
-                              "-o",
-                              str(report)]):
+                              "-o", str(setup['report']),
+                              "-l", "0x3e8"]):
         mm.diagram.MemoryMap()
-        assert report.is_file
-        assert image.is_file
+        assert setup['report'].exists()
+        assert setup['image_full'].exists()
+        assert setup['image_cropped'].exists()
+
+
+def test_limit_arg_as_int(setup):
+    ''' should create custom report dir/files '''
+
+    with unittest.mock.patch('sys.argv',
+                             ['mmap_digram.diagram',
+                              'a',
+                              '0x10',
+                              '0x10',
+                              "-o", str(setup['report']),
+                              "-l", "1000"]):
+        mm.diagram.MemoryMap()
+        assert setup['report'].exists()
+        assert setup['image_full'].exists()
+        assert setup['image_cropped'].exists()
+
+
+def test_voidthresh_arg_as_hex(setup):
+    ''' should create custom report dir/files '''
+
+    with unittest.mock.patch('sys.argv',
+                             ['mmap_digram.diagram',
+                              'a',
+                              '0x10',
+                              '0x10',
+                              "-o", str(setup['report']),
+                              "-v", "0x3e8"]):
+        mm.diagram.MemoryMap()
+        assert setup['report'].exists()
+        assert setup['image_full'].exists()
+        assert setup['image_cropped'].exists()
+
+
+def test_voidthresh_arg_as_int(setup):
+    ''' should create custom report dir/files '''
+
+    with unittest.mock.patch('sys.argv',
+                             ['mmap_digram.diagram',
+                              'a',
+                              '0x10',
+                              '0x10',
+                              "-o", str(setup['report']),
+                              "-v", "1000"]):
+        mm.diagram.MemoryMap()
+        assert setup['report'].exists()
+        assert setup['image_full'].exists()
+        assert setup['image_cropped'].exists()

@@ -13,7 +13,7 @@
                 "rootfs", "0x40", "0xDD",
                 "dtb", "0xCC", "0xCC",
                 "-o", "doc/example/report.md",
-                "-s", "3"
+                "-s", "0x3"
             ],
             "justMyCode": false
         }

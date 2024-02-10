@@ -78,8 +78,8 @@ class Region():
         return chosen_colour_name
 
     def calc_nearest_region(self, region_list: List['MemoryRegion'], diagram_height: int):
-        
         """Calculate the remaining number of bytes until next region block"""
+        
         region_distances = {}
         logging.debug(f"Calculating nearest distances to {self.name} region:")
         this_region_end = 0

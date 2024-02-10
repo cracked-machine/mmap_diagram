@@ -3,20 +3,25 @@ import unittest
 import mm.types
 import pathlib
 import PIL.Image
+import pytest
 
-# Check the output report at /tmp/pytest/tests.test_distance.md
 
-
-def test_skip_region():
-    """  """
-
+@pytest.fixture
+def setup():
     report = pathlib.Path(f"/tmp/pytest/{__name__}.md")
-    image_full = pathlib.Path(f"/tmp/pytest/{__name__}_full.png")
-    image_crop_join = pathlib.Path(f"/tmp/pytest/{__name__}_cropped.png")
-
     report.unlink(missing_ok=True)
+
+    image_full = pathlib.Path(f"/tmp/pytest/{__name__}_full.png")
     image_full.unlink(missing_ok=True)
-    image_crop_join.unlink(missing_ok=True)
+
+    image_cropped = pathlib.Path(f"/tmp/pytest/{__name__}_cropped.png")
+    image_cropped.unlink(missing_ok=True)
+
+    return {"report": report, "image_full": image_full, "image_cropped": image_cropped}
+
+
+def test_skip_region(setup):
+    """  """
 
     diagram_height = 1000
     with unittest.mock.patch('sys.argv',
@@ -30,7 +35,7 @@ def test_skip_region():
                               'dtb',
                               '0x190',
                               '0x30',
-                              "-o", str(report),
+                              "-o", str(setup['report']),
                               "-l", str(diagram_height)]):
 
         d = mm.diagram.MemoryMap()
@@ -48,12 +53,12 @@ def test_skip_region():
                 assert region._size == "0x30"
                 assert region.remain == "0x228"
 
-        assert report.is_file
+        assert setup['report'].exists()
 
-        assert image_full.is_file
-        assert PIL.Image.open(image_full).width == 400
-        assert PIL.Image.open(image_full).height == 1000
-                
-        assert image_crop_join.is_file
-        assert PIL.Image.open(image_crop_join).width == 400
-        assert PIL.Image.open(image_crop_join).height == 316
+        assert setup['image_full'].exists()
+        assert PIL.Image.open(str(setup['image_full'])).width == 400
+        assert PIL.Image.open(str(setup['image_full'])).height == 1000
+
+        assert setup['image_cropped'].exists()
+        assert PIL.Image.open(str(setup['image_cropped'])).width == 400
+        assert PIL.Image.open(str(setup['image_cropped'])).height == 316

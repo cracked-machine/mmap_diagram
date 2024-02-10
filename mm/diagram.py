@@ -4,7 +4,7 @@ import PIL.Image
 import PIL.ImageDraw
 import PIL.ImageColor
 import PIL.ImageFont
-from typing import List
+from typing import List, Tuple
 import typeguard
 
 import sys
@@ -27,24 +27,44 @@ class MemoryMap:
 
     def __init__(self):
         self.bgcolour = "oldlace"
+        """background colour for diagram"""
 
         self.height: int = 400
         """height of the diagram image"""
+
         self.width: int = 400
         """width of the diagram image"""
 
         self.default_region_text_size: int = 12
+        """Default size for region text"""
+
         self.fixed_legend_text_size = 12
+        """Fixed size for legend text"""
 
-        self.skip_threshold: int = 100
+        self.void_thres: int = None
+        """Void space threshold for adding skipped regions"""
 
-        self._region_list = None
+        self._region_list: List[mm.types.MemoryRegion] = []
         """List of region objects"""
 
-        # create a list of region objects populated with input data
-        self._region_list = self._process_input()
+        self._process_input()
 
-        self.scale_factor: int = self.args.scale
+        # create mm.types.MemoryRegion objs for each data tuple
+        t: Tuple
+        for t in self._batched(self.args.regions, 3):
+            name = t[0]
+            origin = t[1]
+            size = t[2]
+            if self._region_list and any(x.name == name for x in self._region_list):
+                warnings.warn(f"Duplicate region names ({name}) are not permitted. MemoryRegion will be skipped.", RuntimeWarning)
+            else:
+                self._region_list.append(mm.types.MemoryRegion(name, origin, size))
+
+        # calculate each regions distance to the next region and for any overlaps
+        r: mm.types.MemoryRegion
+        for r in self._region_list:
+            r.calc_nearest_region(self._region_list, self.height)
+
         self._rescale()
 
         self._legend_width = self.width // 2
@@ -132,8 +152,7 @@ class MemoryMap:
         address_cursor = 0
         for region in region_list:
             end_addr_val = region.origin + region.size
-            if int(region.remain, 16) > self.skip_threshold:
- 
+            if int(region.remain, 16) > self.void_threshold:
                 # dont forget the image is upside down at this stage, so upper and lower are reversed.
                 (left, upper, right, lower) = (0, address_cursor - 10, img_to_crop.width, end_addr_val + 10)
                 cropped_img = img_to_crop.crop((left, upper, right, lower))
@@ -189,48 +208,49 @@ class MemoryMap:
             for region in region_list:
                 f.write(f"{region}\n")
 
-    def _process_input(self) -> List[mm.types.MemoryRegion]:
+    def _process_input(self):
 
         self.parser = argparse.ArgumentParser()
         self.parser.add_argument("regions", help='command line input for regions should be tuples of name, origin and size.',
                                  nargs="*")
         self.parser.add_argument("-o", "--out", help='path to the markdown output report file. Default: "out/report.md"',
                                  default="out/report.md")
-        self.parser.add_argument("-l", "--limit", help="The maximum memory address for the diagram. Default: 400", default=400, type=int)
-        self.parser.add_argument("-s", "--scale", help="The scale factor for the diagram. Default: 1", default=1, type=int)
+        self.parser.add_argument("-l", "--limit", help="The maximum memory address for the diagram. Default: 400", default=400)
+        self.parser.add_argument("-s", "--scale", help="The scale factor for the diagram. Default: 1", default=1)
+        self.parser.add_argument("-v", "--voidthreshold", help="The threshold for skipping void sections. In Bytes. Default: 1000",
+                                 default=100)
 
         self.args = self.parser.parse_args()
 
-        if self.args.limit:
-            self.height = self.args.limit
+        # parse hex/int inputs
+        if isinstance(self.args.limit, str):
+            self.height: int = int(self.args.limit, 16)
+        else:
+            self.height: int = self.args.limit
 
-        if len(sys.argv) == 1:
-            self.parser.error("must pass in data points")
-        if len(self.args.regions) % 3:
-            self.parser.error("command line input data should be in multiples of three")
+        if isinstance(self.args.scale, str):
+            self.scale_factor: int = int(self.args.scale, 16)
+        else:
+            self.scale_factor: int = self.args.scale
+
+        if isinstance(self.args.voidthreshold, str):
+            self.void_threshold: int = int(self.args.voidthreshold, 16)
+        else:
+            self.void_threshold: int = self.args.voidthreshold
 
         # make sure the output path is valid and parent dir exists
         if not pathlib.Path(self.args.out).suffix == ".md":
             raise NameError("Output file should end with .md")
         pathlib.Path(self.args.out).parent.mkdir(parents=True, exist_ok=True)
 
-        region_list = []
-        for r in self._batched(self.args.regions, 3):
-            name = r[0]
-            origin = r[1]
-            size = r[2]
-            if any(x.name == name for x in region_list):
-                warnings.warn(f"Duplicate region names ({name}) are not permitted. MemoryRegion will be skipped.", RuntimeWarning)
-            else:
-                region_list.append(mm.types.MemoryRegion(name, origin, size))
-
-        for r in region_list:
-            r.calc_nearest_region(region_list, self.height)
-
-        return region_list
+        # check data point cardinality
+        if len(sys.argv) == 1:
+            self.parser.error("must pass in data points")
+        if len(self.args.regions) % 3:
+            self.parser.error("command line input data should be in multiples of three")
 
     def _batched(self, iterable, n):
-        # batched('ABCDEFG', 3) --> ABC DEF G
+        """ batched('ABCDEFG', 3) --> ABC DEF G """
         if n < 1:
             raise ValueError("n must be at least one")
         it = iter(iterable)

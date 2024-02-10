@@ -19,10 +19,9 @@ def test_distance_three_regions_same_size_no_collisions():
                               'dtb',
                               '0x90',
                               '0x30',
-                              "-o",
-                              f"/tmp/pytest/{__name__}.md",
-                              "-l",
-                              str(diagram_height)]):
+                              "-o", f"/tmp/pytest/{__name__}.md",
+                              "-l", str(diagram_height)
+                              ]):
 
         d = mm.diagram.MemoryMap()
         for region in d._region_list:
@@ -54,10 +53,9 @@ def test_distance_three_regions_touching_no_collisions():
                               'dtb',
                               '0x70',
                               '0x30',
-                              "-o",
-                              f"/tmp/pytest/{__name__}.md",
-                              "-l",
-                              str(diagram_height)]):
+                              "-o", f"/tmp/pytest/{__name__}.md",
+                              "-l", str(diagram_height)
+                              ]):
 
         d = mm.diagram.MemoryMap()
         for region in d._region_list:
@@ -89,10 +87,10 @@ def test_distance_three_regions_diff_size_no_collisions():
                               'dtb',
                               '0x90',
                               '0x30',
-                              "-o",
-                              f"/tmp/pytest/{__name__}.md",
-                              "-l",
-                              str(diagram_height)]):
+                              "-o", f"/tmp/pytest/{__name__}.md",
+                              "-l", str(diagram_height)
+                              ]):
+
         d = mm.diagram.MemoryMap()
         for region in d._region_list:
             if region.name == "kernel":
@@ -123,10 +121,10 @@ def test_distance_three_regions_bottom_collision():
                               'dtb',
                               '0x90',
                               '0x30',
-                              "-o",
-                              f"/tmp/pytest/{__name__}.md",
-                              "-l",
-                              str(diagram_height)]):
+                              "-o", f"/tmp/pytest/{__name__}.md",
+                              "-l", str(diagram_height)
+                              ]):
+
         d = mm.diagram.MemoryMap()
         for region in d._region_list:
             if region.name == "kernel":
@@ -157,10 +155,10 @@ def test_distance_three_regions_bottom_middle_collision():
                               'dtb',
                               '0x90',
                               '0x30',
-                              "-o",
-                              f"/tmp/pytest/{__name__}.md",
-                              "-l",
-                              str(diagram_height)]):
+                              "-o", f"/tmp/pytest/{__name__}.md",
+                              "-l", str(diagram_height)
+                              ]):
+
         d = mm.diagram.MemoryMap()
         for region in d._region_list:
             if region.name == "kernel":
@@ -197,10 +195,10 @@ def test_distance_five_regions_bottom_top_collision():
                               'uboot-scr',
                               '0x110',
                               '0x30',
-                              "-o",
-                              f"/tmp/pytest/{__name__}.md",
-                              "-l",
-                              str(diagram_height)]):
+                              "-o", f"/tmp/pytest/{__name__}.md",
+                              "-l", str(diagram_height)
+                              ]):
+
         d = mm.diagram.MemoryMap()
         for region in d._region_list:
             if region.name == "kernel":
