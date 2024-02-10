@@ -14,7 +14,9 @@ An example can be found in [doc/example/report.md](doc/example/report.md)
 ### Usage:
 
 ```
-usage: diagram.py [-h] [-o OUT] [-l LIMIT] [-s SCALE] [regions ...]
+usage: diagram.py [-h] [-o OUT] [-l LIMIT] [-s SCALE] [-v VOIDTHRESHOLD] [regions ...]
+
+Generate a diagram showing how binary regions co-exist within memory.
 
 positional arguments:
   regions               command line input for regions should be tuples of name, origin and size.
@@ -23,9 +25,11 @@ options:
   -h, --help            show this help message and exit
   -o OUT, --out OUT     path to the markdown output report file. Default: "out/report.md"
   -l LIMIT, --limit LIMIT
-                        The maximum memory address for the diagram. Default: 400
+                        The maximum memory address for the diagram. Please use hex. Default: 0x3e8 (1000)
   -s SCALE, --scale SCALE
                         The scale factor for the diagram. Default: 1
+  -v VOIDTHRESHOLD, --voidthreshold VOIDTHRESHOLD
+                        The threshold for skipping void sections. Please use hex. Default: 0x3e8 (1000)
 ```
 
 - Generate five regions called `kernel`, `rootfs`, `dtb`, `uboot` and `uboot-scr` where four of the five regions intersect/collide. The default report output path is used. Diagram output is shown at the top of the page.
