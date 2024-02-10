@@ -25,7 +25,7 @@ jobs:
         python-version: "3.10"
     - name: Install dependencies
       run: |
-        sudo make init
+        sudo make init pandoc texlive-latex-base texlive-fonts-recommended texlive-extra-utils texlive-latex-extra
     - name: Test with pytest
       run: |
         make test
@@ -39,3 +39,12 @@ jobs:
       uses: codecov/codecov-action@v3
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+    - name: Convert doc markdown to pdf
+      run: |
+        pandoc ./doc/example/report.md -o ./doc/example/report.pdf
+    - name: upload doc artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: doc pdf
+        path: ./doc/example/report.pdf
+        if-no-files-found: error
