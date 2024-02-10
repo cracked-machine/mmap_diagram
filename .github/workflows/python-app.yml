@@ -45,7 +45,7 @@ jobs:
       run: |
         sudo apt install -y pandoc texlive-latex-base texlive-fonts-recommended texlive-extra-utils texlive-latex-extra
         cd  ./doc/example
-        pandoc report.md -o report.pdf
+        pandoc report.md -f markdown -t pdf -o report.pdf
     - name: upload doc artifacts
       uses: actions/upload-artifact@v4
       with:
