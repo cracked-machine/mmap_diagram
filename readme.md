@@ -3,13 +3,13 @@
 
 Tool for mapping of regions in memory, specifcally for visualising and troubleshooting region overlap/collision.
 
-![](doc/example/report.png)
+![](doc/example/tests.test_docs_normal_cropped.png)
 
 As well as the `png` format diagram image, a `markdown` report is also created:
 - inline image of the diagram
 - collision data table
 
-An example can be found in [doc/example/report.md](doc/example/report.md)
+An example can be found in [doc/example/main.md](doc/example/main.md)
 
 ### Usage:
 
