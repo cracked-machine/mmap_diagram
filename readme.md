@@ -5,6 +5,8 @@ Tool for mapping of regions in memory, specifcally for visualising and troublesh
 
 ![](doc/example/tests.test_docs_normal_cropped.png)
 
+![](doc/example/tests.test_docs_normal_table.png)
+
 As well as the `png` format diagram image, a `markdown` report is also created:
 - inline image of the diagram
 - collision data table
