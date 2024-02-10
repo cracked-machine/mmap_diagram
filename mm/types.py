@@ -144,7 +144,7 @@ class MemoryRegion(Region):
 
         logging.info(self)
         if not self.size:
-            logging.warning("Zero size region skipped")
+            logging.warning("Zero size region will not be added.")
             return None
 
         # MemoryRegion Blocks and text
@@ -178,7 +178,7 @@ class VoidRegion(Region):
 
         logging.info(self)
         if not self.size:
-            logging.warning("Zero size region skipped")
+            logging.warning("Zero size regions will not be added.")
             return None
 
         # MemoryRegion Blocks and text

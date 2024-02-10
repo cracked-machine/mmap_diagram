@@ -42,7 +42,7 @@ class MemoryMap:
         """Fixed size for legend text"""
 
         self.void_thres: int = None
-        """Void space threshold for adding skipped regions"""
+        """Void space threshold for adding VoidRegion objs"""
 
         self._region_list: List[mm.types.MemoryRegion] = []
         """List of region objects"""
@@ -57,7 +57,7 @@ class MemoryMap:
             origin = t[1]
             size = t[2]
             if self._region_list and any(x.name == name for x in self._region_list):
-                warnings.warn(f"Duplicate region names ({name}) are not permitted. MemoryRegion will be skipped.", RuntimeWarning)
+                warnings.warn(f"Duplicate region names ({name}) are not permitted. MemoryRegion will not be added.", RuntimeWarning)
             else:
                 self._region_list.append(mm.types.MemoryRegion(name, origin, size))
 
@@ -65,7 +65,6 @@ class MemoryMap:
         r: mm.types.MemoryRegion
         for r in self._region_list:
             r.calc_nearest_region(self._region_list, self.height)
-
 
         self._legend_width = self.width // 2
         """width of the area used for text annotations/legend"""
