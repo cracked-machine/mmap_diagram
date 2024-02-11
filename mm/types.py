@@ -18,18 +18,25 @@ class Region():
 
         self.name: str = name
         """region legend"""
+
         self._origin: str = origin
         """region address as hex"""
+
         self._size: str = size
         """size in bytes"""
+
         self.colour = self._pick_available_colour()
         """random colour for region block"""
+
         self.bordercolour = "black"
         """The border colour to use for the region"""
+
         self.remain: str = None
         """Number of bytes until next region block"""
-        self.collisons: Dict(str, str) = {}
+
+        self.collisons: Dict = {}
         """Map of collision regions by name (str) and distance (hex)"""
+
         self.draw_indent = 0
         """Index counter for incrementally shrinking the drawing indent"""
 
@@ -80,64 +87,67 @@ class Region():
             # del MemoryRegion._remaining_colours[chosen_colour_name]
             logging.debug(f"\tSelected {chosen_colour_name}({chosen_colour_code})")
         except (IndexError, KeyError):
-            raise SystemExit("Ran out of colours!")
+            logging.critical("Ran out of colours!")
+            raise SystemExit()
         logging.debug(f"\t### {len(MemoryRegion._remaining_colours)} colours left ###")
         return chosen_colour_name
 
     def calc_nearest_region(self, region_list: List['MemoryRegion'], diagram_height: int):
         """Calculate the remaining number of bytes until next region block"""
         
-        region_distances = {}
+        non_collision_distances = {}
+
         logging.debug(f"Calculating nearest distances to {self.name} region:")
         this_region_end = 0
 
-        for probed_region in region_list:
+        for other_region in region_list:
             # calc the end address of this and inspected region
             this_region_end: int = self.origin + self.size
-            probed_region_end: int = probed_region.origin + probed_region.size
+            other_region_end: int = other_region.origin + other_region.size
 
             # skip calculating distance from yourself.
-            if self.name == probed_region.name:
+            if self.name == other_region.name:
                 continue
 
             # skip if 'this' region origin is ahead of the probed region end address
-            if self.origin > probed_region_end:
+            if self.origin > other_region_end:
                 continue
 
-            probed_region_distance: int = probed_region.origin - this_region_end
-            logging.debug(f"\t{hex(probed_region_distance)} bytes to {probed_region.name}")
+            distance_to_other_region: int = other_region.origin - this_region_end
+            logging.debug(f"\t{hex(distance_to_other_region)} bytes to {other_region.name}")
 
             # collision detected
-            if probed_region_distance < 0:
+            if distance_to_other_region < 0:
                 # was the region that collided into us at a lower or higher origin address
-                if probed_region.origin < self.origin:
+                if other_region.origin < self.origin:
                     # lower so use our origin address as the collion point
-                    self.collisons[probed_region.name] = hex(self.origin)
+                    self.collisons[other_region.name] = hex(self.origin)
                 else:
-                    # higher so use their origin address as the collion point
-                    self.collisons[probed_region.name] = hex(probed_region.origin)
+                    # higher so use their origin address as the collision point
+                    self.collisons[other_region.name] = hex(other_region.origin)
 
-                if self.origin < probed_region.origin:
+                if self.origin < other_region.origin:
                     # no distance left
-                    self.remain = hex(probed_region_distance)
+                    self.remain = hex(distance_to_other_region)
                     pass
 
             else:
                 # record the distance for later
-                region_distances[probed_region.name] = probed_region_distance
+                non_collision_distances[other_region.name] = distance_to_other_region
                 # set a first value while we have it (in case there are no future collisions)
                 if not self.remain and not self.collisons:
-                    self.remain = hex(probed_region_distance)
+                    self.remain = hex(distance_to_other_region)
                 # # if remain not already set to no distance left then set the positive remain distance
                 elif not self.remain:
-                    self.remain = hex(probed_region_distance)
+                    self.remain = hex(distance_to_other_region)
 
-        logging.debug(f"Non-collision distances - {region_distances}")
+        logging.debug(f"Non-collision distances - {non_collision_distances}")
+        
         # after probing each region we must now pick the lowest distance ()
         if not self.collisons:
-            if region_distances:
-                lowest = min(region_distances, key=region_distances.get)
-                self.remain = hex(region_distances[lowest])
+            if non_collision_distances:
+                lowest = min(non_collision_distances, key=non_collision_distances.get)
+                self.remain = hex(non_collision_distances[lowest])
             else:
                 self.remain = hex(diagram_height - this_region_end)
         elif self.collisons and not self.remain:

@@ -22,9 +22,13 @@ formatter = logging.Formatter('%(levelname)s - %(message)s')
 handler.setFormatter(formatter)
 root.addHandler(handler)
 
-
 @typeguard.typechecked
 class MemoryMap:
+
+    class DashedLine:
+        width: int = 1
+        gap: int  = 4
+        len: int = gap // 2 
 
     def __init__(self):
         self.bgcolour = "oldlace"
@@ -42,6 +46,9 @@ class MemoryMap:
         self.fixed_legend_text_size = 12
         """Fixed size for legend text"""
 
+        self._legend_width = self.width // 2
+        """width of the area used for text annotations/legend"""
+
         self.table_text_size = 15
         """Fixed size for table text"""
 
@@ -51,161 +58,145 @@ class MemoryMap:
         self._region_list: List[mm.types.MemoryRegion] = []
         """List of memregion objects"""
 
-        self._process_input()
-        self._rescale()
+        self.voidregion = mm.types.VoidRegion(size=hex(40))
+        """The reusable object used to represent the void regions in the memory map"""
+        self.voidregion.create_img(img_width=(self.width - 20), font_size=self.default_region_text_size)
 
-        # create mm.types.MemoryRegion objs for each data tuple
-        t: Tuple
-        for t in self._batched(self.args.regions, 3):
-            name = t[0]
-            origin = t[1]
-            size = t[2]
-            if not origin[:2] == "0x" or not size[:2] == "0x":
-                logging.critical(f"Region 'origin' and 'size' data should be in hex (0x) format: Found {t}", )
-                raise SystemExit()
-            if self._region_list and any(x.name == name for x in self._region_list):
-                warnings.warn(f"Duplicate memregion names ({name}) are not permitted. MemoryRegion will not be added.", RuntimeWarning)
-            else:
-                self._region_list.append(mm.types.MemoryRegion(name, origin, size))
+        self._process_input()
+        self._rescale_image()
+
+        self.top_addr_lbl = mm.types.TextLabel(hex(self.height), self.fixed_legend_text_size)
+        """Make sure this is created after rescale"""
 
         # calculate each regions distance to the next memregion and for any overlaps
-        r: mm.types.MemoryRegion
-        for r in self._region_list:
-            r.calc_nearest_region(self._region_list, self.height)
+        memregion: mm.types.MemoryRegion
+        for memregion in self._region_list:
+            memregion.calc_nearest_region(self._region_list, self.height)
 
-        self._legend_width = self.width // 2
-        """width of the area used for text annotations/legend"""
-
-        # temporarily sort by ascending origin attribute and assign the draw indent
+        # assign the draw indent by ascending origin
         self._region_list.sort(key=lambda x: x.origin, reverse=False)
         region_indent = 0
-        for r in self._region_list:
-            r.draw_indent = region_indent
+        for memregion in self._region_list:
+            memregion.draw_indent = region_indent
             region_indent += 5
 
-        # sort in descending order so largest regions are drawn first in z-order (background)
+        # sort in descending size order for z-order.
+        # smaller in foreground, larger in background
         self._region_list.sort(key=lambda x: x.size, reverse=True)
 
-        self._generate()
-        self._create_summary_table(self._region_list)
-
-    def _generate(self):
-        # output image diagram
-        self._create_diagram(self._region_list)
-        # output markdown report (refs image)
+        self._create_diagram_image(self._region_list)
         self._create_markdown(self._region_list)
+        self._create_table_image(self._region_list)
 
-    def _rescale(self):
+    def _rescale_image(self):
+        """Rescale the image using the default or user-defined scale factor"""
         self.height = self.height * self.scale_factor
         self.width = self.width * self.scale_factor
-        # self.default_region_text_size = self.default_region_text_size * self.scale_factor
 
-    def _create_diagram(self, region_list: List[mm.types.MemoryRegion]):
-
+    def _create_diagram_image(self, region_list: List[mm.types.MemoryRegion]):
+        """Create the png format image for the diagram from the mm.types.MemoryRegion objects"""
         # init the main image
-        img_main_full = PIL.Image.new("RGB", (self.width, self.height), color=self.bgcolour)
+        new_diagram_img = PIL.Image.new("RGB", (self.width, self.height), color=self.bgcolour)
 
         # paste each new graphic element image to main image
         for memregion in region_list:
-
-            # Regions
             memregion.create_img(img_width=(self.width - self._legend_width), font_size=self.default_region_text_size)
             if not memregion.img:
                 continue
-            img_main_full.paste(memregion.img, (self._legend_width + memregion.draw_indent, memregion.origin), memregion.img)
+            new_diagram_img.paste(memregion.img, (self._legend_width + memregion.draw_indent, memregion.origin), memregion.img)
 
-            # Origin Address Text
+            # Origin address text for this memory region
             origin_text_label = mm.types.TextLabel(memregion._origin, self.fixed_legend_text_size)
-            img_main_full.paste(origin_text_label.img, (0, memregion.origin - origin_text_label.height + 1))
+            new_diagram_img.paste(origin_text_label.img, (0, memregion.origin - origin_text_label.height + 1))
 
-            # Region End Address Text
-            end_addr_val = memregion.origin + memregion.size
-            end_addr_text_label = mm.types.TextLabel(hex(end_addr_val), self.fixed_legend_text_size)
-            img_main_full.paste(end_addr_text_label.img, (0, end_addr_val - end_addr_text_label.height + 1))
+            # End address text for this memory region
+            region_end_addr = memregion.origin + memregion.size
+            region_end_addr_lbl = mm.types.TextLabel(hex(region_end_addr), self.fixed_legend_text_size)
+            new_diagram_img.paste(region_end_addr_lbl.img, (0, region_end_addr - region_end_addr_lbl.height + 1))
 
-            # Diagram End Address Text
-            diagram_end_addr_val = self.height
-            diagram_end_addr_label = mm.types.TextLabel(hex(diagram_end_addr_val), self.fixed_legend_text_size)
-            img_main_full.paste(diagram_end_addr_label.img, (0, diagram_end_addr_val - diagram_end_addr_label.height - 5))
+            # Top address text for the whole diagram
+            top_addr = self.height
+            top_addr_lbl = mm.types.TextLabel(hex(top_addr), self.fixed_legend_text_size)
+            new_diagram_img.paste(top_addr_lbl.img, (0, top_addr - top_addr_lbl.height - 5))
 
             # Dash Lines from text to memregion
-            line_width = 1
-            line_canvas = PIL.ImageDraw.Draw(img_main_full)
-            dash_gap = 4
-            dash_len = dash_gap / 2
+            line_canvas = PIL.ImageDraw.Draw(new_diagram_img)
+            for x in range(region_end_addr_lbl.width * 2, self._legend_width - 10, MemoryMap.DashedLine.gap):
+                line_canvas.line((x, region_end_addr - MemoryMap.DashedLine.width, x + MemoryMap.DashedLine.len, region_end_addr - MemoryMap.DashedLine.width), fill="black", width=MemoryMap.DashedLine.width)
 
-            for x in range(end_addr_text_label.width * 2, self._legend_width - 10, dash_gap):
-                line_canvas.line((x, end_addr_val - line_width, x + dash_len, end_addr_val - line_width), fill="black", width=line_width)
+            for x in range(origin_text_label.width * 2, self._legend_width - 10, MemoryMap.DashedLine.gap):
+                line_canvas.line((x, memregion.origin - MemoryMap.DashedLine.width, x + MemoryMap.DashedLine.len, memregion.origin - MemoryMap.DashedLine.width), fill="black", width=1)
 
-            for x in range(origin_text_label.width * 2, self._legend_width - 10, dash_gap):
-                line_canvas.line((x, memregion.origin - line_width, x + dash_len, memregion.origin - line_width), fill="black", width=1)
+            for x in range(top_addr_lbl.width * 2, self.width - 10, MemoryMap.DashedLine.gap):
+                line_canvas.line((x, top_addr - 7, x + MemoryMap.DashedLine.len, top_addr - 7), fill="black", width=MemoryMap.DashedLine.width)                
 
-            for x in range(diagram_end_addr_label.width * 2, self.width - 10, dash_gap):
-                line_canvas.line((x, diagram_end_addr_val - 7, x + dash_len, diagram_end_addr_val - 7), fill="black", width=line_width)                
-
-        self._truncate_diagram(img_main_full, region_list)
+        self._insert_void_regions(new_diagram_img, region_list)
 
         # rotate the entire diagram so the origin is at the bottom
-        img_main_full = img_main_full.rotate(180)
+        new_diagram_img = new_diagram_img.rotate(180)
 
         # output image file
         img_file_path = pathlib.Path(self.args.out).stem + "_full.png"
-        img_main_full.save(pathlib.Path(self.args.out).parent / img_file_path)
+        new_diagram_img.save(pathlib.Path(self.args.out).parent / img_file_path)
 
-    def _truncate_diagram(self, img_to_crop: PIL.Image.Image, memregion_list: List[mm.types.MemoryRegion]):
-        """Remove large empty spaces and replace them with fixed size VoidRegion objects"""
-        # gather up the clusters of regions divided by large spaces
-        memregion_cluster_list = []
-        address_cursor = 0
+    def _insert_void_regions(self, original_img: PIL.Image.Image, memregion_list: List[mm.types.MemoryRegion]):
+        """ Remove large empty spaces and replace them with fixed size VoidRegion objects.
+            This function actually chops up the existing diagram image into smaller images containing
+            only MemoryRegions. It then pastes the smaller image into a new image, inserting VoidRegion 
+            images inbetween """
+        
+        # find the large empty spaces in the memory map
+        region_subset_list: List[PIL.Image.Image] = []
+        img_addr_idx = 0
         for memregion in memregion_list:
-            end_addr_val = memregion.origin + memregion.size
+            region_end_addr = memregion.origin + memregion.size
             if int(memregion.remain, 16) > self.void_threshold:
+
                 # dont forget the image is upside down at this stage, so upper and lower are reversed.
-                (left, upper, right, lower) = (0, address_cursor - 10, img_to_crop.width, end_addr_val + 10)
-                cropped_img = img_to_crop.crop((left, upper, right, lower))
-                memregion_cluster_list.append(cropped_img)
+                (left, upper, right, lower) = (0, img_addr_idx - 10, original_img.width, region_end_addr + 10)
+                region_subset = original_img.crop((left, upper, right, lower))
+                region_subset_list.append(region_subset)
 
                 # move the cursor up past the end of the current memregion and the empty space
-                address_cursor = end_addr_val + int(memregion.remain, 16)
+                img_addr_idx = region_end_addr + int(memregion.remain, 16)
 
-        # join all the cropped images together into a smaller main image
-        voidregion = mm.types.VoidRegion(size=hex(40))
-        voidregion.create_img(img_width=(self.width - 20), font_size=self.default_region_text_size)
-        total_cropped_height = sum(r.height for r in memregion_cluster_list)
-        total_cropped_height = total_cropped_height + (len(memregion_cluster_list) * voidregion.img.height) + 20
-        img_main_cropped = PIL.Image.new("RGB", (self.width, total_cropped_height), color=self.bgcolour)
-        y_pos = 0
-        for region_cluster in memregion_cluster_list:
-            img_main_cropped.paste(region_cluster, (0, y_pos))
-            y_pos = y_pos + region_cluster.height
-
-            img_main_cropped.paste(voidregion.img, (10, y_pos))
-            y_pos = y_pos + voidregion.img.height
+        if not region_subset_list:
+            # no spaces were found in the diagram to be above the void threshold
+            img_file_path = pathlib.Path(self.args.out).stem + "_cropped.png"
+            original_img = original_img.rotate(180)
+            original_img.save(pathlib.Path(self.args.out).parent / img_file_path)
+        else:
+            # calculate the new reduced diagram image height plus some padding
+            new_cropped_height = \
+                sum(img.height for img in region_subset_list) \
+                + (len(region_subset_list) * self.voidregion.img.height) \
+                + 20
             
-        # Diagram End Address Text
-        diagram_end_addr_val = self.height
-        diagram_end_addr_label = mm.types.TextLabel(hex(diagram_end_addr_val), self.fixed_legend_text_size)
-        img_main_cropped.paste(diagram_end_addr_label.img, (0, img_main_cropped.height - diagram_end_addr_label.height - 10))
-        
-        # Diagram End Dash Line
-        line_width = 1
-        line_canvas = PIL.ImageDraw.Draw(img_main_cropped)
-        dash_gap = 4
-        dash_len = dash_gap / 2
-        for x in range(diagram_end_addr_label.width * 2, self.width - 10, dash_gap):
-            line_canvas.line((x, img_main_cropped.height - diagram_end_addr_label.height - 3,
-                             x + dash_len,
-                             img_main_cropped.height - diagram_end_addr_label.height - 3),
-                             fill="black",
-                             width=line_width)
+            # now create the new image alternating the region subsets and void regions
+            new_cropped_image = PIL.Image.new("RGB", (self.width, new_cropped_height), color=self.bgcolour)
+            y_pos = 0
+            for region_subset in region_subset_list:
+                new_cropped_image.paste(region_subset, (0, y_pos))
+                y_pos = y_pos + region_subset.height
 
-        # no large empty regions were found so just copy in the existing image
-        if not memregion_cluster_list:
-            img_main_cropped = img_to_crop
+                new_cropped_image.paste(self.voidregion.img, (10, y_pos))
+                y_pos = y_pos + self.voidregion.img.height
+                
+            # Diagram End Address Text
+            new_cropped_image.paste(self.top_addr_lbl.img, (0, new_cropped_image.height - self.top_addr_lbl.height - 10))
+            
+            # Diagram End Dash Line
+            line_canvas = PIL.ImageDraw.Draw(new_cropped_image)
+            for x in range(self.top_addr_lbl.width * 2, self.width - 10, MemoryMap.DashedLine.gap):
+                line_canvas.line((x, new_cropped_image.height - self.top_addr_lbl.height - 3,
+                                x + MemoryMap.DashedLine.len,
+                                new_cropped_image.height - self.top_addr_lbl.height - 3),
+                                fill="black",
+                                width=MemoryMap.DashedLine.width)
 
-        img_main_cropped = img_main_cropped.rotate(180)
-        img_file_path = pathlib.Path(self.args.out).stem + "_cropped.png"
-        img_main_cropped.save(pathlib.Path(self.args.out).parent / img_file_path)
+            new_cropped_image = new_cropped_image.rotate(180)
+            img_file_path = pathlib.Path(self.args.out).stem + "_cropped.png"
+            new_cropped_image.save(pathlib.Path(self.args.out).parent / img_file_path)
 
     def _create_markdown(self, region_list: List[mm.types.MemoryRegion]):
         """Create markdown doc containing the diagram image and text-base summary table"""
@@ -216,7 +207,7 @@ class MemoryMap:
             for memregion in region_list:
                 f.write(f"{memregion}\n")
 
-    def _create_summary_table(self, region_list: List[mm.types.MemoryRegion]):
+    def _create_table_image(self, region_list: List[mm.types.MemoryRegion]):
         """Create a png image of the summary table"""
         table_data = []
         for memregion in region_list:
@@ -262,7 +253,6 @@ class MemoryMap:
             self.parser.error("'voidthreshold' argument should be in hex format: 0x")        
         self.void_threshold: int = int(self.args.voidthreshold, 16)
 
-
         # make sure the output path is valid and parent dir exists
         if not pathlib.Path(self.args.out).suffix == ".md":
             raise NameError("Output file should end with .md")
@@ -274,6 +264,20 @@ class MemoryMap:
         if len(self.args.regions) % 3:
             self.parser.error("command line input data should be in multiples of three")
 
+        # create mm.types.MemoryRegion objs for each data tuple
+        for datatuple in self._batched(self.args.regions, 3):
+            name = datatuple[0]
+            origin = datatuple[1]
+            size = datatuple[2]
+            if not origin[:2] == "0x" or not size[:2] == "0x":
+                logging.critical(f"Region 'origin' and 'size' data should be in hex (0x) format: Found {datatuple}", )
+                raise SystemExit()
+            if self._region_list and any(x.name == name for x in self._region_list):
+                warnings.warn(f"Duplicate memregion names ({name}) are not permitted. MemoryRegion will not be added.", RuntimeWarning)
+            else:
+                self._region_list.append(mm.types.MemoryRegion(name, origin, size))
+
+
     def _batched(self, iterable, n):
         """ batched('ABCDEFG', 3) --> ABC DEF G """
         if n < 1:
@@ -281,7 +285,6 @@ class MemoryMap:
         it = iter(iterable)
         while batch := tuple(itertools.islice(it, n)):
             yield batch
-
 
 if __name__ == "__main__":
     d = MemoryMap()
