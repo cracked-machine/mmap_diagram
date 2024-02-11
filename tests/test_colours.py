@@ -8,7 +8,7 @@
 # #     """ white is a forbidden colour and thare are not enough colours left for 3 regions
 # #     so it should pass with error """
 # #     with unittest.mock.patch('sys.argv',
-# #                              ['mmap_digram.diagram',
+# #                              ['mm.diagram',
 # #                               'kernel',
 # #                               '0x10',
 # #                               '0x60',
@@ -31,7 +31,7 @@
 #     """ black is not a forbidden colour but thare are not enough colours left for 3 regions
 #     so it should pass with error """
 #     with unittest.mock.patch('sys.argv',
-#                              ['mmap_digram.diagram',
+#                              ['mm.diagram',
 #                               'kernel',
 #                               '0x10',
 #                               '0x60',
@@ -53,7 +53,7 @@
 # def test_only_one_lightslategr_y():
 #     """ make sure 'lightslategray' is removed from the colour list """
 #     with unittest.mock.patch('sys.argv',
-#                              ['mmap_digram.diagram',
+#                              ['mm.diagram',
 #                               'kernel', '0x10', '0x60',
 #                               'rootfs', '0x50', '0x10'
 #                               "-o", f"/tmp/pytest/{__name__}.md"],

@@ -39,7 +39,7 @@ def test_scaling_x1(setup):
     requested_scale = 1
 
     with unittest.mock.patch('sys.argv',
-                             ['mmap_digram.diagram',
+                             ['mm.diagram',
                               'kernel',
                               '0x10',
                               '0x30',
@@ -85,7 +85,7 @@ def test_scaling_x2(setup):
     requested_scale = 2
 
     with unittest.mock.patch('sys.argv',
-                             ['mmap_digram.diagram',
+                             ['mm.diagram',
                               'kernel',
                               '0x10',
                               '0x30',

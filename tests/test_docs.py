@@ -24,7 +24,7 @@ def test_generate_doc_example_normal(setup):
 
     diagram_height = 1000
     with unittest.mock.patch('sys.argv',
-                             ['mmap_digram.diagram',
+                             ['mm.diagram',
                               'kernel',
                               '0x10',
                               '0x30',
@@ -75,7 +75,7 @@ def test_generate_doc_example_collisions(setup):
     """  """
     diagram_height = hex(1000)
     with unittest.mock.patch('sys.argv',
-                             ['mmap_digram.diagram',
+                             ['mm.diagram',
                               'kernel',
                               '0x10',
                               '0x60',

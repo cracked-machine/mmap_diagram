@@ -25,7 +25,7 @@ def test_void_region_default(setup):
 
     diagram_height = 2000
     with unittest.mock.patch('sys.argv',
-                             ['mmap_digram.diagram',
+                             ['mm.diagram',
                               'kernel',
                               '0x10',
                               '0x30',
@@ -75,7 +75,7 @@ def test_void_region_uservalue_500(setup):
 
     diagram_height = 1000
     with unittest.mock.patch('sys.argv',
-                             ['mmap_digram.diagram',
+                             ['mm.diagram',
                               'kernel',
                               '0x10',
                               '0x30',
@@ -126,7 +126,7 @@ def test_void_region_uservalue_200(setup):
 
     diagram_height = 1000
     with unittest.mock.patch('sys.argv',
-                             ['mmap_digram.diagram',
+                             ['mm.diagram',
                               'kernel',
                               '0x10',
                               '0x30',
