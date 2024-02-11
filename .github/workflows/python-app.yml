@@ -41,7 +41,7 @@ jobs:
         sudo make init 
         pip install pyinstaller
         cd mm
-        pyinstaller -F --paths=..\venv\Lib\site-packages diagram.py
+        pyinstaller -F --paths=../venv/Lib/site-packages diagram.py
     - name: upload binary
       uses: actions/upload-artifact@v4
       with:
