@@ -39,8 +39,6 @@ jobs:
       run: |
         env
         sudo make init 
-        sudo apt install -y tree
-        tree venv
         pip install pyinstaller
         cd mm
         pyinstaller -F --paths=venv\Lib\site-packages diagram.py
