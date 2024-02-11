@@ -37,6 +37,7 @@ jobs:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     - name: create binary
       run: |
+        env
         sudo make init 
         sudo apt install -y tree
         tree venv
