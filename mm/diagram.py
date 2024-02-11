@@ -205,6 +205,7 @@ class MemoryMap:
         img_main_cropped.save(pathlib.Path(self.args.out).parent / img_file_path)
 
     def _create_markdown(self, region_list: List[mm.types.MemoryRegion]):
+        """Create markdown doc containing the diagram image and text-base summary table"""
         with open(self.args.out, "w") as f:
             f.write(f"""![memory map diagram]({pathlib.Path(self.args.out).stem}.png)\n""")
             f.write("|name|origin|size|remaining|collisions\n")
@@ -213,6 +214,7 @@ class MemoryMap:
                 f.write(f"{memregion}\n")
 
     def _create_summary_table(self, region_list: List[mm.types.MemoryRegion]):
+        """Create a png image of the summary table"""
         table_data = []
         for memregion in region_list:
             table_data.append(memregion.get_data_as_list())
@@ -220,7 +222,9 @@ class MemoryMap:
         table: PIL.Image.Image = mm.types.Table().draw_table(
             table=table_data,
             header=["Name", "Origin", "Size", "Remains", "Collisions"],
-            font=PIL.ImageFont.load_default(self.table_text_size)
+            font=PIL.ImageFont.load_default(self.table_text_size),
+            stock=True,
+            colors={'red':'green','green':'red'}
         )
         tableimg_file_path = pathlib.Path(self.args.out).stem + "_table.png"
         table.save(pathlib.Path(self.args.out).parent / tableimg_file_path)

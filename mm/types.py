@@ -58,8 +58,12 @@ class Region():
             + str(self.remain) + "|"\
             + str(self.collisons) + "|"
 
-    def get_data_as_list(self):
-        return [str(self.name), str(self._origin), str(self._size), str(self.remain), str(self.collisons)]
+    def get_data_as_list(self) -> List:
+        """Get selected instance attributes"""
+        if self.collisons:
+            return [str(self.name), str(self._origin), str(self._size), str(self.remain), "-" + str(self.collisons)]
+        else:
+            return [str(self.name), str(self._origin), str(self._size), str(self.remain), "+" + str(None)]
         
     def _pick_available_colour(self):
         # remove the picked colour from the list so it can't be picked again
