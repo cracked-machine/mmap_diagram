@@ -1,6 +1,8 @@
 init:
 	apt update && apt install --auto-remove -y lcov python3-venv python3-pip python3-dev python3-setuptools 
 	python3 -m venv venv
+	ls -la 
+	pwd
 	source venv/bin/activate
 	pip install -r requirements.txt
 test:
