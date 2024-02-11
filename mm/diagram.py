@@ -5,7 +5,7 @@ import PIL.ImageDraw
 import PIL.ImageColor
 import PIL.ImageFont
 
-from typing import List, Tuple
+from typing import List
 import typeguard
 
 import sys
@@ -27,7 +27,7 @@ class MemoryMap:
 
     class DashedLine:
         width: int = 1
-        gap: int  = 4
+        gap: int = 4
         len: int = gap // 2 
 
     def __init__(self):
@@ -144,7 +144,7 @@ class MemoryMap:
             This function actually chops up the existing diagram image into smaller images containing
             only MemoryRegions. It then pastes the smaller image into a new image, inserting VoidRegion 
             images inbetween """
-        
+
         # find the large empty spaces in the memory map
         region_subset_list: List[PIL.Image.Image] = []
         img_addr_idx = 0
@@ -171,7 +171,7 @@ class MemoryMap:
                 sum(img.height for img in region_subset_list) \
                 + (len(region_subset_list) * self.voidregion.img.height) \
                 + 20
-            
+  
             # now create the new image alternating the region subsets and void regions
             new_cropped_image = PIL.Image.new("RGB", (self.width, new_cropped_height), color=self.bgcolour)
             y_pos = 0
@@ -181,18 +181,18 @@ class MemoryMap:
 
                 new_cropped_image.paste(self.voidregion.img, (10, y_pos))
                 y_pos = y_pos + self.voidregion.img.height
-                
+    
             # Diagram End Address Text
             new_cropped_image.paste(self.top_addr_lbl.img, (0, new_cropped_image.height - self.top_addr_lbl.height - 10))
-            
+ 
             # Diagram End Dash Line
             line_canvas = PIL.ImageDraw.Draw(new_cropped_image)
             for x in range(self.top_addr_lbl.width * 2, self.width - 10, MemoryMap.DashedLine.gap):
                 line_canvas.line((x, new_cropped_image.height - self.top_addr_lbl.height - 3,
-                                x + MemoryMap.DashedLine.len,
-                                new_cropped_image.height - self.top_addr_lbl.height - 3),
-                                fill="black",
-                                width=MemoryMap.DashedLine.width)
+                                 x + MemoryMap.DashedLine.len,
+                                 new_cropped_image.height - self.top_addr_lbl.height - 3),
+                                 fill="black",
+                                 width=MemoryMap.DashedLine.width)
 
             new_cropped_image = new_cropped_image.rotate(180)
             img_file_path = pathlib.Path(self.args.out).stem + "_cropped.png"
@@ -277,7 +277,6 @@ class MemoryMap:
             else:
                 self._region_list.append(mm.types.MemoryRegion(name, origin, size))
 
-
     def _batched(self, iterable, n):
         """ batched('ABCDEFG', 3) --> ABC DEF G """
         if n < 1:
@@ -286,6 +285,6 @@ class MemoryMap:
         while batch := tuple(itertools.islice(it, n)):
             yield batch
 
+
 if __name__ == "__main__":
     d = MemoryMap()
-
