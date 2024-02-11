@@ -22,13 +22,14 @@ formatter = logging.Formatter('%(levelname)s - %(message)s')
 handler.setFormatter(formatter)
 root.addHandler(handler)
 
+
 @typeguard.typechecked
 class MemoryMap:
 
     class DashedLine:
         width: int = 1
         gap: int = 4
-        len: int = gap // 2 
+        len: int = gap // 2
 
     def __init__(self):
         self.bgcolour = "oldlace"
@@ -122,13 +123,23 @@ class MemoryMap:
             # Dash Lines from text to memregion
             line_canvas = PIL.ImageDraw.Draw(new_diagram_img)
             for x in range(region_end_addr_lbl.width * 2, self._legend_width - 10, MemoryMap.DashedLine.gap):
-                line_canvas.line((x, region_end_addr - MemoryMap.DashedLine.width, x + MemoryMap.DashedLine.len, region_end_addr - MemoryMap.DashedLine.width), fill="black", width=MemoryMap.DashedLine.width)
+                line_canvas.line((x,
+                                 region_end_addr - MemoryMap.DashedLine.width,
+                                 x + MemoryMap.DashedLine.len,
+                                 region_end_addr - MemoryMap.DashedLine.width),
+                                 fill="black",
+                                 width=MemoryMap.DashedLine.width)
 
             for x in range(origin_text_label.width * 2, self._legend_width - 10, MemoryMap.DashedLine.gap):
-                line_canvas.line((x, memregion.origin - MemoryMap.DashedLine.width, x + MemoryMap.DashedLine.len, memregion.origin - MemoryMap.DashedLine.width), fill="black", width=1)
+                line_canvas.line((x,
+                                 memregion.origin - MemoryMap.DashedLine.width,
+                                 x + MemoryMap.DashedLine.len,
+                                 memregion.origin - MemoryMap.DashedLine.width),
+                                 fill="black",
+                                 width=1)
 
             for x in range(top_addr_lbl.width * 2, self.width - 10, MemoryMap.DashedLine.gap):
-                line_canvas.line((x, top_addr - 7, x + MemoryMap.DashedLine.len, top_addr - 7), fill="black", width=MemoryMap.DashedLine.width)                
+                line_canvas.line((x, top_addr - 7, x + MemoryMap.DashedLine.len, top_addr - 7), fill="black", width=MemoryMap.DashedLine.width)
 
         self._insert_void_regions(new_diagram_img, region_list)
 
@@ -142,7 +153,7 @@ class MemoryMap:
     def _insert_void_regions(self, original_img: PIL.Image.Image, memregion_list: List[mm.types.MemoryRegion]):
         """ Remove large empty spaces and replace them with fixed size VoidRegion objects.
             This function actually chops up the existing diagram image into smaller images containing
-            only MemoryRegions. It then pastes the smaller image into a new image, inserting VoidRegion 
+            only MemoryRegions. It then pastes the smaller image into a new image, inserting VoidRegion
             images inbetween """
 
         # find the large empty spaces in the memory map
@@ -171,7 +182,7 @@ class MemoryMap:
                 sum(img.height for img in region_subset_list) \
                 + (len(region_subset_list) * self.voidregion.img.height) \
                 + 20
-  
+
             # now create the new image alternating the region subsets and void regions
             new_cropped_image = PIL.Image.new("RGB", (self.width, new_cropped_height), color=self.bgcolour)
             y_pos = 0
@@ -181,10 +192,10 @@ class MemoryMap:
 
                 new_cropped_image.paste(self.voidregion.img, (10, y_pos))
                 y_pos = y_pos + self.voidregion.img.height
-    
+
             # Diagram End Address Text
             new_cropped_image.paste(self.top_addr_lbl.img, (0, new_cropped_image.height - self.top_addr_lbl.height - 10))
- 
+
             # Diagram End Dash Line
             line_canvas = PIL.ImageDraw.Draw(new_cropped_image)
             for x in range(self.top_addr_lbl.width * 2, self.width - 10, MemoryMap.DashedLine.gap):
@@ -218,7 +229,7 @@ class MemoryMap:
             header=["Name", "Origin", "Size", "Remains", "Collisions"],
             font=PIL.ImageFont.load_default(self.table_text_size),
             stock=True,
-            colors={'red':'green','green':'red'}
+            colors={'red': 'green', 'green': 'red'}
         )
         tableimg_file_path = pathlib.Path(self.args.out).stem + "_table.png"
         table.save(pathlib.Path(self.args.out).parent / tableimg_file_path)
@@ -248,9 +259,9 @@ class MemoryMap:
         self.height: int = int(self.args.limit, 16)
 
         self.scale_factor: int = int(self.args.scale)
-        
+
         if not self.args.voidthreshold[:2] == "0x":
-            self.parser.error("'voidthreshold' argument should be in hex format: 0x")        
+            self.parser.error("'voidthreshold' argument should be in hex format: 0x")
         self.void_threshold: int = int(self.args.voidthreshold, 16)
 
         # make sure the output path is valid and parent dir exists
