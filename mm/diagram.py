@@ -60,6 +60,9 @@ class MemoryMap:
             name = t[0]
             origin = t[1]
             size = t[2]
+            if not origin[:2] == "0x" or not size[:2] == "0x":
+                logging.critical(f"Region 'origin' and 'size' data should be in hex (0x) format: Found {t}", )
+                raise SystemExit()
             if self._region_list and any(x.name == name for x in self._region_list):
                 warnings.warn(f"Duplicate memregion names ({name}) are not permitted. MemoryRegion will not be added.", RuntimeWarning)
             else:

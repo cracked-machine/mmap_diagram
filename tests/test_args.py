@@ -45,6 +45,36 @@ def test_arg_tuple():
         mm.diagram.MemoryMap()
 
 
+def test_invalid_region_data_format1():
+    with unittest.mock.patch('sys.argv',
+                             ['mmap_digram.diagram',
+                              'a',
+                              '10',
+                              '0x10']):
+        with pytest.raises(SystemExit):
+            mm.diagram.MemoryMap()
+
+
+def test_invalid_region_data_format2():
+    with unittest.mock.patch('sys.argv',
+                             ['mmap_digram.diagram',
+                              'a',
+                              '10',
+                              '0x10']):
+        with pytest.raises(SystemExit):
+            mm.diagram.MemoryMap()
+
+
+def test_invalid_region_data_formatBoth():
+    with unittest.mock.patch('sys.argv',
+                             ['mmap_digram.diagram',
+                              'a',
+                              '10',
+                              '10']):
+        with pytest.raises(SystemExit):
+            mm.diagram.MemoryMap()
+
+
 def test_invalid_out_arg():
     ''' output path should end in .md  '''
     with unittest.mock.patch('sys.argv',
