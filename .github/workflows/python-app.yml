@@ -19,10 +19,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    # - name: Set up Python 3.10
-    #   uses: actions/setup-python@v3
-    #   with:
-    #     python-version: "3.10"
     - name: Install dependencies
       run: |
         sudo make init 
@@ -41,6 +37,7 @@ jobs:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     - name: create binary
       run: |
+        sudo make init 
         pip install pyinstaller
         cd mm
         pyinstaller diagram.py
