@@ -39,12 +39,12 @@ jobs:
       run: |
         sudo make init package 
     - name: check file
-      run: ls -la dist
+      run: ls -la /home/runner/work/mmdiagram/mmdiagram/dist
     - name: upload wheel
       uses: actions/upload-artifact@v4
       with:
         name: python wheel
-        path: dist
+        path: /home/runner/work/mmdiagram/mmdiagram/dist
         if-no-files-found: error     
 
 
