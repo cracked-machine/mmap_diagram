@@ -37,6 +37,7 @@ jobs:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     - name: create wheel
       run: |
+        env
         sudo make init package 
         sudo chmod 777 ${GITHUB_WORKSPACE}/dist/*
     - name: upload wheel
