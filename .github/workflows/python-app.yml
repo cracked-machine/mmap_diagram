@@ -39,7 +39,7 @@ jobs:
       run: |
         sudo make init package 
     - name: check file
-      run: ls -la /home/runner/work/mmdiagram/mmdiagram/dist
+      run: sudo chmod 777 /home/runner/work/mmdiagram/mmdiagram/dist/*
     - name: upload wheel
       uses: actions/upload-artifact@v4
       with:
