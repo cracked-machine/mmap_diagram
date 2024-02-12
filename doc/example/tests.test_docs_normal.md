@@ -1,6 +1,6 @@
 ![memory map diagram](tests.test_docs_normal.png)
 |name|origin|size|remaining|collisions
 |:-|:-|:-|:-|:-|
-|<span style='color:darkslategrey'>kernel</span>|0x10|0x30|0x10|{}|
-|<span style='color:green'>rootfs</span>|0x50|0x30|0x110|{}|
-|<span style='color:darkseagreen'>dtb</span>|0x190|0x30|0x228|{}|
+|<span style='color:lightslategrey'>kernel</span>|0x10|0x30|0x10|{}|
+|<span style='color:mediumblue'>rootfs</span>|0x50|0x30|0x110|{}|
+|<span style='color:slategrey'>dtb</span>|0x190|0x30|0x228|{}|

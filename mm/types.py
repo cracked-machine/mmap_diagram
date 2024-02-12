@@ -188,7 +188,8 @@ class VoidRegion(Region):
     def __init__(self, size: str):
 
         self.name: str = "~~~~~ SKIPPED ~~~~~"
-        
+        self.img: PIL.Image = None
+
         super().__init__(self.name, "0x0", size)
 
     def create_img(self, img_width: int, font_size: int):
@@ -199,8 +200,8 @@ class VoidRegion(Region):
             return None
 
         # MemoryRegion Blocks and text
-        region_img = PIL.Image.new("RGBA", (img_width + 1, self.size), color="white")
-        self.region_canvas = PIL.ImageDraw.Draw(region_img)
+        self.img = PIL.Image.new("RGBA", (img_width + 1, self.size), color="white")
+        self.region_canvas = PIL.ImageDraw.Draw(self.img)
 
         # height is -1 to avoid clipping the top border
         self.region_canvas.rectangle(
@@ -211,10 +212,10 @@ class VoidRegion(Region):
         )
 
         # draw name text
-        region_w, region_h = region_img.size
-        region_img.paste(TextLabel(text=self.name, font_size=font_size).img, (region_w // 5, region_h // 3))
+        region_w, region_h = self.img.size
+        txt_img = TextLabel(text=self.name, font_size=font_size).img
+        self.img.paste(txt_img, ((img_width - txt_img.width) // 2, (self.size - txt_img.height) // 2))
 
-        self.img = region_img
 
 
 @typeguard.typechecked
@@ -241,7 +242,7 @@ class TextLabel():
         self.fgcolour = "black"
         """The foreground colour to use for the region text label"""
 
-        self.img: PIL.Image
+        self.img: PIL.Image.Image
         """The image object. Use this with PIL.Image.paste()"""
 
         self._create_img()
