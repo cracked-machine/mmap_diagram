@@ -35,18 +35,14 @@ jobs:
       uses: codecov/codecov-action@v3
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-    # - name: create binary
-    #   run: |
-    #     env
-    #     sudo make init 
-    #     pip install pyinstaller
-    #     cd mm
-    #     pyinstaller -F --paths=../venv/Lib/site-packages diagram.py
-    # - name: upload binary
-    #   uses: actions/upload-artifact@v4
-    #   with:
-    #     name: linux binary
-    #     path: ./dist
-    #     if-no-files-found: error     
+    - name: create wheel
+      run: |
+        sudo make init package 
+    - name: upload binary
+      uses: actions/upload-artifact@v4
+      with:
+        name: python wheel
+        path: ./dist/*
+        if-no-files-found: error     
 
 
