@@ -47,9 +47,6 @@ class MemoryMap:
         self.fixed_legend_text_size = 12
         """Fixed size for legend text"""
 
-        self._legend_width = self.width // 2
-        """width of the area used for text annotations/legend"""
-
         self.table_text_size = 15
         """Fixed size for table text"""
 
@@ -59,12 +56,18 @@ class MemoryMap:
         self._region_list: List[mm.types.MemoryRegion] = []
         """List of memregion objects"""
 
+        self._process_input()
+
+        # attributes using self.width/self.height 
+        # should be done after this function call
+        self._rescale_image()
+
+        self._legend_width = self.width // 2
+        """width of the area used for text annotations/legend"""
+
         self.voidregion = mm.types.VoidRegion(size=hex(40))
         """The reusable object used to represent the void regions in the memory map"""
         self.voidregion.create_img(img_width=(self.width - 20), font_size=self.default_region_text_size)
-
-        self._process_input()
-        self._rescale_image()
 
         self.top_addr_lbl = mm.types.TextLabel(hex(self.height), self.fixed_legend_text_size)
         """Make sure this is created after rescale"""
