@@ -38,11 +38,12 @@ jobs:
     - name: create wheel
       run: |
         sudo make init package 
-    - name: upload binary
+        sudo chmod 777 ./distro/*
+    - name: upload wheel
       uses: actions/upload-artifact@v4
       with:
         name: python wheel
-        path: ./dist/*
+        path: ./dist/*.whl
         if-no-files-found: error     
 
 
