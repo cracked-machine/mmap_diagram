@@ -38,13 +38,12 @@ jobs:
     - name: create wheel
       run: |
         sudo make init package 
-    - name: check file
-      run: sudo chmod 777 /home/runner/work/mmdiagram/mmdiagram/dist/*
+        sudo chmod 777 ${GITHUB_WORKSPACE}/dist/*
     - name: upload wheel
       uses: actions/upload-artifact@v4
       with:
         name: python wheel
-        path: /home/runner/work/mmdiagram/mmdiagram/dist
+        path: ${GITHUB_WORKSPACE}/dist
         if-no-files-found: error     
 
 
