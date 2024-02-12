@@ -221,7 +221,7 @@ class MemoryMap:
     def _create_table_image(self, region_list: List[mm.types.MemoryRegion]):
         """Create a png image of the summary table"""
         table_data = []
-        for memregion in region_list:
+        for memregion in reversed(region_list):
             table_data.append(memregion.get_data_as_list())
 
         table: PIL.Image.Image = mm.types.Table().draw_table(
