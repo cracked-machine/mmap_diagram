@@ -38,6 +38,8 @@ jobs:
     - name: create wheel
       run: |
         sudo make init package 
+        sudo apt install -y tree
+        tree ${GITHUB_WORKSPACE}
     - name: upload wheel
       uses: actions/upload-artifact@v4
       with:
