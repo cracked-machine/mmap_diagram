@@ -38,13 +38,12 @@ jobs:
     - name: create wheel
       run: |
         sudo make init package 
-        sudo apt install -y tree
-        tree ${GITHUB_WORKSPACE}
     - name: upload wheel
+      run: ls -la
       uses: actions/upload-artifact@v4
       with:
         name: python wheel
-        path: ${GITHUB_WORKSPACE}/mm/dist/*.whl
+        path: dist
         if-no-files-found: error     
 
 
