@@ -297,5 +297,5 @@ class MemoryMap:
             yield batch
 
 
-if __name__ == "__main__":
-    d = MemoryMap()
+if __name__ == '__main__':
+    MemoryMap()

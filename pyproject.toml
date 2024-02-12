@@ -1,0 +1,32 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "mmdiagram"
+version = "0.0.1"
+authors = [
+  { name="Chris Sutton", email="chrisjsutton@gmail.com" },
+]
+description = "Tool for generating diagrams that show the mapping of regions in memory, specifcally for visualising and troubleshooting region overlap/collision."
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+  "argparse",
+  "typeguard",
+  "pillow",
+  "pytest",
+  "pytest-cov"
+]
+
+[project.urls]
+Homepage = "https://github.com/cracked-machine/mmdiagram"
+Issues = "https://github.com/cracked-machine/mmdiagram/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["mm"]
