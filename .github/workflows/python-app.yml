@@ -21,7 +21,7 @@ jobs:
     - uses: actions/checkout@v3
     - name: Install dependencies
       run: |
-        sudo make init 
+        make init 
     - name: Test with pytest
       run: |
         make test
@@ -38,8 +38,8 @@ jobs:
     - name: create wheel
       run: |
         env
-        sudo make init package 
-        sudo chmod 777 dist/*
+        make init pkg 
+        chmod 777 dist/*
     - name: upload wheel
       uses: actions/upload-artifact@v4
       with:
