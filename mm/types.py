@@ -9,7 +9,7 @@ import logging
 
 
 @typeguard.typechecked
-class Region():
+class Region:
     _remaining_colours: Dict = PIL.ImageColor.colormap.copy()
     """Copy of the PIL colour string map, we remove colours until all are gone.
     Therefore avoiding random picking of duplicate colours"""
@@ -58,20 +58,42 @@ class Region():
         return int(self._size, 16)
 
     def __str__(self):
-        return "|"\
-            + "<span style='color:" + str(self.colour) + "'>" + str(self.name) + "</span>|"\
-            + str(self._origin) + "|"\
-            + str(self._size) + "|"\
-            + str(self.remain) + "|"\
-            + str(self.collisons) + "|"
+        return (
+            "|"
+            + "<span style='color:"
+            + str(self.colour)
+            + "'>"
+            + str(self.name)
+            + "</span>|"
+            + str(self._origin)
+            + "|"
+            + str(self._size)
+            + "|"
+            + str(self.remain)
+            + "|"
+            + str(self.collisons)
+            + "|"
+        )
 
     def get_data_as_list(self) -> List:
         """Get selected instance attributes"""
         if self.collisons:
-            return [str(self.name), str(self._origin), str(self._size), str(self.remain), "-" + str(self.collisons)]
+            return [
+                str(self.name),
+                str(self._origin),
+                str(self._size),
+                str(self.remain),
+                "-" + str(self.collisons),
+            ]
         else:
-            return [str(self.name), str(self._origin), str(self._size), str(self.remain), "+" + str(None)]
-        
+            return [
+                str(self.name),
+                str(self._origin),
+                str(self._size),
+                str(self.remain),
+                "+" + str(None),
+            ]
+
     def _pick_available_colour(self):
         # remove the picked colour from the list so it can't be picked again
         try:
@@ -92,9 +114,9 @@ class Region():
         logging.debug(f"\t### {len(MemoryRegion._remaining_colours)} colours left ###")
         return chosen_colour_name
 
-    def calc_nearest_region(self, region_list: List['MemoryRegion'], diagram_height: int):
+    def calc_nearest_region(self, region_list: List["MemoryRegion"], diagram_height: int):
         """Calculate the remaining number of bytes until next region block"""
-        
+
         non_collision_distances = {}
 
         logging.debug(f"Calculating nearest distances to {self.name} region:")
@@ -142,7 +164,7 @@ class Region():
                     self.remain = hex(distance_to_other_region)
 
         logging.debug(f"Non-collision distances - {non_collision_distances}")
-        
+
         # after probing each region we must now pick the lowest distance ()
         if not self.collisons:
             if non_collision_distances:
@@ -214,12 +236,14 @@ class VoidRegion(Region):
         # draw name text
         region_w, region_h = self.img.size
         txt_img = TextLabel(text=self.name, font_size=font_size).img
-        self.img.paste(txt_img, ((img_width - txt_img.width) // 2, (self.size - txt_img.height) // 2))
-
+        self.img.paste(
+            txt_img,
+            ((img_width - txt_img.width) // 2, (self.size - txt_img.height) // 2),
+        )
 
 
 @typeguard.typechecked
-class TextLabel():
+class TextLabel:
     def __init__(self, text: str, font_size: int):
         self.text = text
         """The display label text"""
@@ -229,7 +253,7 @@ class TextLabel():
 
         _, top, right, bottom = self.font.getbbox(self.text)
         """The dimensions required for the text"""
-        
+
         self.width = right
         """The label width"""
 
@@ -253,20 +277,23 @@ class TextLabel():
         self.img = PIL.Image.new("RGB", (self.width * 2, self.height * 2), color=self.bgcolour)
         canvas = PIL.ImageDraw.Draw(self.img)
         # center the text in the oversized image, bias the y-pos by 1/5
-        canvas.text(xy=(self.width / 2, (self.height / 2 - (self.height / 5))),
-                    text=self.text,
-                    fill=self.fgcolour,
-                    font=self.font)
+        canvas.text(
+            xy=(self.width / 2, (self.height / 2 - (self.height / 5))),
+            text=self.text,
+            fill=self.fgcolour,
+            font=self.font,
+        )
 
         # the final diagram image will be flipped so start with the text upside down
         self.img = self.img.rotate(180)
 
 
-class Table():
+class Table:
 
     def _position_tuple(self, *args):
         from collections import namedtuple
-        Position = namedtuple('Position', ['top', 'right', 'bottom', 'left'])
+
+        Position = namedtuple("Position", ["top", "right", "bottom", "left"])
         if len(args) == 0:
             return Position(0, 0, 0, 0)
         elif len(args) == 1:
@@ -277,9 +304,18 @@ class Table():
             return Position(args[0], args[1], args[2], args[1])
         else:
             return Position(args[0], args[1], args[2], args[3])
-        
-    def draw_table(self, table, header=[], font=PIL.ImageFont.load_default(),
-                   cell_pad=(20, 10), margin=(10, 10), align=None, colors={}, stock=False) -> PIL.Image:
+
+    def draw_table(
+        self,
+        table,
+        header=[],
+        font=PIL.ImageFont.load_default(),
+        cell_pad=(20, 10),
+        margin=(10, 10),
+        align=None,
+        colors={},
+        stock=False,
+    ) -> PIL.Image:
         """
         Draw a table using only Pillow
         table:    a 2d list, must be str
@@ -292,14 +328,14 @@ class Table():
         stock:    bool, set red/green font color for cells start with +/-
         """
         _color = {
-            'bg': 'white',
-            'cell_bg': 'white',
-            'header_bg': 'gray',
-            'font': 'black',
-            'rowline': 'black',
-            'colline': 'black',
-            'red': 'red',
-            'green': 'green',
+            "bg": "white",
+            "cell_bg": "white",
+            "header_bg": "gray",
+            "font": "black",
+            "rowline": "black",
+            "colline": "black",
+            "red": "red",
+            "green": "green",
         }
         _color.update(colors)
         _margin = self._position_tuple(*margin)
@@ -317,41 +353,75 @@ class Table():
         tab_width = sum(col_max_wid) + len(col_max_wid) * 2 * cell_pad[0]
         tab_heigh = sum(row_max_hei) + len(row_max_hei) * 2 * cell_pad[1]
 
-        tab = PIL.Image.new('RGBA', (tab_width + _margin.left + _margin.right, tab_heigh + _margin.top + _margin.bottom), _color['bg'])
+        tab = PIL.Image.new(
+            "RGBA",
+            (
+                tab_width + _margin.left + _margin.right,
+                tab_heigh + _margin.top + _margin.bottom,
+            ),
+            _color["bg"],
+        )
         draw = PIL.ImageDraw.Draw(tab)
 
-        draw.rectangle([(_margin.left, _margin.top), (_margin.left + tab_width, _margin.top + tab_heigh)],
-                       fill=_color['cell_bg'], width=0)
+        draw.rectangle(
+            [
+                (_margin.left, _margin.top),
+                (_margin.left + tab_width, _margin.top + tab_heigh),
+            ],
+            fill=_color["cell_bg"],
+            width=0,
+        )
         if header:
-            draw.rectangle([(_margin.left, _margin.top), (_margin.left + tab_width, _margin.top + row_max_hei[0] + cell_pad[1] * 2)],
-                           fill=_color['header_bg'], width=0)
+            draw.rectangle(
+                [
+                    (_margin.left, _margin.top),
+                    (
+                        _margin.left + tab_width,
+                        _margin.top + row_max_hei[0] + cell_pad[1] * 2,
+                    ),
+                ],
+                fill=_color["header_bg"],
+                width=0,
+            )
 
         top = _margin.top
         for row_h in row_max_hei:
-            draw.line([(_margin.left, top), (tab_width + _margin.left, top)], fill=_color['rowline'])
+            draw.line(
+                [(_margin.left, top), (tab_width + _margin.left, top)],
+                fill=_color["rowline"],
+            )
             top += row_h + cell_pad[1] * 2
-        draw.line([(_margin.left, top), (tab_width + _margin.left, top)], fill=_color['rowline'])
+        draw.line(
+            [(_margin.left, top), (tab_width + _margin.left, top)],
+            fill=_color["rowline"],
+        )
 
         left = _margin.left
         for col_w in col_max_wid:
-            draw.line([(left, _margin.top), (left, tab_heigh + _margin.top)], fill=_color['colline'])
+            draw.line(
+                [(left, _margin.top), (left, tab_heigh + _margin.top)],
+                fill=_color["colline"],
+            )
             left += col_w + cell_pad[0] * 2
-        draw.line([(left, _margin.top), (left, tab_heigh + _margin.top)], fill=_color['colline'])
+        draw.line(
+            [(left, _margin.top), (left, tab_heigh + _margin.top)],
+            fill=_color["colline"],
+        )
 
         top, left = _margin.top + cell_pad[1], 0
         for i in range(len(table)):
             left = _margin.left + cell_pad[0]
             for j in range(len(table[i])):
-                color = _color['font']
+                color = _color["font"]
                 if stock:
-                    if table[i][j].startswith('+'):
-                        color = _color['red']
-                    elif table[i][j].startswith('-'):
-                        color = _color['green']
+                    if table[i][j].startswith("+"):
+                        color = _color["red"]
+                    elif table[i][j].startswith("-"):
+                        color = _color["green"]
                 _left = left
-                if (align and align[j] == 'c') or (header and i == 0):
+                if (align and align[j] == "c") or (header and i == 0):
                     _left += (col_max_wid[j] - font.getlength(table[i][j])) // 2
-                elif align and align[j] == 'r':
+                elif align and align[j] == "r":
                     _left += col_max_wid[j] - font.getlength(table[i][j])
                 draw.text((_left, top), table[i][j], font=font, fill=color)
                 left += col_max_wid[j] + cell_pad[0] * 2

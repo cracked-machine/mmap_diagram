@@ -61,6 +61,3 @@
 #                              {"lightslategray": "#778899", "lightslategrey": "#778899"}):
 #         with pytest.raises(SystemExit):
 #             mm.diagram.MemoryMap()
-
-
-

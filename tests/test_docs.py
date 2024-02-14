@@ -4,6 +4,7 @@ import pathlib
 import pytest
 import PIL.Image
 
+
 @pytest.fixture
 def setup(request):
 
@@ -18,26 +19,33 @@ def setup(request):
 
     return {"report": report, "image_full": image_full, "image_cropped": image_cropped}
 
-@pytest.mark.parametrize('setup', [{'file_prefix': '_normal'}], indirect=True)
+
+@pytest.mark.parametrize("setup", [{"file_prefix": "_normal"}], indirect=True)
 def test_generate_doc_example_normal(setup):
-    """  """
+    """ """
 
     diagram_height = 1000
-    with unittest.mock.patch('sys.argv',
-                             ['mm.diagram',
-                              'kernel',
-                              '0x10',
-                              '0x30',
-                              'rootfs',
-                              '0x50',
-                              '0x30',
-                              'dtb',
-                              '0x190',
-                              '0x30',
-                              "-o", str(setup['report']),
-                              "-l", hex(diagram_height),
-                              "-v", hex(200)
-                              ]):
+    with unittest.mock.patch(
+        "sys.argv",
+        [
+            "mm.diagram",
+            "kernel",
+            "0x10",
+            "0x30",
+            "rootfs",
+            "0x50",
+            "0x30",
+            "dtb",
+            "0x190",
+            "0x30",
+            "-o",
+            str(setup["report"]),
+            "-l",
+            hex(diagram_height),
+            "-v",
+            hex(200),
+        ],
+    ):
 
         d = mm.diagram.MemoryMap()
 
@@ -58,37 +66,43 @@ def test_generate_doc_example_normal(setup):
                 assert region._size == "0x30"
                 assert region.remain == "0x228"
 
-        assert setup['report'].exists()
+        assert setup["report"].exists()
 
-        assert setup['image_full'].exists()
-        found_size = PIL.Image.open(str(setup['image_full'])).size
+        assert setup["image_full"].exists()
+        found_size = PIL.Image.open(str(setup["image_full"])).size
         assert found_size == (400, diagram_height)
 
         # reduced void threshold, so empty section between rootfs and dtb should be voided, making the file smaller
-        assert setup['image_cropped'].exists()
-        found_size = PIL.Image.open(str(setup['image_cropped'])).size
+        assert setup["image_cropped"].exists()
+        found_size = PIL.Image.open(str(setup["image_cropped"])).size
         assert found_size == (400, 316)
 
 
-@pytest.mark.parametrize('setup', [{'file_prefix': '_collisions'}], indirect=True)
+@pytest.mark.parametrize("setup", [{"file_prefix": "_collisions"}], indirect=True)
 def test_generate_doc_example_collisions(setup):
-    """  """
+    """ """
     diagram_height = hex(1000)
-    with unittest.mock.patch('sys.argv',
-                             ['mm.diagram',
-                              'kernel',
-                              '0x10',
-                              '0x60',
-                              'rootfs',
-                              '0x50',
-                              '0x50',
-                              'dtb',
-                              '0x90',
-                              '0x30',
-                              "-o", str(setup['report']),
-                              "-l", diagram_height,
-                              "-v", hex(200)
-                              ]):
+    with unittest.mock.patch(
+        "sys.argv",
+        [
+            "mm.diagram",
+            "kernel",
+            "0x10",
+            "0x60",
+            "rootfs",
+            "0x50",
+            "0x50",
+            "dtb",
+            "0x90",
+            "0x30",
+            "-o",
+            str(setup["report"]),
+            "-l",
+            diagram_height,
+            "-v",
+            hex(200),
+        ],
+    ):
 
         d = mm.diagram.MemoryMap()
 
@@ -106,7 +120,7 @@ def test_generate_doc_example_collisions(setup):
                 assert region._size == "0x30"
                 assert region.remain == "0x328"
 
-        assert setup['report'].exists()
+        assert setup["report"].exists()
 
-        assert setup['image_full'].exists()
-        assert setup['image_cropped'].exists()
+        assert setup["image_full"].exists()
+        assert setup["image_cropped"].exists()
