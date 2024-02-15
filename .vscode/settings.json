@@ -1,4 +1,5 @@
 {
+    "terminal.integrated.defaultProfile.linux": "bash",
     "git.autofetch": true,
     
     "python.testing.pytestArgs": [
