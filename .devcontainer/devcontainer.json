@@ -1,0 +1,17 @@
+// if youre running windows install docker desktop and vscode devcontainers extension
+// then in vscode, use "Reopen in container" command.
+
+{
+    "build": { "dockerfile": "Dockerfile" },
+    "postStartCommand": "make init",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python"
+            ]
+        }
+    },
+    "remoteUser": "user",
+    "containerUser": "user"
+
+}
