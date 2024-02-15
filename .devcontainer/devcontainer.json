@@ -3,7 +3,6 @@
 
 {
     "build": { "dockerfile": "Dockerfile" },
-    "postStartCommand": "make init",
     "customizations": {
         "vscode": {
             "extensions": [
@@ -13,5 +12,4 @@
     },
     "remoteUser": "user",
     "containerUser": "user"
-
 }
