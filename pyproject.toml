@@ -21,7 +21,8 @@ dependencies = [
   "typeguard",
   "pillow",
   "pytest",
-  "pytest-cov"
+  "pytest-cov",
+  "pydantic"
 ]
 
 [project.urls]
