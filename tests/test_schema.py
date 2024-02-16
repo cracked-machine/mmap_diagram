@@ -71,3 +71,15 @@ def test_schema_missing_memregion_name(input):
     test_data['memory_maps'][0]['memory_regions'][0]['memory_region_name'] = ""
     with pytest.raises(pydantic.ValidationError): 
         mm.schema.Diagram(**test_data)
+
+def test_schema_missing_memregion_origin(input):
+    test_data = input
+    test_data['memory_maps'][0]['memory_regions'][0]['memory_region_origin'] = ""
+    with pytest.raises(pydantic.ValidationError): 
+        mm.schema.Diagram(**test_data)
+
+def test_schema_missing_memregion_size(input):
+    test_data = input
+    test_data['memory_maps'][0]['memory_regions'][0]['memory_region_size'] = ""
+    with pytest.raises(pydantic.ValidationError): 
+        mm.schema.Diagram(**test_data)

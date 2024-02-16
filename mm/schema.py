@@ -18,8 +18,16 @@ class MemoryRegion(BaseModel):
         AfterValidator(check_empty_name)
     ]
 
-    memory_region_origin: str = Field(description="Origin address of the MemoryMap. In hex format string.")
-    memory_region_size: str = Field(description="Size (in bytes) of the MemoryMap. In hex format string.")
+    memory_region_origin: Annotated[
+        str,
+        Field(description="Origin address of the MemoryMap. In hex format string."),
+        AfterValidator(check_empty_name)
+    ]
+    memory_region_size: Annotated[
+        str,
+        Field(description="Size (in bytes) of the MemoryMap. In hex format string."),
+        AfterValidator(check_empty_name)
+    ]
     memory_region_links: list[Dict[str,str]] = Field(
         [{"<ParentMemoryMap>": "<ChildMemoryRegion>"}],
         description="Link to another memory region. E.g. <MemoryMap:name>.<MemoryRegion:Name>")
