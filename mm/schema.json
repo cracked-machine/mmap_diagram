@@ -2,23 +2,23 @@
   "$defs": {
     "MemoryMap": {
       "properties": {
-        "name": {
+        "memory_map_name": {
           "description": "Name of the memory map",
-          "title": "Name",
+          "title": "Memory Map Name",
           "type": "string"
         },
-        "MemoryMap": {
+        "memory_regions": {
           "description": "Memory map containing memory regions.",
           "items": {
             "$ref": "#/$defs/MemoryRegion"
           },
-          "title": "Memorymap",
+          "title": "Memory Regions",
           "type": "array"
         }
       },
       "required": [
-        "name",
-        "MemoryMap"
+        "memory_map_name",
+        "memory_regions"
       ],
       "title": "MemoryMap",
       "type": "object"
@@ -36,18 +36,16 @@
           "type": "string"
         },
         "size": {
-          "anyOf": [
+          "description": "Size (in bytes) of the MemoryMap. In hex format string.",
+          "title": "Size",
+          "type": "string"
+        },
+        "links": {
+          "default": [
             {
-              "type": "string"
-            },
-            {
-              "type": "null"
+              "<ParentMemoryMap>": "<ChildMemoryRegion>"
             }
           ],
-          "description": "Size (in bytes) of the MemoryMap. In hex format string.",
-          "title": "Size"
-        },
-        "regionlinks": {
           "description": "Link to another memory region. E.g. <MemoryMap:name>.<MemoryRegion:Name>",
           "items": {
             "additionalProperties": {
@@ -55,32 +53,37 @@
             },
             "type": "object"
           },
-          "title": "Regionlinks",
+          "title": "Links",
           "type": "array"
         }
       },
       "required": [
         "name",
         "origin",
-        "size",
-        "regionlinks"
+        "size"
       ],
       "title": "MemoryRegion",
       "type": "object"
     }
   },
   "properties": {
-    "Diagram": {
+    "diagram_name": {
+      "description": "The name of the diagram.",
+      "title": "Diagram Name",
+      "type": "string"
+    },
+    "memory_maps": {
       "description": "The diagram frame. Can contain many memory maps.",
       "items": {
         "$ref": "#/$defs/MemoryMap"
       },
-      "title": "Diagram",
+      "title": "Memory Maps",
       "type": "array"
     }
   },
   "required": [
-    "Diagram"
+    "diagram_name",
+    "memory_maps"
   ],
   "title": "Diagram",
   "type": "object"
