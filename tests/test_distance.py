@@ -29,7 +29,7 @@ def test_distance_three_regions_same_size_no_collisions():
         ],
     ):
 
-        d = mm.diagram.MemoryMap()
+        d = mm.diagram.Diagram()
 
         for region in d._region_list:
             if region.name == "kernel":
@@ -69,7 +69,7 @@ def test_distance_three_regions_touching_no_collisions():
         ],
     ):
 
-        d = mm.diagram.MemoryMap()
+        d = mm.diagram.Diagram()
 
         for region in d._region_list:
             if region.name == "kernel":
@@ -109,7 +109,7 @@ def test_distance_three_regions_diff_size_no_collisions():
         ],
     ):
 
-        d = mm.diagram.MemoryMap()
+        d = mm.diagram.Diagram()
 
         for region in d._region_list:
             if region.name == "kernel":
@@ -149,7 +149,7 @@ def test_distance_three_regions_bottom_collision():
         ],
     ):
 
-        d = mm.diagram.MemoryMap()
+        d = mm.diagram.Diagram()
 
         for region in d._region_list:
             if region.name == "kernel":
@@ -189,7 +189,7 @@ def test_distance_three_regions_bottom_middle_collision():
         ],
     ):
 
-        d = mm.diagram.MemoryMap()
+        d = mm.diagram.Diagram()
 
         for region in d._region_list:
             if region.name == "kernel":
@@ -235,7 +235,7 @@ def test_distance_five_regions_bottom_top_collision():
         ],
     ):
 
-        d = mm.diagram.MemoryMap()
+        d = mm.diagram.Diagram()
 
         for region in d._region_list:
             if region.name == "kernel":

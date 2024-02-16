@@ -32,11 +32,11 @@ class MemoryMap:
         gap: int = 4
         len: int = gap // 2
 
-    def __init__(self):
+    def __init__(self, region_list: List[mm.types.MemoryRegion]):
         self.bgcolour = "oldlace"
         """background colour for diagram"""
 
-        self.height: int = None
+        self.height: int = int(Diagram.pargs.limit, 16)
         """height of the diagram image"""
 
         self.width: int = 400
@@ -51,13 +51,15 @@ class MemoryMap:
         self.table_text_size = 15
         """Fixed size for table text"""
 
-        self.void_thres: int = None
+        self.voidthreshold: int = int(Diagram.pargs.voidthreshold, 16)
         """Void space threshold for adding VoidRegion objs"""
 
-        self._region_list: List[mm.types.MemoryRegion] = []
+        self.scale_factor: int = Diagram.pargs.scale
+
+        self._region_list: List[mm.types.MemoryRegion] = region_list
         """List of memregion objects"""
 
-        self._process_input()
+        # self._process_input()
 
         # attributes using self.width/self.height
         # should be done after this function call
@@ -183,9 +185,10 @@ class MemoryMap:
         # rotate the entire diagram so the origin is at the bottom
         new_diagram_img = new_diagram_img.rotate(180)
 
+        # TODO disable save and store in class instance variable
         # output image file
-        img_file_path = pathlib.Path(self.args.out).stem + "_full.png"
-        new_diagram_img.save(pathlib.Path(self.args.out).parent / img_file_path)
+        img_file_path = pathlib.Path(Diagram.pargs.out).stem + "_full.png"
+        new_diagram_img.save(pathlib.Path(Diagram.pargs.out).parent / img_file_path)
 
     def _insert_void_regions(self, original_img: PIL.Image.Image, memregion_list: List[mm.types.MemoryRegion]):
         """Remove large empty spaces and replace them with fixed size VoidRegion objects.
@@ -198,7 +201,7 @@ class MemoryMap:
         img_addr_idx = 0
         for memregion in memregion_list:
             region_end_addr = memregion.origin + memregion.size
-            if int(memregion.remain, 16) > self.void_threshold:
+            if int(memregion.remain, 16) > self.voidthreshold:
 
                 # dont forget the image is upside down at this stage, so upper and lower are reversed.
                 (left, upper, right, lower) = (
@@ -215,9 +218,9 @@ class MemoryMap:
 
         if not region_subset_list:
             # no spaces were found in the diagram to be above the void threshold
-            img_file_path = pathlib.Path(self.args.out).stem + "_cropped.png"
+            img_file_path = pathlib.Path(Diagram.pargs.out).stem + "_cropped.png"
             original_img = original_img.rotate(180)
-            original_img.save(pathlib.Path(self.args.out).parent / img_file_path)
+            original_img.save(pathlib.Path(Diagram.pargs.out).parent / img_file_path)
         else:
             # calculate the new reduced diagram image height plus some padding
             new_cropped_height = (
@@ -256,14 +259,15 @@ class MemoryMap:
                     width=MemoryMap.DashedLine.width,
                 )
 
+            # TODO disable save and store in class instance variable
             new_cropped_image = new_cropped_image.rotate(180)
-            img_file_path = pathlib.Path(self.args.out).stem + "_cropped.png"
-            new_cropped_image.save(pathlib.Path(self.args.out).parent / img_file_path)
+            img_file_path = pathlib.Path(Diagram.pargs.out).stem + "_cropped.png"
+            new_cropped_image.save(pathlib.Path(Diagram.pargs.out).parent / img_file_path)
 
     def _create_markdown(self, region_list: List[mm.types.MemoryRegion]):
         """Create markdown doc containing the diagram image and text-base summary table"""
-        with open(self.args.out, "w") as f:
-            f.write(f"""![memory map diagram]({pathlib.Path(self.args.out).stem}.png)\n""")
+        with open(Diagram.pargs.out, "w") as f:
+            f.write(f"""![memory map diagram]({pathlib.Path(Diagram.pargs.out).stem}.png)\n""")
             f.write("|name|origin|size|remaining|collisions\n")
             f.write("|:-|:-|:-|:-|:-|\n")
             for memregion in region_list:
@@ -282,11 +286,36 @@ class MemoryMap:
             stock=True,
             colors={"red": "green", "green": "red"},
         )
-        tableimg_file_path = pathlib.Path(self.args.out).stem + "_table.png"
-        table.save(pathlib.Path(self.args.out).parent / tableimg_file_path)
 
-    def _process_input(self):
+        # TODO disable save and store in class instance variable
+        tableimg_file_path = pathlib.Path(Diagram.pargs.out).stem + "_table.png"
+        table.save(pathlib.Path(Diagram.pargs.out).parent / tableimg_file_path)
 
+class Diagram:
+    pargs: argparse.Namespace = None
+
+    def __init__(self):
+
+        self._parse_args()
+        self._validate_pargs()
+
+        # TODO instead of storing metadata as MemoryRegion list, 
+        # the mm.schema.Diagram model will store the metadata and MemoryRegion objects
+        # will be created temporarily within the scope of the drawing function
+        self._region_list = []
+        # TODO import data into mm.schema.Diagram model instead
+        self._create_regions()
+
+        # TODO Pass in mm.schema.Diagram model instead
+        self.mm = MemoryMap(self._region_list)
+
+        # TODO disable image save in MemoryMap. 
+        # It should return an image obj, which can be pasted into a diagram image here
+        # This will allow multiple MemoryMaps to be supported
+        # Links can be drawn on last
+
+    def _parse_args(self):
+        """Setup the command line interface"""
         parser = argparse.ArgumentParser(
             description="""Generate a diagram showing how binary regions co-exist within memory."""
         )
@@ -323,32 +352,32 @@ class MemoryMap:
             type=str,
         )
 
-        self.args = parser.parse_args()
+        Diagram.pargs = parser.parse_args()
 
+    def _validate_pargs(self):
+        """"Validate the command line arguments"""
         # parse hex/int inputs
-        if not self.args.limit[:2] == "0x":
-            parser.error("'limit' argument should be in hex format: 0x")
-        self.height: int = int(self.args.limit, 16)
-
-        self.scale_factor: int = int(self.args.scale)
-
-        if not self.args.voidthreshold[:2] == "0x":
-            parser.error("'voidthreshold' argument should be in hex format: 0x")
-        self.void_threshold: int = int(self.args.voidthreshold, 16)
+        if not Diagram.pargs.limit[:2] == "0x":
+            raise SystemExit("'limit' argument should be in hex format: 0x")
+ 
+        if not Diagram.pargs.voidthreshold[:2] == "0x":
+            raise SystemExit("'voidthreshold' argument should be in hex format: 0x")
 
         # make sure the output path is valid and parent dir exists
-        if not pathlib.Path(self.args.out).suffix == ".md":
+        if not pathlib.Path(Diagram.pargs.out).suffix == ".md":
             raise NameError("Output file should end with .md")
-        pathlib.Path(self.args.out).parent.mkdir(parents=True, exist_ok=True)
+        pathlib.Path(Diagram.pargs.out).parent.mkdir(parents=True, exist_ok=True)
 
         # check data point cardinality
         if len(sys.argv) == 1:
-            parser.error("must pass in data points")
-        if len(self.args.regions) % 3:
-            parser.error("command line input data should be in multiples of three")
+            raise SystemExit("must pass in data points")
+        if len(Diagram.pargs.regions) % 3:
+            raise SystemExit("command line input data should be in multiples of three")        
 
+    def _create_regions(self):
+        """Create the MemoryRegion objects based on the command line arguments"""
         # create mm.types.MemoryRegion objs for each data tuple
-        for datatuple in self._batched(self.args.regions, 3):
+        for datatuple in self._batched(Diagram.pargs.regions, 3):
             name = datatuple[0]
             origin = datatuple[1]
             size = datatuple[2]
@@ -364,8 +393,9 @@ class MemoryMap:
                 )
             else:
                 self._region_list.append(mm.types.MemoryRegion(name, origin, size))
-
+    
     def _batched(self, iterable, n):
+        """Split iterable into batches"""
         """batched('ABCDEFG', 3) --> ABC DEF G"""
         if n < 1:
             raise ValueError("n must be at least one")
@@ -373,6 +403,6 @@ class MemoryMap:
         while batch := tuple(itertools.islice(it, n)):
             yield batch
 
-
 if __name__ == "__main__":
-    MemoryMap()
+    Diagram()
+ 

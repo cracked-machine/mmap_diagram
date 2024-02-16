@@ -44,11 +44,11 @@ def test_void_region_default(setup):
         ],
     ):
 
-        d = mm.diagram.MemoryMap()
+        d = mm.diagram.Diagram()
 
         # assumes the defaults haven't changed
-        assert d.args.scale == 1
-        assert d.args.voidthreshold == hex(1000)
+        assert mm.diagram.Diagram.pargs.scale == 1
+        assert mm.diagram.Diagram.pargs.voidthreshold == hex(1000)
 
         for region in d._region_list:
             if region.name == "kernel":
@@ -101,10 +101,10 @@ def test_void_region_uservalue_500(setup):
         ],
     ):
 
-        d = mm.diagram.MemoryMap()
+        d = mm.diagram.Diagram()
 
         # assumes the defaults haven't changed
-        assert d.args.scale == 1
+        assert mm.diagram.Diagram.pargs.scale == 1
 
         for region in d._region_list:
             if region.name == "kernel":
@@ -158,10 +158,10 @@ def test_void_region_uservalue_200(setup):
         ],
     ):
 
-        d = mm.diagram.MemoryMap()
+        d = mm.diagram.Diagram()
 
         # assumes the defaults haven't changed
-        assert d.args.scale == 1
+        assert mm.diagram.Diagram.pargs.scale == 1
 
         for region in d._region_list:
             if region.name == "kernel":

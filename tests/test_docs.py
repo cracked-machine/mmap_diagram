@@ -47,10 +47,10 @@ def test_generate_doc_example_normal(setup):
         ],
     ):
 
-        d = mm.diagram.MemoryMap()
+        d = mm.diagram.Diagram()
 
         # assumes the defaults haven't changed
-        assert d.args.scale == 1
+        assert mm.diagram.Diagram.pargs.scale == 1
 
         for region in d._region_list:
             if region.name == "kernel":
@@ -104,7 +104,7 @@ def test_generate_doc_example_collisions(setup):
         ],
     ):
 
-        d = mm.diagram.MemoryMap()
+        d =mm.diagram.Diagram()
 
         for region in d._region_list:
             if region.name == "kernel":

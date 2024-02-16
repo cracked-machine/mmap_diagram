@@ -1,6 +1,7 @@
-venv/*
+venv
 __pycache__
 tests/lcov
 .coverage
 out
 custom
+.pytest_cache

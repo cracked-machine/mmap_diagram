@@ -18,14 +18,14 @@ def setup():
 
 
 def assert_expected_scale(
-    d: mm.diagram.MemoryMap, img_path: pathlib.Path, width: int, height: int, cropped_height: int, scale: int
+    d: mm.diagram.Diagram, img_path: pathlib.Path, width: int, height: int, cropped_height: int, scale: int
 ):
 
     assert img_path.exists()
     outimg = PIL.Image.open(str(img_path))
-    assert d.height == height * scale
-    assert d.width == width * scale
-    assert outimg.size == (d.width, cropped_height)
+    assert d.mm.height == height * scale
+    assert d.mm.width == width * scale
+    assert outimg.size == (d.mm.width, cropped_height)
 
 
 def test_scaling_x1(setup):
@@ -55,12 +55,12 @@ def test_scaling_x1(setup):
         ],
     ):
 
-        d = mm.diagram.MemoryMap()
+        d = mm.diagram.Diagram()
 
         # assumes default 'voidthreshold' is still 0x3e8 (1000)
-        assert d.args.voidthreshold == hex(1000)
+        assert mm.diagram.Diagram.pargs.voidthreshold == hex(1000)
         # assume default 'scale' is still x1
-        assert d.args.scale == 1
+        assert mm.diagram.Diagram.pargs.scale == 1
 
         # cropped height should just be x1 scale on full image, i.e. not cropped at all
         assert_expected_scale(
@@ -112,22 +112,22 @@ def test_scaling_x2(setup):
         ],
     ):
 
-        d = mm.diagram.MemoryMap()
+        d = mm.diagram.Diagram()
 
         # assumes default haven't changed
-        assert d.args.voidthreshold == hex(1000)
+        assert mm.diagram.Diagram.pargs.voidthreshold == hex(1000)
 
         assert setup["image_full"].exists()
         outimg = PIL.Image.open(str(setup["image_full"]))
-        assert d.height == requested_diagram_height * requested_scale
-        assert d.width == default_diagram_width * requested_scale
-        assert outimg.size == (d.width, d.height)
+        assert d.mm.height == requested_diagram_height * requested_scale
+        assert d.mm.width == default_diagram_width * requested_scale
+        assert outimg.size == (d.mm.width, d.mm.height)
 
         assert setup["image_cropped"].exists()
         outimg = PIL.Image.open(str(setup["image_cropped"]))
-        assert d.height == requested_diagram_height * requested_scale
-        assert d.width == default_diagram_width * requested_scale
-        assert outimg.size == (d.width, expected_cropped_height)
+        assert d.mm.height == requested_diagram_height * requested_scale
+        assert d.mm.width == default_diagram_width * requested_scale
+        assert outimg.size == (d.mm.width, expected_cropped_height)
 
         # # cropped height should just be x2 scale on full image, i.e. not cropped at all
         # assert_expected_scale(d,
