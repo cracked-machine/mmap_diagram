@@ -2,12 +2,12 @@ from pydantic import BaseModel, Field, ConfigDict
 from pydantic.functional_validators import AfterValidator
 import pathlib
 import json
-from typing import Optional, Dict
+from typing import Optional, Dict, List
 from typing_extensions import Annotated
 
 # Validators
-def check_empty_str(v: str):
-    assert v
+def check_empty_str(v: str, context: str):
+    assert v, "Empty string found!"
     return v
 
 def check_hex_str(v:str):
@@ -35,8 +35,13 @@ class MemoryRegion(BaseModel):
         AfterValidator(check_hex_str)
     ]
     memory_region_links: list[Dict[str,str]] = Field(
-        [{"<ParentMemoryMap>": "<ChildMemoryRegion>"}],
-        description="Link to another memory region. E.g. <MemoryMap:name>.<MemoryRegion:Name>")
+        [],
+        description="""Links to other memory regions. E.g. """
+        """\n["""
+        """\n\n{'ParentMemoryMap1': 'ChildMemoryRegion1'}"""
+        """\n\n..."""
+        """\n\n{'ParentMemoryMapN': 'ChildMemoryRegionN'}"""
+        """\n]""")
 
 class MemoryMap(BaseModel):
     memory_map_name: Annotated[
@@ -45,6 +50,32 @@ class MemoryMap(BaseModel):
         AfterValidator(check_empty_str)        
     ]
     memory_regions: list[MemoryRegion] = Field(description="Memory map containing memory regions.")
+
+
+def check_region_link(v: list[MemoryMap]):
+    found_memory_regions = []
+    found_region_links = []
+
+    # get all region_link properties from the data
+    for memmap in v:
+        for memregion in memmap.memory_regions:
+            found_memory_regions.append(memregion)
+            for regionlink in memregion.memory_region_links:
+                found_region_links.append(regionlink)
+
+    # check found links ref existing memmaps and memregions
+    for regionlink in found_region_links:
+
+        region_link_parent_memmap = [*regionlink.keys()][0]
+        # check_empty_str(region_link_parent_memmap)
+        assert any(mm.memory_map_name == region_link_parent_memmap for mm in v),\
+        f"Parent MemoryMap '{region_link_parent_memmap}' in {regionlink} is a dangling reference!"
+        
+        region_link_child_memregion = [*regionlink.values()][0]
+        # check_empty_str(region_link_child_memregion)
+        assert any(rm.memory_region_name == region_link_child_memregion for rm in found_memory_regions),\
+        f"Child MemoryRegion '{region_link_child_memregion}' in {regionlink} is a dangling reference!"
+
 
 class Diagram(BaseModel):
     model_config = ConfigDict(
@@ -60,7 +91,11 @@ class Diagram(BaseModel):
         Field(description="The name of the diagram."),
         AfterValidator(check_empty_str)
     ]
-    memory_maps: list[MemoryMap] = Field(description="The diagram frame. Can contain many memory maps.")
+    memory_maps: Annotated[
+        list[MemoryMap],
+        Field(description="The diagram frame. Can contain many memory maps."),
+        AfterValidator(check_region_link)
+    ]
 
     
 # helper functions

@@ -130,3 +130,26 @@ def test_schema_hexstr_memregion_size(input):
     test_data['memory_maps'][0]['memory_regions'][0]['memory_region_size'] = "10"
     with pytest.raises(pydantic.ValidationError): 
         mm.schema.Diagram(**test_data)
+
+def test_schema_memregion_linkparent(input):
+    test_data = input
+    
+    # default test_data contains non-empty string - should pass
+    mm.schema.Diagram(**test_data)
+    
+    # invalidate test_data - should fail
+    test_data['memory_maps'][0]['memory_regions'][0]['memory_region_links'][0] = { "": "Blob2"}
+    with pytest.raises(pydantic.ValidationError): 
+        mm.schema.Diagram(**test_data)
+    
+    test_data['memory_maps'][0]['memory_regions'][0]['memory_region_links'][0] = { "Nothing": "Blob2"}
+    with pytest.raises(pydantic.ValidationError): 
+        mm.schema.Diagram(**test_data)
+
+    test_data['memory_maps'][0]['memory_regions'][0]['memory_region_links'][0] = { "DRAM": ""}
+    with pytest.raises(pydantic.ValidationError): 
+        mm.schema.Diagram(**test_data)
+
+    test_data['memory_maps'][0]['memory_regions'][0]['memory_region_links'][0] = { "DRAM": "Nothing"}
+    with pytest.raises(pydantic.ValidationError): 
+        mm.schema.Diagram(**test_data)
