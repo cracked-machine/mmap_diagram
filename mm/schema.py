@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, ValidationError
 from pydantic.functional_validators import AfterValidator
 import pathlib
 import json
@@ -18,19 +18,19 @@ def check_hex_str(v:str):
 class MemoryRegion(BaseModel):
     memory_region_name: Annotated[
         str,
-        Field(description="Name of the MemoryMap."),
+        Field(..., description="Name of the MemoryMap."),
         AfterValidator(check_empty_str)
     ]
 
     memory_region_origin: Annotated[
         str,
-        Field(description="Origin address of the MemoryMap. In hex format string."),
+        Field(..., description="Origin address of the MemoryMap. In hex format string."),
         AfterValidator(check_empty_str),
         AfterValidator(check_hex_str)
     ]
     memory_region_size: Annotated[
         str,
-        Field(description="Size (in bytes) of the MemoryMap. In hex format string."),
+        Field(..., description="Size (in bytes) of the MemoryMap. In hex format string."),
         AfterValidator(check_empty_str),
         AfterValidator(check_hex_str)
     ]
@@ -46,7 +46,7 @@ class MemoryRegion(BaseModel):
 class MemoryMap(BaseModel):
     memory_map_name: Annotated[
         str,
-        Field(description="Name of the memory map."),
+        Field(..., description="Name of the memory map."),
         AfterValidator(check_empty_str)        
     ]
     memory_regions: list[MemoryRegion] = Field(description="Memory map containing memory regions.")
@@ -76,6 +76,8 @@ def check_region_link(v: list[MemoryMap]):
         assert any(rm.memory_region_name == region_link_child_memregion for rm in found_memory_regions),\
         f"Child MemoryRegion '{region_link_child_memregion}' in {regionlink} is a dangling reference!"
 
+    return v
+
 
 class Diagram(BaseModel):
     # model_config = ConfigDict(
@@ -88,12 +90,12 @@ class Diagram(BaseModel):
     # diagram_name: str = Field(description="The name of the diagram.")
     diagram_name: Annotated[
         str, 
-        Field(description="The name of the diagram."),
+        Field(..., description="The name of the diagram."),
         AfterValidator(check_empty_str)
     ]
     memory_maps: Annotated[
         list[MemoryMap],
-        Field(description="The diagram frame. Can contain many memory maps."),
+        Field(..., description="The diagram frame. Can contain many memory maps."),
         AfterValidator(check_region_link)
     ]
 
@@ -104,6 +106,26 @@ def generate_schema(path: pathlib.Path):
 
     with path.open("w") as fp:
         fp.write(json.dumps(myschema, indent=2))
+
+    # valid = {
+    #     "$schema": "../../mm/schema.json",
+    #     "diagram_name": "TestDiagram",
+    #     "memory_maps": [
+    #         {
+    #             "memory_map_name": "eMMC",
+    #             "memory_regions": [
+
+    #             ]
+    #         }
+    #     ]
+    # }
+
+    # data = Diagram(**valid)
+
+
+    # output_file = pathlib.Path("./doc/example/input.json")
+    # with output_file.open("w") as fp:
+    #     fp.write(data.model_dump_json(indent=2))
 
 
 if __name__  == "__main__":

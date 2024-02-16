@@ -1,23 +1,31 @@
 {
-    "$schema": "../../mm/schema.json",
-    "Diagram": [
+  "diagram_name": "TestDiagram",
+  "memory_maps": [
+    {
+      "memory_map_name": "eMMC",
+      "memory_regions": [
         {
-            "name": "Map1",
-            "MemoryMap": [
-                {
-                    "name": "<RegionName>",
-                    "origin": "0x",
-                    "regionlinks": [
-                        {
-                            "<ParentMapName>": "<ChildRegionName>"
-                        }
-                    ]
-                },
-                {
-                    "name": "<RegionName>"
-                }
-            ]
+          "memory_region_name": "Blob1",
+          "memory_region_origin": "0x10",
+          "memory_region_size": "0x10",
+          "memory_region_links": [
+            {
+              "DRAM": "Blob2"
+            }
+          ]
         }
-    ]
-    
+      ]
+    },
+    {
+      "memory_map_name": "DRAM",
+      "memory_regions": [
+        {
+          "memory_region_name": "Blob2",
+          "memory_region_origin": "0x10",
+          "memory_region_size": "0x10",
+          "memory_region_links": []
+        }
+      ]
+    }
+  ]
 }
