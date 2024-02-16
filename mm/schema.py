@@ -66,10 +66,17 @@ class Diagram(BaseModel):
 
 def generate_schema():
     schema_path = pathlib.Path("./mm/schema.json")
+    myschema = Diagram.model_json_schema()
+    myschema['required'] = ['Diagram']
+    myschema['$defs']['MemoryMap']['required'] = ['name', 'MemoryMap']
+    myschema['$defs']['MemoryRegion']['required'] = ['name', 'origin', 'size']
+    
     with schema_path.open("w") as fp:
-        myschema = Diagram.model_json_schema()
         fp.write(json.dumps(myschema, indent=2))
 
 
 if __name__  == "__main__":
     generate_schema()
+
+
+

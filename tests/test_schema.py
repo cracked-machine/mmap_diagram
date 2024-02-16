@@ -1,8 +1,6 @@
-import unittest
 import pytest
 import pathlib
-import mm.datamodel
-
+import mm.schema
 
 @pytest.fixture
 def setup():
@@ -11,5 +9,6 @@ def setup():
     return {"schema": schema}
 
 def test_schema_gen(setup):
-    mm.datamodel.generate_schema()
+    mm.schema.generate_schema()
     assert setup["schema"].exists()
+   
