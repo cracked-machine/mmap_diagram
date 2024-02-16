@@ -15,6 +15,14 @@
                 "-o", "doc/example/report.md"
             ],
             "justMyCode": false
-        }
+        },
+        {
+            "name": "Python Debugger Schema",
+            "type": "debugpy",
+            "request": "launch",
+            "console": "integratedTerminal",
+            "module": "mm.schema",
+            "justMyCode": false
+        }      
     ]
 }
