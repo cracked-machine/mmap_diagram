@@ -49,6 +49,14 @@ def input() -> Dict:
 def test_schema_gen(setup):
     mm.schema.generate_schema(setup["schema"])
     assert setup["schema"].exists()
+
+def test_gen_example_input(input):
+    data = mm.schema.Diagram(**input)
+    output_file = pathlib.Path("./doc/example/input.json")
+    with output_file.open("w") as fp:
+        fp.write(data.model_dump_json(indent=2))
+    
+    assert output_file.exists()
     
 def test_schema_valid_example(input):
     test_data = input
@@ -69,7 +77,7 @@ def test_schema_missing_memmap_name(input):
     test_data = input
     
     # default test_data contains non-empty string - should pass
-    mm.schema.Diagram(**test_data)
+    d = mm.schema.Diagram(**test_data)
     
     # invalidate test_data - should fail
     test_data['memory_maps'][0]['memory_map_name'] = ""
