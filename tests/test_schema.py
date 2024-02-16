@@ -148,7 +148,7 @@ def test_schema_hexstr_memregion_size(input):
     with pytest.raises(pydantic.ValidationError): 
         mm.schema.Diagram(**test_data)
 
-def test_schema_memregion_linkparent(input):
+def test_schema_memregion_links(input):
     test_data = input
     
     # default test_data contains non-empty string - should pass
@@ -170,3 +170,15 @@ def test_schema_memregion_linkparent(input):
     test_data['memory_maps'][0]['memory_regions'][0]['memory_region_links'][0] = { "DRAM": "Nothing"}
     with pytest.raises(pydantic.ValidationError): 
         mm.schema.Diagram(**test_data)
+
+
+def test_schema_memregion_links_mismatched_sizes(input):
+    test_data = input
+    
+    # default test_data contains non-empty string - should pass
+    mm.schema.Diagram(**test_data)
+    
+    # invalidate test_data - should fail
+    test_data['memory_maps'][0]['memory_regions'][0]['memory_region_size'] = "0x20"
+    with pytest.raises(pydantic.ValidationError): 
+        mm.schema.Diagram(**test_data)       
