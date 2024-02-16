@@ -56,38 +56,65 @@ def test_schema_valid_example(input):
 
 def test_schema_missing_diagram_name(input):
     test_data = input
+    
+    # default test_data contains non-empty string - should pass
+    mm.schema.Diagram(**test_data)
+    
+    # invalidate test_data - should fail
     test_data['diagram_name'] = ""
     with pytest.raises(pydantic.ValidationError): 
         mm.schema.Diagram(**test_data)
 
 def test_schema_missing_memmap_name(input):
     test_data = input
+    
+    # default test_data contains non-empty string - should pass
+    mm.schema.Diagram(**test_data)
+    
+    # invalidate test_data - should fail
     test_data['memory_maps'][0]['memory_map_name'] = ""
     with pytest.raises(pydantic.ValidationError): 
         mm.schema.Diagram(**test_data)
 
 def test_schema_missing_memregion_name(input):
     test_data = input
+    
+    # default test_data contains non-empty string - should pass
+    mm.schema.Diagram(**test_data)
+    
+    # invalidate test_data - should fail
     test_data['memory_maps'][0]['memory_regions'][0]['memory_region_name'] = ""
     with pytest.raises(pydantic.ValidationError): 
         mm.schema.Diagram(**test_data)
 
 def test_schema_missing_memregion_origin(input):
     test_data = input
+    
+    # default test_data contains non-empty string - should pass
+    mm.schema.Diagram(**test_data)
+
+    # invalidate test_data - should fail
     test_data['memory_maps'][0]['memory_regions'][0]['memory_region_origin'] = ""
     with pytest.raises(pydantic.ValidationError): 
         mm.schema.Diagram(**test_data)
 
 def test_schema_missing_memregion_size(input):
     test_data = input
+    
+    # default test_data contains non-empty string - should pass
+    mm.schema.Diagram(**test_data)
+    
+    # invalidate test_data - should fail
     test_data['memory_maps'][0]['memory_regions'][0]['memory_region_size'] = ""
     with pytest.raises(pydantic.ValidationError): 
         mm.schema.Diagram(**test_data)
 
 def test_schema_hexstr_memregion_origin(input):
     test_data = input
+    
     # default test_data contains hex string - should pass
     mm.schema.Diagram(**test_data)
+    
     # invalidate test_data - should fail
     test_data['memory_maps'][0]['memory_regions'][0]['memory_region_origin'] = "10"
     with pytest.raises(pydantic.ValidationError): 
@@ -95,8 +122,10 @@ def test_schema_hexstr_memregion_origin(input):
 
 def test_schema_hexstr_memregion_size(input):
     test_data = input
+    
     # default test_data contains hex string - should pass
     mm.schema.Diagram(**test_data)
+    
     # invalidate test_data - should fail
     test_data['memory_maps'][0]['memory_regions'][0]['memory_region_size'] = "10"
     with pytest.raises(pydantic.ValidationError): 

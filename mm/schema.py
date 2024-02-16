@@ -6,7 +6,7 @@ from typing import Optional, Dict
 from typing_extensions import Annotated
 
 # Validators
-def check_empty_name(v: str):
+def check_empty_str(v: str):
     assert v
     return v
 
@@ -19,19 +19,19 @@ class MemoryRegion(BaseModel):
     memory_region_name: Annotated[
         str,
         Field(description="Name of the MemoryMap."),
-        AfterValidator(check_empty_name)
+        AfterValidator(check_empty_str)
     ]
 
     memory_region_origin: Annotated[
         str,
         Field(description="Origin address of the MemoryMap. In hex format string."),
-        AfterValidator(check_empty_name),
+        AfterValidator(check_empty_str),
         AfterValidator(check_hex_str)
     ]
     memory_region_size: Annotated[
         str,
         Field(description="Size (in bytes) of the MemoryMap. In hex format string."),
-        AfterValidator(check_empty_name),
+        AfterValidator(check_empty_str),
         AfterValidator(check_hex_str)
     ]
     memory_region_links: list[Dict[str,str]] = Field(
@@ -42,7 +42,7 @@ class MemoryMap(BaseModel):
     memory_map_name: Annotated[
         str,
         Field(description="Name of the memory map."),
-        AfterValidator(check_empty_name)        
+        AfterValidator(check_empty_str)        
     ]
     memory_regions: list[MemoryRegion] = Field(description="Memory map containing memory regions.")
 
@@ -58,7 +58,7 @@ class Diagram(BaseModel):
     diagram_name: Annotated[
         str, 
         Field(description="The name of the diagram."),
-        AfterValidator(check_empty_name)
+        AfterValidator(check_empty_str)
     ]
     memory_maps: list[MemoryMap] = Field(description="The diagram frame. Can contain many memory maps.")
 
