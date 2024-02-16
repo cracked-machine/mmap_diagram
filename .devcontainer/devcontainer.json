@@ -1,6 +1,10 @@
 // if youre running windows install docker desktop and vscode devcontainers extension
 // then in vscode, use "Reopen in container" command.
 
+// Note you WILL have to regenerate/re-register the ssh key each time you rebuild this container...
+// OR you can use Git on the host to commit/push/pull from the repo.
+// maybe there is a third option using ssh-agent?
+
 {
     "build": { "dockerfile": "Dockerfile" },
     "customizations": {
