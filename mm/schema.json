@@ -1,0 +1,112 @@
+{
+  "$defs": {
+    "MemoryMap": {
+      "properties": {
+        "name": {
+          "default": "<MapName>",
+          "description": "Name of the memory map",
+          "title": "Name",
+          "type": "string"
+        },
+        "MemoryMap": {
+          "default": [
+            {
+              "name": "<RegionName>",
+              "origin": "0x",
+              "size": "0x",
+              "regionlinks": [
+                {
+                  "<ParentMapName>": "<ChildRegionName>"
+                }
+              ]
+            }
+          ],
+          "description": "Memory map containing memory regions.",
+          "items": {
+            "$ref": "#/$defs/MemoryRegion"
+          },
+          "title": "Memorymap",
+          "type": "array"
+        }
+      },
+      "title": "MemoryMap",
+      "type": "object"
+    },
+    "MemoryRegion": {
+      "properties": {
+        "name": {
+          "default": "<RegionName>",
+          "description": "Name of the MemoryMap.",
+          "title": "Name",
+          "type": "string"
+        },
+        "origin": {
+          "default": "0x",
+          "description": "Origin address of the MemoryMap. In hex format string.",
+          "title": "Origin",
+          "type": "string"
+        },
+        "size": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": "0x",
+          "description": "Size (in bytes) of the MemoryMap. In hex format string.",
+          "title": "Size"
+        },
+        "regionlinks": {
+          "default": [
+            {
+              "<ParentMapName>": "<ChildRegionName>"
+            }
+          ],
+          "description": "Link to another memory region. E.g. <MemoryMap:name>.<MemoryRegion:Name>",
+          "items": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "title": "Regionlinks",
+          "type": "array"
+        }
+      },
+      "title": "MemoryRegion",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "Diagram": {
+      "default": [
+        {
+          "name": "Map1",
+          "MemoryMap": [
+            {
+              "name": "<RegionName>",
+              "origin": "0x",
+              "regionlinks": [
+                {
+                  "<ParentMapName>": "<ChildRegionName>"
+                }
+              ],
+              "size": "0x"
+            }
+          ]
+        }
+      ],
+      "description": "The diagram frame. Can contain many memory maps.",
+      "items": {
+        "$ref": "#/$defs/MemoryMap"
+      },
+      "title": "Diagram",
+      "type": "array"
+    }
+  },
+  "title": "Diagram",
+  "type": "object"
+}

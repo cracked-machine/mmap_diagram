@@ -1,0 +1,23 @@
+{
+    "$schema": "../../mm/schema.json",
+    "Diagram": [
+        {
+            "name": "Map1",
+            "MemoryMap": [
+                {
+                    "name": "<RegionName>",
+                    "origin": "0x",
+                    "regionlinks": [
+                        {
+                            "<ParentMapName>": "<ChildRegionName>"
+                        }
+                    ]
+                },
+                {
+                    "name": "<RegionName>"
+                }
+            ]
+        }
+    ]
+    
+}
