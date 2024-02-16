@@ -78,12 +78,12 @@ def check_region_link(v: list[MemoryMap]):
 
 
 class Diagram(BaseModel):
-    model_config = ConfigDict(
-        extra="ignore",
-        validate_assignment=True,
-        revalidate_instances="always",
-        validate_default=True,
-    )
+    # model_config = ConfigDict(
+    #     extra="ignore",
+    #     validate_assignment=True,
+    #     revalidate_instances="always",
+    #     validate_default=True,
+    # )
 
     # diagram_name: str = Field(description="The name of the diagram.")
     diagram_name: Annotated[
@@ -100,10 +100,9 @@ class Diagram(BaseModel):
     
 # helper functions
 def generate_schema(path: pathlib.Path):
-    schema_path = pathlib.Path("./mm/schema.json")
     myschema = Diagram.model_json_schema()
 
-    with schema_path.open("w") as fp:
+    with path.open("w") as fp:
         fp.write(json.dumps(myschema, indent=2))
 
 
