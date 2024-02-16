@@ -10,6 +10,10 @@ def check_empty_name(v: str):
     assert v
     return v
 
+def check_hex_str(v:str):
+    assert v[:2] == "0x"
+    return v
+
 # data model
 class MemoryRegion(BaseModel):
     memory_region_name: Annotated[
@@ -21,12 +25,14 @@ class MemoryRegion(BaseModel):
     memory_region_origin: Annotated[
         str,
         Field(description="Origin address of the MemoryMap. In hex format string."),
-        AfterValidator(check_empty_name)
+        AfterValidator(check_empty_name),
+        AfterValidator(check_hex_str)
     ]
     memory_region_size: Annotated[
         str,
         Field(description="Size (in bytes) of the MemoryMap. In hex format string."),
-        AfterValidator(check_empty_name)
+        AfterValidator(check_empty_name),
+        AfterValidator(check_hex_str)
     ]
     memory_region_links: list[Dict[str,str]] = Field(
         [{"<ParentMemoryMap>": "<ChildMemoryRegion>"}],
