@@ -53,18 +53,20 @@ def test_schema_gen(setup):
 def test_gen_example_input(input):
     data = mm.schema.Diagram(**input)
 
-    # check there is data present
-    assert data.memory_maps
-    assert len(data.memory_maps) == 2
-    for memmap in data.memory_maps:
-        assert memmap.memory_regions
-
     output_file = pathlib.Path("./doc/example/input.json")
     with output_file.open("w") as fp:
         fp.write(data.model_dump_json(indent=2))
     
     assert output_file.exists()
     
+def test_data_present(input):
+    data = mm.schema.Diagram(**input)
+    # check there is data present
+    assert data.memory_maps
+    assert len(data.memory_maps) == 2
+    for memmap in data.memory_maps:
+        assert memmap.memory_regions
+
 def test_schema_valid_example(input):
     test_data = input
     mm.schema.Diagram(**test_data)
