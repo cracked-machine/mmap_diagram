@@ -1,21 +1,36 @@
-from pydantic import BaseModel, Field, ConfigDict, field_validator
+from pydantic import BaseModel, Field, ConfigDict
+from pydantic.functional_validators import AfterValidator
 import pathlib
 import json
 from typing import Optional, Dict
-    
-class MemoryRegion(BaseModel):
-    name: str = Field(description="Name of the MemoryMap.")
+from typing_extensions import Annotated
 
-    origin: str = Field(description="Origin address of the MemoryMap. In hex format string.")
-    size: Optional[str] = Field(description="Size (in bytes) of the MemoryMap. In hex format string.")
-    regionlinks: list[Dict[str,str]] = Field(
+# Validators
+def check_empty_name(v: str):
+    assert v
+    return v
+
+# data model
+class MemoryRegion(BaseModel):
+    memory_region_name: Annotated[
+        str,
+        Field(description="Name of the MemoryMap."),
+        AfterValidator(check_empty_name)
+    ]
+
+    memory_region_origin: str = Field(description="Origin address of the MemoryMap. In hex format string.")
+    memory_region_size: str = Field(description="Size (in bytes) of the MemoryMap. In hex format string.")
+    memory_region_links: list[Dict[str,str]] = Field(
+        [{"<ParentMemoryMap>": "<ChildMemoryRegion>"}],
         description="Link to another memory region. E.g. <MemoryMap:name>.<MemoryRegion:Name>")
 
 class MemoryMap(BaseModel):
-    name: str = Field(description="Name of the memory map"
-        
-    )
-    MemoryMap: list[MemoryRegion] = Field(description="Memory map containing memory regions.")
+    memory_map_name: Annotated[
+        str,
+        Field(description="Name of the memory map."),
+        AfterValidator(check_empty_name)        
+    ]
+    memory_regions: list[MemoryRegion] = Field(description="Memory map containing memory regions.")
 
 class Diagram(BaseModel):
     model_config = ConfigDict(
@@ -25,9 +40,16 @@ class Diagram(BaseModel):
         validate_default=True,
     )
 
-    Diagram: list[MemoryMap] = Field(description="The diagram frame. Can contain many memory maps.")
-    
+    # diagram_name: str = Field(description="The name of the diagram.")
+    diagram_name: Annotated[
+        str, 
+        Field(description="The name of the diagram."),
+        AfterValidator(check_empty_name)
+    ]
+    memory_maps: list[MemoryMap] = Field(description="The diagram frame. Can contain many memory maps.")
 
+    
+# helper functions
 def generate_schema(path: pathlib.Path):
     schema_path = pathlib.Path("./mm/schema.json")
     myschema = Diagram.model_json_schema()
