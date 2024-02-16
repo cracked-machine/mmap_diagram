@@ -287,35 +287,35 @@ class MemoryMap:
 
     def _process_input(self):
 
-        self.parser = argparse.ArgumentParser(
+        parser = argparse.ArgumentParser(
             description="""Generate a diagram showing how binary regions co-exist within memory."""
         )
-        self.parser.add_argument(
+        parser.add_argument(
             "regions",
             help="command line input for regions should be tuples of name, origin and size.",
             nargs="*",
         )
-        self.parser.add_argument(
+        parser.add_argument(
             "-o",
             "--out",
             help='path to the markdown output report file. Default: "out/report.md"',
             default="out/report.md",
         )
-        self.parser.add_argument(
+        parser.add_argument(
             "-l",
             "--limit",
             help="The maximum memory address for the diagram. Please use hex. Default: " + hex(1000) + " (1000)",
             default=hex(1000),
             type=str,
         )
-        self.parser.add_argument(
+        parser.add_argument(
             "-s",
             "--scale",
             help="The scale factor for the diagram. Default: 1",
             default=1,
             type=int,
         )
-        self.parser.add_argument(
+        parser.add_argument(
             "-v",
             "--voidthreshold",
             help="The threshold for skipping void sections. Please use hex. Default: " + hex(1000) + " (1000)",
@@ -323,17 +323,17 @@ class MemoryMap:
             type=str,
         )
 
-        self.args = self.parser.parse_args()
+        self.args = parser.parse_args()
 
         # parse hex/int inputs
         if not self.args.limit[:2] == "0x":
-            self.parser.error("'limit' argument should be in hex format: 0x")
+            parser.error("'limit' argument should be in hex format: 0x")
         self.height: int = int(self.args.limit, 16)
 
         self.scale_factor: int = int(self.args.scale)
 
         if not self.args.voidthreshold[:2] == "0x":
-            self.parser.error("'voidthreshold' argument should be in hex format: 0x")
+            parser.error("'voidthreshold' argument should be in hex format: 0x")
         self.void_threshold: int = int(self.args.voidthreshold, 16)
 
         # make sure the output path is valid and parent dir exists
@@ -343,9 +343,9 @@ class MemoryMap:
 
         # check data point cardinality
         if len(sys.argv) == 1:
-            self.parser.error("must pass in data points")
+            parser.error("must pass in data points")
         if len(self.args.regions) % 3:
-            self.parser.error("command line input data should be in multiples of three")
+            parser.error("command line input data should be in multiples of three")
 
         # create mm.types.MemoryRegion objs for each data tuple
         for datatuple in self._batched(self.args.regions, 3):
