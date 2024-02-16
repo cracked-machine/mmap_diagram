@@ -9,6 +9,6 @@ def setup():
     return {"schema": schema}
 
 def test_schema_gen(setup):
-    mm.schema.generate_schema()
+    mm.schema.generate_schema(setup["schema"])
     assert setup["schema"].exists()
-   
+    
