@@ -1,5 +1,6 @@
 import argparse
 import itertools
+
 import PIL.Image
 import PIL.ImageDraw
 import PIL.ImageColor
@@ -10,10 +11,11 @@ import typeguard
 
 import sys
 import pathlib
-import mm.types
 import warnings
-
 import logging
+
+import mm.types
+import mm.schema
 
 root = logging.getLogger()
 root.setLevel(logging.DEBUG)
@@ -75,6 +77,7 @@ class MemoryMap:
         self.top_addr_lbl = mm.types.TextLabel(hex(self.height), self.fixed_legend_text_size)
         """Make sure this is created after rescale"""
 
+        # TODO move the calc_nearest_region() func to mm.schema.MemoryRegion
         # calculate each regions distance to the next memregion and for any overlaps
         memregion: mm.types.MemoryRegion
         for memregion in self._region_list:
@@ -293,6 +296,7 @@ class MemoryMap:
 
 class Diagram:
     pargs: argparse.Namespace = None
+    model: mm.schema.Diagram = None
 
     def __init__(self):
 
@@ -304,6 +308,7 @@ class Diagram:
         # will be created temporarily within the scope of the drawing function
         self._region_list = []
         # TODO import data into mm.schema.Diagram model instead
+        Diagram.model = self._create_model()
         self._create_regions()
 
         # TODO Pass in mm.schema.Diagram model instead
@@ -373,6 +378,34 @@ class Diagram:
             raise SystemExit("must pass in data points")
         if len(Diagram.pargs.regions) % 3:
             raise SystemExit("command line input data should be in multiples of three")        
+
+    def _create_model(self) -> mm.schema.Diagram:
+        # TODO implement multi- memory map support (only single mm for now)
+
+        # Create the minimal empty dict 
+        inputdict = {
+            "$schema": "../../mm/schema.json",
+            "diagram_name": "testd",
+            "memory_maps": { 
+                "testmm": { 
+                    "memory_regions": {
+
+                    }
+                }
+            }
+        }
+        # start adding memmap from the command line arg
+        for datatuple in self._batched(Diagram.pargs.regions, 3):
+            if datatuple[0] in inputdict['memory_maps']['testmm']['memory_regions']:
+                logging.warning(f"{str(datatuple[0])} already exists. Skipping {str(datatuple)}.")
+                # logging.warning(RuntimeWarning, "Name already exists. Skipping.")
+                continue
+            inputdict['memory_maps']['testmm']['memory_regions'][datatuple[0]] = {
+                    "memory_region_origin": datatuple[1],
+                    "memory_region_size": datatuple[2],
+                }
+            
+        return mm.schema.Diagram(**inputdict)
 
     def _create_regions(self):
         """Create the MemoryRegion objects based on the command line arguments"""

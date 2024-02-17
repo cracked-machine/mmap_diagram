@@ -4,6 +4,7 @@ import mm.diagram
 import pathlib
 import PIL.Image
 import argparse
+import pydantic
 
 @pytest.fixture
 def setup():
@@ -37,19 +38,19 @@ def test_arg_tuple():
 
 def test_invalid_region_data_format1():
     with unittest.mock.patch("sys.argv", ["mm.diagram", "a", "10", "0x10"]):
-        with pytest.raises(SystemExit):
+        with pytest.raises(pydantic.ValidationError):
             mm.diagram.Diagram()
 
 
 def test_invalid_region_data_format2():
     with unittest.mock.patch("sys.argv", ["mm.diagram", "a", "10", "0x10"]):
-        with pytest.raises(SystemExit):
+        with pytest.raises(pydantic.ValidationError):
             mm.diagram.Diagram()
 
 
 def test_invalid_region_data_formatBoth():
     with unittest.mock.patch("sys.argv", ["mm.diagram", "a", "10", "10"]):
-        with pytest.raises(SystemExit):
+        with pytest.raises(pydantic.ValidationError):
             mm.diagram.Diagram()
 
 
@@ -63,19 +64,10 @@ def test_invalid_out_arg():
 def test_invalid_duplicate_name_arg():
     """there can only be one."""
     with unittest.mock.patch("sys.argv", ["mm.diagram", "a", "0x10", "0x10", "a", "0x10", "0x10"]):
-        with pytest.warns(RuntimeWarning):
-            mm.diagram.Diagram()
-
-
-# def test_valid_custom_out_arg(setup):
-#     """should create custom report dir/files"""
-
-#     with unittest.mock.patch("sys.argv", ["mm.diagram", "a", "0x10", "0x10", "-o", str(setup["report"])]):
-#         mm.diagram.Diagram()
-#         assert setup["report"].exists()
-#         assert setup["image_full"].exists()
-#         assert setup["image_cropped"].exists()
-
+        d = mm.diagram.Diagram()
+        # the second memregion would have been skipped so we should only have one mem region
+        memmap_name = list(d.model.memory_maps.keys())[0]
+        assert len(d.model.memory_maps[memmap_name].memory_regions) == 1
 
 def test_scale_arg():
     with unittest.mock.patch("sys.argv", ["mm.diagram", "a", "0x10", "0x10", "-s", "3"]):
