@@ -6,13 +6,15 @@ from typing import Optional, Dict, List
 from typing_extensions import Annotated
 
 # Validators
-def check_empty_str(v: str, context: str):
+def check_empty_str(v: str):
     assert v, "Empty string found!"
     return v
 
-def check_hex_str(v:str):
+def check_hex_str(v: str):
     assert v[:2] == "0x"
     return v
+
+
 
 # data model
 class MemoryRegion(BaseModel):
@@ -43,13 +45,23 @@ class MemoryRegion(BaseModel):
         """\n\n{'ParentMemoryMapN': 'ChildMemoryRegionN'}"""
         """\n]""")
 
+def check_duplicate_names(v: list[MemoryRegion]):
+    # get all the name including any duplicates
+    res = [mr.memory_region_name for mr in v]
+    assert len(set(res)) == len(res)
+    return v
+
 class MemoryMap(BaseModel):
     memory_map_name: Annotated[
         str,
         Field(..., description="Name of the memory map."),
         AfterValidator(check_empty_str)        
     ]
-    memory_regions: list[MemoryRegion] = Field(description="Memory map containing memory regions.")
+    memory_regions: Annotated[
+        list[MemoryRegion],
+        Field(description="Memory map containing memory regions."),
+        AfterValidator(check_duplicate_names)
+    ]
 
 
 def check_region_link(v: list[MemoryMap]):
@@ -107,6 +119,16 @@ class Diagram(BaseModel):
 
     
 # helper functions
+    
+def find_memmap_by_name(name: str, context: Diagram):
+    # return [mm for mm in context if mm['memory_map_name'] == name]
+    return next((mm for mm in context['memory_maps'] if mm['memory_map_name'] == name), None)
+
+def find_memregion_by_name(memmap_name: str, memregion_name: str, context: Diagram):
+    mm = find_memmap_by_name(memmap_name, context)
+    if not mm: return None    
+    return next((mr for mr in mm['memory_regions'] if mr['memory_region_name'] == memregion_name), None)
+
 def generate_schema(path: pathlib.Path):
     myschema = Diagram.model_json_schema()
 

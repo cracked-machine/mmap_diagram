@@ -38,7 +38,11 @@ def input() -> Dict:
                         "memory_region_name": "Blob2",
                         "memory_region_origin": "0x10",
                         "memory_region_size": "0x10"
-                        
+                    },
+                    {
+                        "memory_region_name": "Blob3",
+                        "memory_region_origin": "0x50",
+                        "memory_region_size": "0x10"
                     }
                 ]
             }
@@ -182,3 +186,21 @@ def test_schema_memregion_links_mismatched_sizes(input):
     test_data['memory_maps'][0]['memory_regions'][0]['memory_region_size'] = "0x20"
     with pytest.raises(pydantic.ValidationError): 
         mm.schema.Diagram(**test_data)       
+
+def test_schema_duplicate_region_names_within_same_mmap(input):
+    test_data = input
+
+    # default test_data contains non-empty string - should pass
+    mm.schema.Diagram(**test_data)
+
+    # invalidate test_data by setting duplicate names in the second mmap regions - should fail
+    # test_data['memory_maps'][1]['memory_regions'][0]['memory_region_name'] = "blob2"
+    # mmdut = [mm for mm in test_data['memory_maps'] if mm['memory_map_name'] == "DRAM"]  
+
+    mm.schema.find_memregion_by_name("DRAM", "Blob2", test_data)['memory_region_name'] = "Blob2"
+    mm.schema.find_memregion_by_name("DRAM", "Blob3", test_data)['memory_region_name'] = "Blob2"
+    
+    
+    with pytest.raises(pydantic.ValidationError): 
+        d = mm.schema.Diagram(**test_data)  
+        
