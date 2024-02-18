@@ -74,7 +74,7 @@ class Diagram(ConfigParent):
         return self
 
     @pydantic.model_validator(mode="after")
-    def check_region_link(self):
+    def check_dangling_region_links(self):
         found_memory_regions = []
         found_region_links = []
         v = self.memory_maps
