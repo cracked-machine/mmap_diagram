@@ -1,5 +1,7 @@
 {
   "diagram_name": "TestDiagram",
+  "diagram_height": 1000,
+  "diagram_width": 400,
   "memory_maps": {
     "eMMC": {
       "memory_regions": {
@@ -15,23 +17,33 @@
               "DRAM",
               "Blob3"
             ]
-          ]
+          ],
+          "remain": "0x3c8",
+          "collisions": {}
         }
-      }
+      },
+      "map_height": 1000,
+      "map_width": 400
     },
     "DRAM": {
       "memory_regions": {
         "Blob2": {
           "memory_region_origin": "0x10",
           "memory_region_size": "0x10",
-          "memory_region_links": []
+          "memory_region_links": [],
+          "remain": "0x30",
+          "collisions": {}
         },
         "Blob3": {
           "memory_region_origin": "0x50",
           "memory_region_size": "0x10",
-          "memory_region_links": []
+          "memory_region_links": [],
+          "remain": "0x30",
+          "collisions": {}
         }
-      }
+      },
+      "map_height": 1000,
+      "map_width": 400
     }
   }
 }

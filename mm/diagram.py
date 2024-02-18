@@ -386,23 +386,27 @@ class Diagram:
         inputdict = {
             "$schema": "../../mm/schema.json",
             "diagram_name": "testd",
+            "diagram_height": int(Diagram.pargs.limit, 16),
+            "diagram_width": 400,
             "memory_maps": { 
                 "testmm": { 
-                    "memory_regions": {
-
-                    }
+                    "map_height": int(Diagram.pargs.limit, 16),
+                    "map_width": 400,
+                    "memory_regions": { } # regions added below
                 }
             }
         }
-        # start adding memmap from the command line arg
+
+        # start adding mem regions from the command line arg
         for datatuple in self._batched(Diagram.pargs.regions, 3):
+            # prevent overwriting duplicates
             if datatuple[0] in inputdict['memory_maps']['testmm']['memory_regions']:
                 logging.warning(f"{str(datatuple[0])} already exists. Skipping {str(datatuple)}.")
-                # logging.warning(RuntimeWarning, "Name already exists. Skipping.")
                 continue
+
             inputdict['memory_maps']['testmm']['memory_regions'][datatuple[0]] = {
                     "memory_region_origin": datatuple[1],
-                    "memory_region_size": datatuple[2],
+                    "memory_region_size": datatuple[2]
                 }
             
         return mm.schema.Diagram(**inputdict)

@@ -9,10 +9,22 @@
           "description": "Memory map containing memory regions.",
           "title": "Memory Regions",
           "type": "object"
+        },
+        "map_height": {
+          "description": "The height of the memory map.",
+          "title": "Map Height",
+          "type": "integer"
+        },
+        "map_width": {
+          "description": "The width of the memory map.",
+          "title": "Map Width",
+          "type": "integer"
         }
       },
       "required": [
-        "memory_regions"
+        "memory_regions",
+        "map_height",
+        "map_width"
       ],
       "title": "MemoryMap",
       "type": "object"
@@ -47,6 +59,18 @@
           },
           "title": "Memory Region Links",
           "type": "array"
+        },
+        "remain": {
+          "default": "",
+          "description": "Internal Use",
+          "title": "Remain",
+          "type": "string"
+        },
+        "collisions": {
+          "Description": "Internal Use",
+          "default": {},
+          "title": "Collisions",
+          "type": "object"
         }
       },
       "required": [
@@ -63,6 +87,16 @@
       "title": "Diagram Name",
       "type": "string"
     },
+    "diagram_height": {
+      "description": "The height of the diagram.",
+      "title": "Diagram Height",
+      "type": "integer"
+    },
+    "diagram_width": {
+      "description": "The width of the diagram.",
+      "title": "Diagram Width",
+      "type": "integer"
+    },
     "memory_maps": {
       "additionalProperties": {
         "$ref": "#/$defs/MemoryMap"
@@ -74,6 +108,8 @@
   },
   "required": [
     "diagram_name",
+    "diagram_height",
+    "diagram_width",
     "memory_maps"
   ],
   "title": "Diagram",
