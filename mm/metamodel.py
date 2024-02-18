@@ -136,11 +136,11 @@ class Diagram(ConfigParent):
 
         # process each memory map independently
         for memory_map in self.memory_maps.values():
-            non_collision_distances = {}
             
             neighbour_region_list = memory_map.memory_regions.items()
             
             for memory_region_name, memory_region in memory_map.memory_regions.items(): 
+                non_collision_distances = {}
 
                 logging.debug(f"Calculating nearest distances to {memory_region_name} region:")
                 this_region_end = 0

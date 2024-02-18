@@ -17,9 +17,7 @@
               "DRAM",
               "Blob3"
             ]
-          ],
-          "remain": "0x3c8",
-          "collisions": {}
+          ]
         }
       },
       "map_height": 1000,
@@ -30,16 +28,12 @@
         "Blob2": {
           "memory_region_origin": "0x10",
           "memory_region_size": "0x10",
-          "memory_region_links": [],
-          "remain": "0x30",
-          "collisions": {}
+          "memory_region_links": []
         },
         "Blob3": {
           "memory_region_origin": "0x50",
           "memory_region_size": "0x10",
-          "memory_region_links": [],
-          "remain": "0x30",
-          "collisions": {}
+          "memory_region_links": []
         }
       },
       "map_height": 1000,

@@ -38,12 +38,6 @@ class MemoryMapDiagram:
         self.bgcolour = "oldlace"
         """background colour for diagram"""
 
-        self.height: int = int(Diagram.pargs.limit, 16)
-        """height of the diagram image"""
-
-        self.width: int = 400
-        """width of the diagram image"""
-
         self.default_region_text_size: int = 12
         """Default size for memregion text"""
 
@@ -61,27 +55,21 @@ class MemoryMapDiagram:
         self._region_list: List[mm.types.MemoryRegionImage] = region_list
         """List of memregion objects"""
 
-        # self._process_input()
-
-        # attributes using self.width/self.height
-        # should be done after this function call
-        self._rescale_image()
-
-        self._legend_width = self.width // 2
+        self._legend_width = Diagram.model.diagram_width // 2
         """width of the area used for text annotations/legend"""
 
         self.voidregion = mm.types.VoidRegionImage(size=hex(40))
         """The reusable object used to represent the void regions in the memory map"""
-        self.voidregion.create_img(img_width=(self.width - 20), font_size=self.default_region_text_size)
+        self.voidregion.create_img(img_width=(Diagram.model.diagram_width - 20), font_size=self.default_region_text_size)
 
-        self.top_addr_lbl = mm.types.TextLabelImage(hex(self.height), self.fixed_legend_text_size)
+        self.top_addr_lbl = mm.types.TextLabelImage(hex(Diagram.model.diagram_height), self.fixed_legend_text_size)
         """Make sure this is created after rescale"""
 
         # TODO move the calc_nearest_region() func to mm.schema.MemoryRegionImage
         # calculate each regions distance to the next memregion and for any overlaps
         memregion: mm.types.MemoryRegionImage
         for memregion in self._region_list:
-            memregion.calc_nearest_region(self._region_list, self.height)
+            memregion.calc_nearest_region(self._region_list, Diagram.model.diagram_height)
 
         # assign the draw indent by ascending origin
         self._region_list.sort(key=lambda x: x.origin, reverse=False)
@@ -94,24 +82,46 @@ class MemoryMapDiagram:
         # smaller in foreground, larger in background
         self._region_list.sort(key=lambda x: x.size, reverse=True)
 
-        self._create_diagram_image(self._region_list)
+        self._create_image_list()
+
+        # TODO replace self._region_list with return image_list from self._create_image_list()
         self._create_markdown(self._region_list)
         self._create_table_image(self._region_list)
 
-    def _rescale_image(self):
-        """Rescale the image using the default or user-defined scale factor"""
-        self.height = self.height * self.scale_factor
-        self.width = self.width * self.scale_factor
+    def _create_image_list(self):
 
-    def _create_diagram_image(self, region_list: List[mm.types.MemoryRegionImage]):
-        """Create the png format image for the diagram from the mm.types.MemoryRegionImage objects"""
-        # init the main image
-        new_diagram_img = PIL.Image.new("RGB", (self.width, self.height), color=self.bgcolour)
+        image_list: List[mm.types.MemoryRegionImage] = []
+        for mmap in Diagram.model.memory_maps.values():
+            for region_name, region in mmap.memory_regions.items():
+                new_mr_image = mm.types.MemoryRegionImage(
+                    region_name, 
+                    region.memory_region_origin, 
+                    region.memory_region_size)
+                new_mr_image.remain = region.remain
+                new_mr_image.collisons = region.collisions
+                image_list.append(new_mr_image)
+                
 
+            # assign the draw indent by ascending origin
+            image_list.sort(key=lambda x: x.origin, reverse=False)
+            region_indent = 0
+            for image in image_list:
+                image.draw_indent = region_indent
+                region_indent += 5
+
+            # sort in descending size order for z-order.
+            # smaller in foreground, larger in background
+            image_list.sort(key=lambda x: x.size, reverse=True)
+        
+            self._draw_image_list(image_list)
+    
+    def _draw_image_list(self, image_list: List[mm.types.MemoryRegionImage]):
+
+        new_diagram_img = PIL.Image.new("RGB", (Diagram.model.diagram_width, Diagram.model.diagram_height), color=self.bgcolour)
         # paste each new graphic element image to main image
-        for memregion in region_list:
+        for memregion in image_list:
             memregion.create_img(
-                img_width=(self.width - self._legend_width),
+                img_width=(Diagram.model.diagram_width - self._legend_width),
                 font_size=self.default_region_text_size,
             )
             if not memregion.img:
@@ -138,7 +148,7 @@ class MemoryMapDiagram:
             )
 
             # Top address text for the whole diagram
-            top_addr = self.height
+            top_addr = Diagram.model.diagram_height
             top_addr_lbl = mm.types.TextLabelImage(hex(top_addr), self.fixed_legend_text_size)
             new_diagram_img.paste(top_addr_lbl.img, (0, top_addr - top_addr_lbl.height - 5))
 
@@ -176,14 +186,14 @@ class MemoryMapDiagram:
                     width=1,
                 )
 
-            for x in range(top_addr_lbl.width * 2, self.width - 10, MemoryMapDiagram.DashedLine.gap):
+            for x in range(top_addr_lbl.width * 2, Diagram.model.diagram_width - 10, MemoryMapDiagram.DashedLine.gap):
                 line_canvas.line(
                     (x, top_addr - 7, x + MemoryMapDiagram.DashedLine.len, top_addr - 7),
                     fill="black",
                     width=MemoryMapDiagram.DashedLine.width,
                 )
 
-        self._insert_void_regions(new_diagram_img, region_list)
+        self._insert_void_regions(new_diagram_img, image_list)
 
         # rotate the entire diagram so the origin is at the bottom
         new_diagram_img = new_diagram_img.rotate(180)
@@ -233,7 +243,7 @@ class MemoryMapDiagram:
             )
 
             # now create the new image alternating the region subsets and void regions
-            new_cropped_image = PIL.Image.new("RGB", (self.width, new_cropped_height), color=self.bgcolour)
+            new_cropped_image = PIL.Image.new("RGB", (Diagram.model.diagram_width, new_cropped_height), color=self.bgcolour)
             y_pos = 0
             for region_subset in region_subset_list:
                 new_cropped_image.paste(region_subset, (0, y_pos))
@@ -250,7 +260,7 @@ class MemoryMapDiagram:
 
             # Diagram End Dash Line
             line_canvas = PIL.ImageDraw.Draw(new_cropped_image)
-            for x in range(self.top_addr_lbl.width * 2, self.width - 10, MemoryMapDiagram.DashedLine.gap):
+            for x in range(self.top_addr_lbl.width * 2, Diagram.model.diagram_width - 10, MemoryMapDiagram.DashedLine.gap):
                 line_canvas.line(
                     (
                         x,
@@ -309,7 +319,7 @@ class Diagram:
         self._region_list = []
         # TODO import data into mm.schema.Diagram model instead
         Diagram.model = self._create_model()
-        self._create_regions()
+        # self._create_regions()
 
         # TODO Pass in mm.schema.Diagram model instead
         self.mm = MemoryMapDiagram(self._region_list)
@@ -377,7 +387,7 @@ class Diagram:
         if len(sys.argv) == 1:
             raise SystemExit("must pass in data points")
         if len(Diagram.pargs.regions) % 3:
-            raise SystemExit("command line input data should be in multiples of three")        
+            raise SystemExit("command line input data should be in multiples of three") 
 
     def _create_model(self) -> mm.metamodel.Diagram:
         # TODO implement multi- memory map support (only single mm for now)
@@ -386,12 +396,12 @@ class Diagram:
         inputdict = {
             "$schema": "../../mm/schema.json",
             "diagram_name": "testd",
-            "diagram_height": int(Diagram.pargs.limit, 16),
-            "diagram_width": 400,
+            "diagram_height": int(Diagram.pargs.limit,16) * Diagram.pargs.scale,
+            "diagram_width": 400 * Diagram.pargs.scale,
             "memory_maps": { 
                 "testmm": { 
-                    "map_height": int(Diagram.pargs.limit, 16),
-                    "map_width": 400,
+                    "map_height": int(Diagram.pargs.limit,16) * Diagram.pargs.scale,
+                    "map_width": 400 * Diagram.pargs.scale,
                     "memory_regions": { } # regions added below
                 }
             }

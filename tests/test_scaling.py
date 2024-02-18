@@ -20,12 +20,12 @@ def setup():
 def assert_expected_scale(
     d: mm.diagram.Diagram, img_path: pathlib.Path, width: int, height: int, cropped_height: int, scale: int
 ):
-
+    from mm.diagram import Diagram
     assert img_path.exists()
     outimg = PIL.Image.open(str(img_path))
-    assert d.mm.height == height * scale
-    assert d.mm.width == width * scale
-    assert outimg.size == (d.mm.width, cropped_height)
+    assert Diagram.model.diagram_height == height * scale
+    assert Diagram.model.diagram_width == width * scale
+    assert outimg.size == (Diagram.model.diagram_width, cropped_height)
 
 
 def test_scaling_x1(setup):
@@ -111,23 +111,23 @@ def test_scaling_x2(setup):
             str(requested_scale),
         ],
     ):
-
-        d = mm.diagram.Diagram()
+        from mm.diagram import Diagram
+        Diagram()
 
         # assumes default haven't changed
-        assert mm.diagram.Diagram.pargs.voidthreshold == hex(1000)
+        assert Diagram.pargs.voidthreshold == hex(1000)
 
         assert setup["image_full"].exists()
         outimg = PIL.Image.open(str(setup["image_full"]))
-        assert d.mm.height == requested_diagram_height * requested_scale
-        assert d.mm.width == default_diagram_width * requested_scale
-        assert outimg.size == (d.mm.width, d.mm.height)
+        assert Diagram.model.diagram_height == requested_diagram_height * requested_scale
+        assert Diagram.model.diagram_width == default_diagram_width * requested_scale
+        assert outimg.size == (Diagram.model.diagram_width, Diagram.model.diagram_height)
 
         assert setup["image_cropped"].exists()
         outimg = PIL.Image.open(str(setup["image_cropped"]))
-        assert d.mm.height == requested_diagram_height * requested_scale
-        assert d.mm.width == default_diagram_width * requested_scale
-        assert outimg.size == (d.mm.width, expected_cropped_height)
+        assert Diagram.model.diagram_height == requested_diagram_height * requested_scale
+        assert Diagram.model.diagram_width == default_diagram_width * requested_scale
+        assert outimg.size == (Diagram.model.diagram_width, expected_cropped_height)
 
         # # cropped height should just be x2 scale on full image, i.e. not cropped at all
         # assert_expected_scale(d,
