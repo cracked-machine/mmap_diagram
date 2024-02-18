@@ -15,7 +15,7 @@ import warnings
 import logging
 
 import mm.types
-import mm.schema
+import mm.metamodel
 
 root = logging.getLogger()
 root.setLevel(logging.DEBUG)
@@ -27,14 +27,14 @@ root.addHandler(handler)
 
 
 @typeguard.typechecked
-class MemoryMap:
+class MemoryMapDiagram:
 
     class DashedLine:
         width: int = 1
         gap: int = 4
         len: int = gap // 2
 
-    def __init__(self, region_list: List[mm.types.MemoryRegion]):
+    def __init__(self, region_list: List[mm.types.MemoryRegionImage]):
         self.bgcolour = "oldlace"
         """background colour for diagram"""
 
@@ -54,11 +54,11 @@ class MemoryMap:
         """Fixed size for table text"""
 
         self.voidthreshold: int = int(Diagram.pargs.voidthreshold, 16)
-        """Void space threshold for adding VoidRegion objs"""
+        """Void space threshold for adding VoidRegionImage objs"""
 
         self.scale_factor: int = Diagram.pargs.scale
 
-        self._region_list: List[mm.types.MemoryRegion] = region_list
+        self._region_list: List[mm.types.MemoryRegionImage] = region_list
         """List of memregion objects"""
 
         # self._process_input()
@@ -70,16 +70,16 @@ class MemoryMap:
         self._legend_width = self.width // 2
         """width of the area used for text annotations/legend"""
 
-        self.voidregion = mm.types.VoidRegion(size=hex(40))
+        self.voidregion = mm.types.VoidRegionImage(size=hex(40))
         """The reusable object used to represent the void regions in the memory map"""
         self.voidregion.create_img(img_width=(self.width - 20), font_size=self.default_region_text_size)
 
-        self.top_addr_lbl = mm.types.TextLabel(hex(self.height), self.fixed_legend_text_size)
+        self.top_addr_lbl = mm.types.TextLabelImage(hex(self.height), self.fixed_legend_text_size)
         """Make sure this is created after rescale"""
 
-        # TODO move the calc_nearest_region() func to mm.schema.MemoryRegion
+        # TODO move the calc_nearest_region() func to mm.schema.MemoryRegionImage
         # calculate each regions distance to the next memregion and for any overlaps
-        memregion: mm.types.MemoryRegion
+        memregion: mm.types.MemoryRegionImage
         for memregion in self._region_list:
             memregion.calc_nearest_region(self._region_list, self.height)
 
@@ -103,8 +103,8 @@ class MemoryMap:
         self.height = self.height * self.scale_factor
         self.width = self.width * self.scale_factor
 
-    def _create_diagram_image(self, region_list: List[mm.types.MemoryRegion]):
-        """Create the png format image for the diagram from the mm.types.MemoryRegion objects"""
+    def _create_diagram_image(self, region_list: List[mm.types.MemoryRegionImage]):
+        """Create the png format image for the diagram from the mm.types.MemoryRegionImage objects"""
         # init the main image
         new_diagram_img = PIL.Image.new("RGB", (self.width, self.height), color=self.bgcolour)
 
@@ -123,7 +123,7 @@ class MemoryMap:
             )
 
             # Origin address text for this memory region
-            origin_text_label = mm.types.TextLabel(memregion._origin, self.fixed_legend_text_size)
+            origin_text_label = mm.types.TextLabelImage(memregion._origin, self.fixed_legend_text_size)
             new_diagram_img.paste(
                 origin_text_label.img,
                 (0, memregion.origin - origin_text_label.height + 1),
@@ -131,7 +131,7 @@ class MemoryMap:
 
             # End address text for this memory region
             region_end_addr = memregion.origin + memregion.size
-            region_end_addr_lbl = mm.types.TextLabel(hex(region_end_addr), self.fixed_legend_text_size)
+            region_end_addr_lbl = mm.types.TextLabelImage(hex(region_end_addr), self.fixed_legend_text_size)
             new_diagram_img.paste(
                 region_end_addr_lbl.img,
                 (0, region_end_addr - region_end_addr_lbl.height + 1),
@@ -139,7 +139,7 @@ class MemoryMap:
 
             # Top address text for the whole diagram
             top_addr = self.height
-            top_addr_lbl = mm.types.TextLabel(hex(top_addr), self.fixed_legend_text_size)
+            top_addr_lbl = mm.types.TextLabelImage(hex(top_addr), self.fixed_legend_text_size)
             new_diagram_img.paste(top_addr_lbl.img, (0, top_addr - top_addr_lbl.height - 5))
 
             # Dash Lines from text to memregion
@@ -147,40 +147,40 @@ class MemoryMap:
             for x in range(
                 region_end_addr_lbl.width * 2,
                 self._legend_width - 10,
-                MemoryMap.DashedLine.gap,
+                MemoryMapDiagram.DashedLine.gap,
             ):
                 line_canvas.line(
                     (
                         x,
-                        region_end_addr - MemoryMap.DashedLine.width,
-                        x + MemoryMap.DashedLine.len,
-                        region_end_addr - MemoryMap.DashedLine.width,
+                        region_end_addr - MemoryMapDiagram.DashedLine.width,
+                        x + MemoryMapDiagram.DashedLine.len,
+                        region_end_addr - MemoryMapDiagram.DashedLine.width,
                     ),
                     fill="black",
-                    width=MemoryMap.DashedLine.width,
+                    width=MemoryMapDiagram.DashedLine.width,
                 )
 
             for x in range(
                 origin_text_label.width * 2,
                 self._legend_width - 10,
-                MemoryMap.DashedLine.gap,
+                MemoryMapDiagram.DashedLine.gap,
             ):
                 line_canvas.line(
                     (
                         x,
-                        memregion.origin - MemoryMap.DashedLine.width,
-                        x + MemoryMap.DashedLine.len,
-                        memregion.origin - MemoryMap.DashedLine.width,
+                        memregion.origin - MemoryMapDiagram.DashedLine.width,
+                        x + MemoryMapDiagram.DashedLine.len,
+                        memregion.origin - MemoryMapDiagram.DashedLine.width,
                     ),
                     fill="black",
                     width=1,
                 )
 
-            for x in range(top_addr_lbl.width * 2, self.width - 10, MemoryMap.DashedLine.gap):
+            for x in range(top_addr_lbl.width * 2, self.width - 10, MemoryMapDiagram.DashedLine.gap):
                 line_canvas.line(
-                    (x, top_addr - 7, x + MemoryMap.DashedLine.len, top_addr - 7),
+                    (x, top_addr - 7, x + MemoryMapDiagram.DashedLine.len, top_addr - 7),
                     fill="black",
-                    width=MemoryMap.DashedLine.width,
+                    width=MemoryMapDiagram.DashedLine.width,
                 )
 
         self._insert_void_regions(new_diagram_img, region_list)
@@ -193,10 +193,10 @@ class MemoryMap:
         img_file_path = pathlib.Path(Diagram.pargs.out).stem + "_full.png"
         new_diagram_img.save(pathlib.Path(Diagram.pargs.out).parent / img_file_path)
 
-    def _insert_void_regions(self, original_img: PIL.Image.Image, memregion_list: List[mm.types.MemoryRegion]):
-        """Remove large empty spaces and replace them with fixed size VoidRegion objects.
+    def _insert_void_regions(self, original_img: PIL.Image.Image, memregion_list: List[mm.types.MemoryRegionImage]):
+        """Remove large empty spaces and replace them with fixed size VoidRegionImage objects.
         This function actually chops up the existing diagram image into smaller images containing
-        only MemoryRegions. It then pastes the smaller image into a new image, inserting VoidRegion
+        only MemoryRegions. It then pastes the smaller image into a new image, inserting VoidRegionImage
         images inbetween"""
 
         # find the large empty spaces in the memory map
@@ -250,16 +250,16 @@ class MemoryMap:
 
             # Diagram End Dash Line
             line_canvas = PIL.ImageDraw.Draw(new_cropped_image)
-            for x in range(self.top_addr_lbl.width * 2, self.width - 10, MemoryMap.DashedLine.gap):
+            for x in range(self.top_addr_lbl.width * 2, self.width - 10, MemoryMapDiagram.DashedLine.gap):
                 line_canvas.line(
                     (
                         x,
                         new_cropped_image.height - self.top_addr_lbl.height - 3,
-                        x + MemoryMap.DashedLine.len,
+                        x + MemoryMapDiagram.DashedLine.len,
                         new_cropped_image.height - self.top_addr_lbl.height - 3,
                     ),
                     fill="black",
-                    width=MemoryMap.DashedLine.width,
+                    width=MemoryMapDiagram.DashedLine.width,
                 )
 
             # TODO disable save and store in class instance variable
@@ -267,7 +267,7 @@ class MemoryMap:
             img_file_path = pathlib.Path(Diagram.pargs.out).stem + "_cropped.png"
             new_cropped_image.save(pathlib.Path(Diagram.pargs.out).parent / img_file_path)
 
-    def _create_markdown(self, region_list: List[mm.types.MemoryRegion]):
+    def _create_markdown(self, region_list: List[mm.types.MemoryRegionImage]):
         """Create markdown doc containing the diagram image and text-base summary table"""
         with open(Diagram.pargs.out, "w") as f:
             f.write(f"""![memory map diagram]({pathlib.Path(Diagram.pargs.out).stem}.png)\n""")
@@ -276,7 +276,7 @@ class MemoryMap:
             for memregion in region_list:
                 f.write(f"{memregion}\n")
 
-    def _create_table_image(self, region_list: List[mm.types.MemoryRegion]):
+    def _create_table_image(self, region_list: List[mm.types.MemoryRegionImage]):
         """Create a png image of the summary table"""
         table_data = []
         for memregion in reversed(region_list):
@@ -296,15 +296,15 @@ class MemoryMap:
 
 class Diagram:
     pargs: argparse.Namespace = None
-    model: mm.schema.Diagram = None
+    model: mm.metamodel.Diagram = None
 
     def __init__(self):
 
         self._parse_args()
         self._validate_pargs()
 
-        # TODO instead of storing metadata as MemoryRegion list, 
-        # the mm.schema.Diagram model will store the metadata and MemoryRegion objects
+        # TODO instead of storing metadata as MemoryRegionImage list, 
+        # the mm.schema.Diagram model will store the metadata and MemoryRegionImage objects
         # will be created temporarily within the scope of the drawing function
         self._region_list = []
         # TODO import data into mm.schema.Diagram model instead
@@ -312,9 +312,9 @@ class Diagram:
         self._create_regions()
 
         # TODO Pass in mm.schema.Diagram model instead
-        self.mm = MemoryMap(self._region_list)
+        self.mm = MemoryMapDiagram(self._region_list)
 
-        # TODO disable image save in MemoryMap. 
+        # TODO disable image save in MemoryMapDiagram. 
         # It should return an image obj, which can be pasted into a diagram image here
         # This will allow multiple MemoryMaps to be supported
         # Links can be drawn on last
@@ -379,7 +379,7 @@ class Diagram:
         if len(Diagram.pargs.regions) % 3:
             raise SystemExit("command line input data should be in multiples of three")        
 
-    def _create_model(self) -> mm.schema.Diagram:
+    def _create_model(self) -> mm.metamodel.Diagram:
         # TODO implement multi- memory map support (only single mm for now)
 
         # Create the minimal empty dict 
@@ -409,11 +409,11 @@ class Diagram:
                     "memory_region_size": datatuple[2]
                 }
             
-        return mm.schema.Diagram(**inputdict)
+        return mm.metamodel.Diagram(**inputdict)
 
     def _create_regions(self):
         """Create the MemoryRegion objects based on the command line arguments"""
-        # create mm.types.MemoryRegion objs for each data tuple
+        # create mm.types.MemoryRegionImage objs for each data tuple
         for datatuple in self._batched(Diagram.pargs.regions, 3):
             name = datatuple[0]
             origin = datatuple[1]
@@ -425,11 +425,11 @@ class Diagram:
                 raise SystemExit()
             if self._region_list and any(x.name == name for x in self._region_list):
                 warnings.warn(
-                    f"Duplicate memregion names ({name}) are not permitted. MemoryRegion will not be added.",
+                    f"Duplicate memregion names ({name}) are not permitted. MemoryRegionImage will not be added.",
                     RuntimeWarning,
                 )
             else:
-                self._region_list.append(mm.types.MemoryRegion(name, origin, size))
+                self._region_list.append(mm.types.MemoryRegionImage(name, origin, size))
     
     def _batched(self, iterable, n):
         """Split iterable into batches"""

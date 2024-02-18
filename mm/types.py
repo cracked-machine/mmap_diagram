@@ -9,7 +9,7 @@ import logging
 
 
 @typeguard.typechecked
-class Region:
+class RegionImage:
     _remaining_colours: Dict = PIL.ImageColor.colormap.copy()
     """Copy of the PIL colour string map, we remove colours until all are gone.
     Therefore avoiding random picking of duplicate colours"""
@@ -44,8 +44,8 @@ class Region:
 
         # both 'lightslategray' and 'lightslategrey' are the same colour
         # and we don't want duplicate colours in our diagram
-        if "lightslategray" in MemoryRegion._remaining_colours:
-            del MemoryRegion._remaining_colours["lightslategray"]
+        if "lightslategray" in MemoryRegionImage._remaining_colours:
+            del MemoryRegionImage._remaining_colours["lightslategray"]
 
     @property
     def origin(self):
@@ -100,21 +100,21 @@ class Region:
             logging.debug(f"{self.name}:")
             # make sure we don't pick a colour that is too bright.
             # A0A0A0 was arbitrarily decided to be "too bright" :)
-            chosen_colour_name, chosen_colour_code = random.choice(list(MemoryRegion._remaining_colours.items()))
+            chosen_colour_name, chosen_colour_code = random.choice(list(MemoryRegionImage._remaining_colours.items()))
             while int(chosen_colour_code[1:], 16) > int("A0A0A0", 16):
                 logging.debug(f"\tRejected {chosen_colour_name}({chosen_colour_code})")
-                # del MemoryRegion._remaining_colours[chosen_colour_name]
-                chosen_colour_name, chosen_colour_code = random.choice(list(MemoryRegion._remaining_colours.items()))
+                # del MemoryRegionImage._remaining_colours[chosen_colour_name]
+                chosen_colour_name, chosen_colour_code = random.choice(list(MemoryRegionImage._remaining_colours.items()))
 
-            # del MemoryRegion._remaining_colours[chosen_colour_name]
+            # del MemoryRegionImage._remaining_colours[chosen_colour_name]
             logging.debug(f"\tSelected {chosen_colour_name}({chosen_colour_code})")
         except (IndexError, KeyError):
             logging.critical("Ran out of colours!")
             raise SystemExit()
-        logging.debug(f"\t### {len(MemoryRegion._remaining_colours)} colours left ###")
+        logging.debug(f"\t### {len(MemoryRegionImage._remaining_colours)} colours left ###")
         return chosen_colour_name
 
-    def calc_nearest_region(self, region_list: List["MemoryRegion"], diagram_height: int):
+    def calc_nearest_region(self, region_list: List["MemoryRegionImage"], diagram_height: int):
         """Calculate the remaining number of bytes until next region block"""
 
         non_collision_distances = {}
@@ -177,7 +177,7 @@ class Region:
 
 
 @typeguard.typechecked
-class MemoryRegion(Region):
+class MemoryRegionImage(RegionImage):
 
     def create_img(self, img_width: int, font_size: int):
 
@@ -186,7 +186,7 @@ class MemoryRegion(Region):
             logging.warning("Zero size region will not be added.")
             return None
 
-        # MemoryRegion Blocks and text
+        # MemoryRegionImage Blocks and text
         region_img = PIL.Image.new("RGBA", (img_width, self.size), color="white")
         self.region_canvas = PIL.ImageDraw.Draw(region_img)
 
@@ -199,13 +199,13 @@ class MemoryRegion(Region):
         )
 
         # draw name text
-        region_img.paste(TextLabel(text=self.name, font_size=font_size).img, (5, 5))
+        region_img.paste(TextLabelImage(text=self.name, font_size=font_size).img, (5, 5))
 
         self.img = region_img
 
 
 @typeguard.typechecked
-class VoidRegion(Region):
+class VoidRegionImage(RegionImage):
 
     def __init__(self, size: str):
 
@@ -221,7 +221,7 @@ class VoidRegion(Region):
             logging.warning("Zero size regions will not be added.")
             return None
 
-        # MemoryRegion Blocks and text
+        # MemoryRegionImage Blocks and text
         self.img = PIL.Image.new("RGBA", (img_width + 1, self.size), color="white")
         self.region_canvas = PIL.ImageDraw.Draw(self.img)
 
@@ -235,7 +235,7 @@ class VoidRegion(Region):
 
         # draw name text
         region_w, region_h = self.img.size
-        txt_img = TextLabel(text=self.name, font_size=font_size).img
+        txt_img = TextLabelImage(text=self.name, font_size=font_size).img
         self.img.paste(
             txt_img,
             ((img_width - txt_img.width) // 2, (self.size - txt_img.height) // 2),
@@ -243,7 +243,7 @@ class VoidRegion(Region):
 
 
 @typeguard.typechecked
-class TextLabel:
+class TextLabelImage:
     def __init__(self, text: str, font_size: int):
         self.text = text
         """The display label text"""
