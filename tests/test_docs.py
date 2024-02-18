@@ -52,7 +52,7 @@ def test_generate_doc_example_normal(setup):
         # assumes the defaults haven't changed
         assert mm.diagram.Diagram.pargs.scale == 1
 
-        for region in d._region_list:
+        for region in d.mm.image_list:
             if region.name == "kernel":
                 assert region._origin == "0x10"
                 assert region._size == "0x30"
@@ -106,7 +106,7 @@ def test_generate_doc_example_collisions(setup):
 
         d =mm.diagram.Diagram()
 
-        for region in d._region_list:
+        for region in d.mm.image_list:
             if region.name == "kernel":
                 assert region._origin == "0x10"
                 assert region._size == "0x60"

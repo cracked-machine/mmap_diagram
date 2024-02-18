@@ -11,7 +11,6 @@ import typeguard
 
 import sys
 import pathlib
-import warnings
 import logging
 
 import mm.types
@@ -34,7 +33,7 @@ class MemoryMapDiagram:
         gap: int = 4
         len: int = gap // 2
 
-    def __init__(self, region_list: List[mm.types.MemoryRegionImage]):
+    def __init__(self):
         self.bgcolour = "oldlace"
         """background colour for diagram"""
 
@@ -50,10 +49,8 @@ class MemoryMapDiagram:
         self.voidthreshold: int = int(Diagram.pargs.voidthreshold, 16)
         """Void space threshold for adding VoidRegionImage objs"""
 
+        # TODO needed?
         self.scale_factor: int = Diagram.pargs.scale
-
-        self._region_list: List[mm.types.MemoryRegionImage] = region_list
-        """List of memregion objects"""
 
         self._legend_width = Diagram.model.diagram_width // 2
         """width of the area used for text annotations/legend"""
@@ -65,30 +62,13 @@ class MemoryMapDiagram:
         self.top_addr_lbl = mm.types.TextLabelImage(hex(Diagram.model.diagram_height), self.fixed_legend_text_size)
         """Make sure this is created after rescale"""
 
-        # TODO move the calc_nearest_region() func to mm.schema.MemoryRegionImage
-        # calculate each regions distance to the next memregion and for any overlaps
-        memregion: mm.types.MemoryRegionImage
-        for memregion in self._region_list:
-            memregion.calc_nearest_region(self._region_list, Diagram.model.diagram_height)
-
-        # assign the draw indent by ascending origin
-        self._region_list.sort(key=lambda x: x.origin, reverse=False)
-        region_indent = 0
-        for memregion in self._region_list:
-            memregion.draw_indent = region_indent
-            region_indent += 5
-
-        # sort in descending size order for z-order.
-        # smaller in foreground, larger in background
-        self._region_list.sort(key=lambda x: x.size, reverse=True)
-
-        self._create_image_list()
+        self.image_list = self._create_image_list()
 
         # TODO replace self._region_list with return image_list from self._create_image_list()
-        self._create_markdown(self._region_list)
-        self._create_table_image(self._region_list)
+        self._create_markdown(self.image_list)
+        self._create_table_image(self.image_list)
 
-    def _create_image_list(self):
+    def _create_image_list(self) -> List[mm.types.MemoryRegionImage]:
 
         image_list: List[mm.types.MemoryRegionImage] = []
         for mmap in Diagram.model.memory_maps.values():
@@ -114,6 +94,8 @@ class MemoryMapDiagram:
             image_list.sort(key=lambda x: x.size, reverse=True)
         
             self._draw_image_list(image_list)
+
+        return image_list
     
     def _draw_image_list(self, image_list: List[mm.types.MemoryRegionImage]):
 
@@ -313,21 +295,10 @@ class Diagram:
         self._parse_args()
         self._validate_pargs()
 
-        # TODO instead of storing metadata as MemoryRegionImage list, 
-        # the mm.schema.Diagram model will store the metadata and MemoryRegionImage objects
-        # will be created temporarily within the scope of the drawing function
-        self._region_list = []
         # TODO import data into mm.schema.Diagram model instead
         Diagram.model = self._create_model()
-        # self._create_regions()
 
-        # TODO Pass in mm.schema.Diagram model instead
-        self.mm = MemoryMapDiagram(self._region_list)
-
-        # TODO disable image save in MemoryMapDiagram. 
-        # It should return an image obj, which can be pasted into a diagram image here
-        # This will allow multiple MemoryMaps to be supported
-        # Links can be drawn on last
+        self.mm = MemoryMapDiagram()
 
     def _parse_args(self):
         """Setup the command line interface"""
@@ -421,26 +392,6 @@ class Diagram:
             
         return mm.metamodel.Diagram(**inputdict)
 
-    def _create_regions(self):
-        """Create the MemoryRegion objects based on the command line arguments"""
-        # create mm.types.MemoryRegionImage objs for each data tuple
-        for datatuple in self._batched(Diagram.pargs.regions, 3):
-            name = datatuple[0]
-            origin = datatuple[1]
-            size = datatuple[2]
-            if not origin[:2] == "0x" or not size[:2] == "0x":
-                logging.critical(
-                    f"Region 'origin' and 'size' data should be in hex (0x) format: Found {datatuple}",
-                )
-                raise SystemExit()
-            if self._region_list and any(x.name == name for x in self._region_list):
-                warnings.warn(
-                    f"Duplicate memregion names ({name}) are not permitted. MemoryRegionImage will not be added.",
-                    RuntimeWarning,
-                )
-            else:
-                self._region_list.append(mm.types.MemoryRegionImage(name, origin, size))
-    
     def _batched(self, iterable, n):
         """Split iterable into batches"""
         """batched('ABCDEFG', 3) --> ABC DEF G"""

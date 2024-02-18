@@ -50,7 +50,7 @@ def test_void_region_default(setup):
         assert mm.diagram.Diagram.pargs.scale == 1
         assert mm.diagram.Diagram.pargs.voidthreshold == hex(1000)
 
-        for region in d._region_list:
+        for region in d.mm.image_list:
             if region.name == "kernel":
                 assert region._origin == "0x10"
                 assert region._size == "0x30"
@@ -106,7 +106,7 @@ def test_void_region_uservalue_500(setup):
         # assumes the defaults haven't changed
         assert mm.diagram.Diagram.pargs.scale == 1
 
-        for region in d._region_list:
+        for region in d.mm.image_list:
             if region.name == "kernel":
                 assert region._origin == "0x10"
                 assert region._size == "0x30"
@@ -163,7 +163,7 @@ def test_void_region_uservalue_200(setup):
         # assumes the defaults haven't changed
         assert mm.diagram.Diagram.pargs.scale == 1
 
-        for region in d._region_list:
+        for region in d.mm.image_list:
             if region.name == "kernel":
                 assert region._origin == "0x10"
                 assert region._size == "0x30"

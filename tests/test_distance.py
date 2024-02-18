@@ -31,7 +31,7 @@ def test_distance_three_regions_same_size_no_collisions():
 
         d = mm.diagram.Diagram()
 
-        for region in d._region_list:
+        for region in d.mm.image_list:
             if region.name == "kernel":
                 assert region._origin == "0x10"
                 assert region._size == "0x30"
@@ -71,7 +71,7 @@ def test_distance_three_regions_touching_no_collisions():
 
         d = mm.diagram.Diagram()
 
-        for region in d._region_list:
+        for region in d.mm.image_list:
             if region.name == "kernel":
                 assert region._origin == "0x10"
                 assert region._size == "0x30"
@@ -111,7 +111,7 @@ def test_distance_three_regions_diff_size_no_collisions():
 
         d = mm.diagram.Diagram()
 
-        for region in d._region_list:
+        for region in d.mm.image_list:
             if region.name == "kernel":
                 assert region._origin == "0x10"
                 assert region._size == "0x10"
@@ -151,7 +151,7 @@ def test_distance_three_regions_bottom_collision():
 
         d = mm.diagram.Diagram()
 
-        for region in d._region_list:
+        for region in d.mm.image_list:
             if region.name == "kernel":
                 assert region._origin == "0x10"
                 assert region._size == "0x60"
@@ -191,7 +191,7 @@ def test_distance_three_regions_bottom_middle_collision():
 
         d = mm.diagram.Diagram()
 
-        for region in d._region_list:
+        for region in d.mm.image_list:
             if region.name == "kernel":
                 assert region._origin == "0x10"
                 assert region._size == "0x60"
@@ -237,7 +237,7 @@ def test_distance_five_regions_bottom_top_collision():
 
         d = mm.diagram.Diagram()
 
-        for region in d._region_list:
+        for region in d.mm.image_list:
             if region.name == "kernel":
                 assert region._origin == "0x10"
                 assert region._size == "0x50"
