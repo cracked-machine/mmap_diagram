@@ -1,13 +1,12 @@
-from pydantic import BaseModel, Field, ConfigDict, ValidationError
-from pydantic.functional_validators import AfterValidator
+
 import pydantic
 import pathlib
 import json
 from typing_extensions import Annotated
 
 
-class ConfigParent(BaseModel):
-    model_config = ConfigDict(
+class ConfigParent(pydantic.BaseModel):
+    model_config = pydantic.ConfigDict(
         validate_assignment=True,
         revalidate_instances="always",
         validate_default=True,
@@ -20,13 +19,13 @@ class MemoryRegion(ConfigParent):
 
     memory_region_origin: Annotated[
         str,
-        Field(..., description="Origin address of the MemoryMap. In hex format string."),
+        pydantic.Field(..., description="Origin address of the MemoryMap. In hex format string."),
     ]
     memory_region_size: Annotated[
         str,
-        Field(..., description="Size (in bytes) of the MemoryMap. In hex format string."),
+        pydantic.Field(..., description="Size (in bytes) of the MemoryMap. In hex format string."),
     ]
-    memory_region_links: list[tuple[str,str]] = Field(
+    memory_region_links: list[tuple[str,str]] = pydantic.Field(
         [],
         description="""Links to other memory regions. E.g. """
         """\n["""
@@ -51,20 +50,20 @@ class MemoryMap(ConfigParent):
 
     memory_regions: Annotated[
         dict[str, MemoryRegion],
-        Field(description="Memory map containing memory regions.")
+        pydantic.Field(description="Memory map containing memory regions.")
     ]
 
 
 class Diagram(ConfigParent):
 
-    # diagram_name: str = Field(description="The name of the diagram.")
+    # diagram_name: str = pydantic.Field(description="The name of the diagram.")
     diagram_name: Annotated[
         str, 
-        Field(..., description="The name of the diagram.")
+        pydantic.Field(..., description="The name of the diagram.")
     ]
     memory_maps: Annotated[
         dict[str, MemoryMap],
-        Field(..., description="The diagram frame. Can contain many memory maps.")
+        pydantic.Field(..., description="The diagram frame. Can contain many memory maps.")
     ]
 
     @pydantic.model_validator(mode="after")
