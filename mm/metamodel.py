@@ -35,11 +35,13 @@ class MemoryRegion(ConfigParent):
         """\n\n{'ParentMemoryMapN': 'ChildMemoryRegionN'}"""
         """\n]""")
     
+    # TODO Make this underscore so it doesn't get serialised into the json schema
     remain: Annotated[
         str,
         pydantic.Field("", description="Internal Use")
     ]
 
+    # TODO Make this underscore so it doesn't get serialised into the json schema
     collisions: Annotated[
         dict,
         pydantic.Field({}, Description="Internal Use")
