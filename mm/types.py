@@ -7,6 +7,7 @@ import PIL.ImageFont
 from typing import List, Dict
 import logging
 
+import mm.diagram 
 
 @typeguard.typechecked
 class RegionImage:
@@ -14,10 +15,13 @@ class RegionImage:
     """Copy of the PIL colour string map, we remove colours until all are gone.
     Therefore avoiding random picking of duplicate colours"""
 
-    def __init__(self, name: str, origin: str, size: str):
+    def __init__(self, parent: str, name: str, origin: str, size: str):
+
+        self.parent: str = parent
+        """The name of the mm.metamodel.MemoryMap parent of this region"""
 
         self.name: str = name
-        """region legend"""
+        """region name"""
 
         self._origin: str = origin
         """region address as hex"""
@@ -30,9 +34,6 @@ class RegionImage:
 
         self.bordercolour = "black"
         """The border colour to use for the region"""
-
-        self.remain: str = None
-        """Number of bytes until next region block"""
 
         self.collisons: Dict = {}
         """Map of collision regions by name (str) and distance (hex)"""
@@ -57,43 +58,6 @@ class RegionImage:
         """get region size as integer"""
         return int(self._size, 16)
 
-    def __str__(self):
-        return (
-            "|"
-            + "<span style='color:"
-            + str(self.colour)
-            + "'>"
-            + str(self.name)
-            + "</span>|"
-            + str(self._origin)
-            + "|"
-            + str(self._size)
-            + "|"
-            + str(self.remain)
-            + "|"
-            + str(self.collisons)
-            + "|"
-        )
-
-    def get_data_as_list(self) -> List:
-        """Get selected instance attributes"""
-        if self.collisons:
-            return [
-                str(self.name),
-                str(self._origin),
-                str(self._size),
-                str(self.remain),
-                "-" + str(self.collisons),
-            ]
-        else:
-            return [
-                str(self.name),
-                str(self._origin),
-                str(self._size),
-                str(self.remain),
-                "+" + str(None),
-            ]
-
     def _pick_available_colour(self):
         # remove the picked colour from the list so it can't be picked again
         try:
@@ -114,70 +78,45 @@ class RegionImage:
         logging.debug(f"\t### {len(MemoryRegionImage._remaining_colours)} colours left ###")
         return chosen_colour_name
 
-    def calc_nearest_region(self, region_list: List["MemoryRegionImage"], diagram_height: int):
-        """Calculate the remaining number of bytes until next region block"""
-
-        non_collision_distances = {}
-
-        logging.debug(f"Calculating nearest distances to {self.name} region:")
-        this_region_end = 0
-
-        for other_region in region_list:
-            # calc the end address of this and inspected region
-            this_region_end: int = self.origin + self.size
-            other_region_end: int = other_region.origin + other_region.size
-
-            # skip calculating distance from yourself.
-            if self.name == other_region.name:
-                continue
-
-            # skip if 'this' region origin is ahead of the probed region end address
-            if self.origin > other_region_end:
-                continue
-
-            distance_to_other_region: int = other_region.origin - this_region_end
-            logging.debug(f"\t{hex(distance_to_other_region)} bytes to {other_region.name}")
-
-            # collision detected
-            if distance_to_other_region < 0:
-                # was the region that collided into us at a lower or higher origin address
-                if other_region.origin < self.origin:
-                    # lower so use our origin address as the collion point
-                    self.collisons[other_region.name] = hex(self.origin)
-                else:
-                    # higher so use their origin address as the collision point
-                    self.collisons[other_region.name] = hex(other_region.origin)
-
-                if self.origin < other_region.origin:
-                    # no distance left
-                    self.remain = hex(distance_to_other_region)
-                    pass
-
-            else:
-                # record the distance for later
-                non_collision_distances[other_region.name] = distance_to_other_region
-                # set a first value while we have it (in case there are no future collisions)
-                if not self.remain and not self.collisons:
-                    self.remain = hex(distance_to_other_region)
-                # # if remain not already set to no distance left then set the positive remain distance
-                elif not self.remain:
-                    self.remain = hex(distance_to_other_region)
-
-        logging.debug(f"Non-collision distances - {non_collision_distances}")
-
-        # after probing each region we must now pick the lowest distance ()
-        if not self.collisons:
-            if non_collision_distances:
-                lowest = min(non_collision_distances, key=non_collision_distances.get)
-                self.remain = hex(non_collision_distances[lowest])
-            else:
-                self.remain = hex(diagram_height - this_region_end)
-        elif self.collisons and not self.remain:
-            self.remain = hex(diagram_height - this_region_end)
-
-
 @typeguard.typechecked
 class MemoryRegionImage(RegionImage):
+
+    def __str__(self):
+        return (
+            "|"
+            + "<span style='color:"
+            + str(self.colour)
+            + "'>"
+            + str(self.name)
+            + "</span>|"
+            + str(self._origin)
+            + "|"
+            + str(self._size)
+            + "|"
+            + str(mm.diagram.Diagram.model.memory_maps[self.parent].memory_regions[self.name].freespace)
+            + "|"
+            + str(self.collisons)
+            + "|"
+        )
+
+    def get_data_as_list(self) -> List:
+        """Get selected instance attributes"""
+        if self.collisons:
+            return [
+                str(self.name),
+                str(self._origin),
+                str(self._size),
+                str(mm.diagram.Diagram.model.memory_maps[self.parent].memory_regions[self.name].freespace),
+                "-" + str(self.collisons),
+            ]
+        else:
+            return [
+                str(self.name),
+                str(self._origin),
+                str(self._size),
+                str(mm.diagram.Diagram.model.memory_maps[self.parent].memory_regions[self.name].freespace),
+                "+" + str(None),
+            ]
 
     def create_img(self, img_width: int, font_size: int):
 
@@ -203,7 +142,6 @@ class MemoryRegionImage(RegionImage):
 
         self.img = region_img
 
-
 @typeguard.typechecked
 class VoidRegionImage(RegionImage):
 
@@ -212,7 +150,7 @@ class VoidRegionImage(RegionImage):
         self.name: str = "~~~~~ SKIPPED ~~~~~"
         self.img: PIL.Image = None
 
-        super().__init__(self.name, "0x0", size)
+        super().__init__("None", self.name, "0x0", size)
 
     def create_img(self, img_width: int, font_size: int):
 

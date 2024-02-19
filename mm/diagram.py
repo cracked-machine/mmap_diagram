@@ -71,9 +71,10 @@ class MemoryMapDiagram:
     def _create_image_list(self) -> List[mm.types.MemoryRegionImage]:
 
         image_list: List[mm.types.MemoryRegionImage] = []
-        for mmap in Diagram.model.memory_maps.values():
+        for mmap_name, mmap in Diagram.model.memory_maps.items():
             for region_name, region in mmap.memory_regions.items():
                 new_mr_image = mm.types.MemoryRegionImage(
+                    mmap_name,
                     region_name, 
                     region.memory_region_origin, 
                     region.memory_region_size)
