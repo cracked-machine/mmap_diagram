@@ -35,9 +35,6 @@ class RegionImage:
         self.bordercolour = "black"
         """The border colour to use for the region"""
 
-        self.collisons: Dict = {}
-        """Map of collision regions by name (str) and distance (hex)"""
-
         self.draw_indent = 0
         """Index counter for incrementally shrinking the drawing indent"""
 
@@ -80,8 +77,8 @@ class RegionImage:
 
 @typeguard.typechecked
 class MemoryRegionImage(RegionImage):
-
     def __str__(self):
+        from mm.diagram import Diagram
         return (
             "|"
             + "<span style='color:"
@@ -93,28 +90,29 @@ class MemoryRegionImage(RegionImage):
             + "|"
             + str(self._size)
             + "|"
-            + str(mm.diagram.Diagram.model.memory_maps[self.parent].memory_regions[self.name].freespace)
+            + str(Diagram.model.memory_maps[self.parent].memory_regions[self.name].freespace)
             + "|"
-            + str(self.collisons)
+            + str(Diagram.model.memory_maps[self.parent].memory_regions[self.name].collisions)
             + "|"
         )
 
     def get_data_as_list(self) -> List:
         """Get selected instance attributes"""
-        if self.collisons:
+        from mm.diagram import Diagram
+        if Diagram.model.memory_maps[self.parent].memory_regions[self.name].collisions:
             return [
                 str(self.name),
                 str(self._origin),
                 str(self._size),
-                str(mm.diagram.Diagram.model.memory_maps[self.parent].memory_regions[self.name].freespace),
-                "-" + str(self.collisons),
+                str(Diagram.model.memory_maps[self.parent].memory_regions[self.name].freespace),
+                "-" + str(Diagram.model.memory_maps[self.parent].memory_regions[self.name].collisions),
             ]
         else:
             return [
                 str(self.name),
                 str(self._origin),
                 str(self._size),
-                str(mm.diagram.Diagram.model.memory_maps[self.parent].memory_regions[self.name].freespace),
+                str(Diagram.model.memory_maps[self.parent].memory_regions[self.name].freespace),
                 "+" + str(None),
             ]
 
