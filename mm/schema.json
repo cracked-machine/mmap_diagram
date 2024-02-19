@@ -60,10 +60,10 @@
           "title": "Memory Region Links",
           "type": "array"
         },
-        "remain": {
+        "freespace": {
           "default": "",
           "description": "Internal Use",
-          "title": "Remain",
+          "title": "Freespace",
           "type": "string"
         },
         "collisions": {

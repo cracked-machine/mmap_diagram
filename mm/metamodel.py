@@ -36,7 +36,7 @@ class MemoryRegion(ConfigParent):
         """\n]""")
     
     # TODO Make this underscore so it doesn't get serialised into the json schema
-    remain: Annotated[
+    freespace: Annotated[
         str,
         pydantic.Field("", description="Internal Use")
     ]
@@ -180,18 +180,18 @@ class Diagram(ConfigParent):
 
                         if int(memory_region.memory_region_origin, 16) < int(other_region_origin, 16):
                             # no distance left
-                            memory_region.remain = hex(distance_to_other_region)
+                            memory_region.freespace = hex(distance_to_other_region)
                             pass
 
                     else:
                         # record the distance for later
                         non_collision_distances[other_region_name] = distance_to_other_region
                         # set a first value while we have it (in case there are no future collisions)
-                        if not memory_region.remain and not memory_region.collisions:
-                            memory_region.remain = hex(distance_to_other_region)
+                        if not memory_region.freespace and not memory_region.collisions:
+                            memory_region.freespace = hex(distance_to_other_region)
                         # # if remain not already set to no distance left then set the positive remain distance
-                        elif not memory_region.remain:
-                            memory_region.remain = hex(distance_to_other_region)
+                        elif not memory_region.freespace:
+                            memory_region.freespace = hex(distance_to_other_region)
 
                 logging.debug(f"Non-collision distances - {non_collision_distances}")
 
@@ -199,11 +199,11 @@ class Diagram(ConfigParent):
                 if not memory_region.collisions:
                     if non_collision_distances:
                         lowest = min(non_collision_distances, key=non_collision_distances.get)
-                        memory_region.remain = hex(non_collision_distances[lowest])
+                        memory_region.freespace = hex(non_collision_distances[lowest])
                     else:
-                        memory_region.remain = hex(memory_map.map_height - this_region_end)
-                elif memory_region.collisions and not memory_region.remain:
-                    memory_region.remain = hex(memory_map.map_height - this_region_end)
+                        memory_region.freespace = hex(memory_map.map_height - this_region_end)
+                elif memory_region.collisions and not memory_region.freespace:
+                    memory_region.freespace = hex(memory_map.map_height - this_region_end)
 
     
 # helper functions

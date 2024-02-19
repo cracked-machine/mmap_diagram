@@ -77,7 +77,7 @@ class MemoryMapDiagram:
                     region_name, 
                     region.memory_region_origin, 
                     region.memory_region_size)
-                new_mr_image.remain = region.remain
+                new_mr_image.remain = region.freespace
                 new_mr_image.collisons = region.collisions
                 image_list.append(new_mr_image)
                 
