@@ -19,11 +19,11 @@ class ConfigParent(pydantic.BaseModel):
 class MemoryRegion(ConfigParent):
 
     memory_region_origin: Annotated[
-        str,
+        int,
         pydantic.Field(..., description="Origin address of the MemoryMap. In hex format string."),
     ]
     memory_region_size: Annotated[
-        str,
+        int,
         pydantic.Field(..., description="Size (in bytes) of the MemoryMap. In hex format string."),
     ]
     memory_region_links: list[tuple[str,str]] = pydantic.Field(
@@ -37,7 +37,7 @@ class MemoryRegion(ConfigParent):
     
     # TODO Make this underscore so it doesn't get serialised into the json schema
     freespace: Annotated[
-        str,
+        int,
         pydantic.Field("", description="Internal Use")
     ]
 
@@ -47,15 +47,23 @@ class MemoryRegion(ConfigParent):
         pydantic.Field({}, Description="Internal Use")
     ]
 
-    @pydantic.field_validator("memory_region_origin", "memory_region_size")
+    @pydantic.field_validator("freespace", mode="before")
+    @classmethod
+    def convert_str_to_int(cls, v: str):
+        if isinstance(v, str):
+            if v == "":
+                return 0
+            else:
+                return int(v, 16)
+        else:
+            return v
+
+    @pydantic.field_validator("memory_region_origin", "memory_region_size", mode="before")
     @classmethod
     def check_empty_str(cls, v: str):
-        
         assert v, "Empty string found!"
         assert v[:2] == "0x"
-
-        return v
-
+        return int(v, 16)
 
 class MemoryMap(ConfigParent):
 
@@ -154,33 +162,33 @@ class Diagram(ConfigParent):
                     other_region_origin = other_region[1].memory_region_origin
                     other_region_size = other_region[1].memory_region_size
 
-                    this_region_end: int = int(memory_region.memory_region_origin,16) + int(memory_region.memory_region_size, 16)
-                    other_region_end: int = int(other_region_origin,16) + int(other_region_size,16)
+                    this_region_end: int = memory_region.memory_region_origin + memory_region.memory_region_size
+                    other_region_end: int = other_region_origin + other_region_size
 
                     # skip calculating distance from yourself.
                     if memory_region_name == other_region_name:
                         continue
 
                     # skip if 'this' region origin is ahead of the probed region end address
-                    if int(memory_region.memory_region_origin,16) > other_region_end:
+                    if memory_region.memory_region_origin >= other_region_end:
                         continue
 
-                    distance_to_other_region: int = int(other_region_origin,16) - this_region_end
+                    distance_to_other_region: int = other_region_origin - this_region_end
                     logging.debug(f"\t{hex(distance_to_other_region)} bytes to {other_region_name}")
 
                     # collision detected
                     if distance_to_other_region < 0:
                         # was the region that collided into us at a lower or higher origin address
-                        if int(other_region_origin,16) < int(memory_region.memory_region_origin, 16):
+                        if other_region_origin < memory_region.memory_region_origin:
                             # lower so use our origin address as the collion point
                             memory_region.collisions[other_region_name] = memory_region.memory_region_origin
                         else:
                             # higher so use their origin address as the collision point
                             memory_region.collisions[other_region_name] = other_region_origin
 
-                        if int(memory_region.memory_region_origin, 16) < int(other_region_origin, 16):
+                        if memory_region.memory_region_origin < other_region_origin:
                             # no distance left
-                            memory_region.freespace = hex(distance_to_other_region)
+                            memory_region.freespace = distance_to_other_region
                             pass
 
                     else:
@@ -188,10 +196,10 @@ class Diagram(ConfigParent):
                         non_collision_distances[other_region_name] = distance_to_other_region
                         # set a first value while we have it (in case there are no future collisions)
                         if not memory_region.freespace and not memory_region.collisions:
-                            memory_region.freespace = hex(distance_to_other_region)
+                            memory_region.freespace = distance_to_other_region
                         # # if remain not already set to no distance left then set the positive remain distance
                         elif not memory_region.freespace:
-                            memory_region.freespace = hex(distance_to_other_region)
+                            memory_region.freespace = distance_to_other_region
 
                 logging.debug(f"Non-collision distances - {non_collision_distances}")
 
@@ -199,11 +207,11 @@ class Diagram(ConfigParent):
                 if not memory_region.collisions:
                     if non_collision_distances:
                         lowest = min(non_collision_distances, key=non_collision_distances.get)
-                        memory_region.freespace = hex(non_collision_distances[lowest])
+                        memory_region.freespace = non_collision_distances[lowest]
                     else:
-                        memory_region.freespace = hex(memory_map.map_height - this_region_end)
+                        memory_region.freespace = memory_map.map_height - this_region_end
                 elif memory_region.collisions and not memory_region.freespace:
-                    memory_region.freespace = hex(memory_map.map_height - this_region_end)
+                    memory_region.freespace = memory_map.map_height - this_region_end
 
     
 # helper functions

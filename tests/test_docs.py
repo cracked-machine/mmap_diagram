@@ -52,19 +52,19 @@ def test_generate_doc_example_normal(setup):
         # assumes the defaults haven't changed
         assert mm.diagram.Diagram.pargs.scale == 1
 
-        for region in d.mm.image_list:
-            if region.name == "kernel":
-                assert region._origin == "0x10"
-                assert region._size == "0x30"
-                assert region.remain == "0x10"
-            if region.name == "rootfs":
-                assert region._origin == "0x50"
-                assert region._size == "0x30"
-                assert region.remain == "0x110"
-            if region.name == "dtb":
-                assert region._origin == "0x190"
-                assert region._size == "0x30"
-                assert region.remain == "0x228"
+        for region_image in d.mm.image_list:
+            if region_image.name == "kernel":
+                assert region_image.origin_as_hex == "0x10"
+                assert region_image.size_as_hex == "0x30"
+                assert region_image.freespace_as_hex == "0x10"
+            if region_image.name == "rootfs":
+                assert region_image.origin_as_hex == "0x50"
+                assert region_image.size_as_hex == "0x30"
+                assert region_image.freespace_as_hex == "0x110"
+            if region_image.name == "dtb":
+                assert region_image.origin_as_hex == "0x190"
+                assert region_image.size_as_hex == "0x30"
+                assert region_image.freespace_as_hex == "0x228"
 
         assert setup["report"].exists()
 
@@ -106,19 +106,19 @@ def test_generate_doc_example_collisions(setup):
 
         d =mm.diagram.Diagram()
 
-        for region in d.mm.image_list:
-            if region.name == "kernel":
-                assert region._origin == "0x10"
-                assert region._size == "0x60"
-                assert region.remain == "-0x20"
-            if region.name == "rootfs":
-                assert region._origin == "0x50"
-                assert region._size == "0x50"
-                assert region.remain == "-0x10"
-            if region.name == "dtb":
-                assert region._origin == "0x90"
-                assert region._size == "0x30"
-                assert region.remain == "0x328"
+        for region_image in d.mm.image_list:
+            if region_image.name == "kernel":
+                assert region_image.origin_as_hex == "0x10"
+                assert region_image.size_as_hex == "0x60"
+                assert region_image.freespace_as_hex == "-0x20"
+            if region_image.name == "rootfs":
+                assert region_image.origin_as_hex == "0x50"
+                assert region_image.size_as_hex == "0x50"
+                assert region_image.freespace_as_hex == "-0x10"
+            if region_image.name == "dtb":
+                assert region_image.origin_as_hex == "0x90"
+                assert region_image.size_as_hex == "0x30"
+                assert region_image.freespace_as_hex == "0x328"
 
         assert setup["report"].exists()
 

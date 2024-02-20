@@ -55,7 +55,7 @@ class MemoryMapDiagram:
         self._legend_width = Diagram.model.diagram_width // 2
         """width of the area used for text annotations/legend"""
 
-        self.voidregion = mm.types.VoidRegionImage(size=hex(40))
+        self.voidregion = mm.types.VoidRegionImage()
         """The reusable object used to represent the void regions in the memory map"""
         self.voidregion.create_img(img_width=(Diagram.model.diagram_width - 20), font_size=self.default_region_text_size)
 
@@ -75,16 +75,13 @@ class MemoryMapDiagram:
             for region_name, region in mmap.memory_regions.items():
                 new_mr_image = mm.types.MemoryRegionImage(
                     mmap_name,
-                    region_name, 
-                    region.memory_region_origin, 
-                    region.memory_region_size)
-                new_mr_image.remain = region.freespace
-                new_mr_image.collisons = region.collisions
+                    region_name
+                )
                 image_list.append(new_mr_image)
                 
 
             # assign the draw indent by ascending origin
-            image_list.sort(key=lambda x: x.origin, reverse=False)
+            image_list.sort(key=lambda x: x.origin_as_int, reverse=False)
             region_indent = 0
             for image in image_list:
                 image.draw_indent = region_indent
@@ -92,7 +89,7 @@ class MemoryMapDiagram:
 
             # sort in descending size order for z-order.
             # smaller in foreground, larger in background
-            image_list.sort(key=lambda x: x.size, reverse=True)
+            image_list.sort(key=lambda x: x.size_as_int, reverse=True)
         
             self._draw_image_list(image_list)
 
@@ -111,19 +108,20 @@ class MemoryMapDiagram:
                 continue
             new_diagram_img.paste(
                 memregion.img,
-                (self._legend_width + memregion.draw_indent, memregion.origin),
+                (self._legend_width + memregion.draw_indent, int(memregion.origin_as_hex,16)),
                 memregion.img,
             )
 
             # Origin address text for this memory region
-            origin_text_label = mm.types.TextLabelImage(memregion._origin, self.fixed_legend_text_size)
+            origin_text_label = mm.types.TextLabelImage(
+                memregion.origin_as_hex, self.fixed_legend_text_size)
             new_diagram_img.paste(
                 origin_text_label.img,
-                (0, memregion.origin - origin_text_label.height + 1),
+                (0, int(memregion.origin_as_hex,16) - origin_text_label.height + 1),
             )
 
             # End address text for this memory region
-            region_end_addr = memregion.origin + memregion.size
+            region_end_addr = int(memregion.origin_as_hex,16) + int(memregion.size_as_hex, 16)
             region_end_addr_lbl = mm.types.TextLabelImage(hex(region_end_addr), self.fixed_legend_text_size)
             new_diagram_img.paste(
                 region_end_addr_lbl.img,
@@ -161,9 +159,9 @@ class MemoryMapDiagram:
                 line_canvas.line(
                     (
                         x,
-                        memregion.origin - MemoryMapDiagram.DashedLine.width,
+                        int(memregion.origin_as_hex, 16) - MemoryMapDiagram.DashedLine.width,
                         x + MemoryMapDiagram.DashedLine.len,
-                        memregion.origin - MemoryMapDiagram.DashedLine.width,
+                        int(memregion.origin_as_hex,16) - MemoryMapDiagram.DashedLine.width,
                     ),
                     fill="black",
                     width=1,
@@ -195,9 +193,11 @@ class MemoryMapDiagram:
         # find the large empty spaces in the memory map
         region_subset_list: List[PIL.Image.Image] = []
         img_addr_idx = 0
+        # TODO sort memregion_list by ascending
+        # memregion_list.sort(key=lambda x: x.size_as_hex, reverse=True)
         for memregion in memregion_list:
-            region_end_addr = memregion.origin + memregion.size
-            if int(memregion.remain, 16) > self.voidthreshold:
+            region_end_addr = memregion.origin_as_int + memregion.size_as_int
+            if memregion.freespace_as_int > self.voidthreshold:
 
                 # dont forget the image is upside down at this stage, so upper and lower are reversed.
                 (left, upper, right, lower) = (
@@ -210,7 +210,7 @@ class MemoryMapDiagram:
                 region_subset_list.append(region_subset)
 
                 # move the cursor up past the end of the current memregion and the empty space
-                img_addr_idx = region_end_addr + int(memregion.remain, 16)
+                img_addr_idx = region_end_addr + memregion.freespace_as_int
 
         if not region_subset_list:
             # no spaces were found in the diagram to be above the void threshold

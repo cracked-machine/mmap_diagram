@@ -31,19 +31,19 @@ def test_distance_three_regions_same_size_no_collisions():
 
         d = mm.diagram.Diagram()
 
-        for region in d.mm.image_list:
-            if region.name == "kernel":
-                assert region._origin == "0x10"
-                assert region._size == "0x30"
-                assert region.remain == "0x10"
-            if region.name == "rootfs":
-                assert region._origin == "0x50"
-                assert region._size == "0x30"
-                assert region.remain == "0x10"
-            if region.name == "dtb":
-                assert region._origin == "0x90"
-                assert region._size == "0x30"
-                assert region.remain == "0x328"
+        for region_image in d.mm.image_list:
+            if region_image.name == "kernel":
+                assert region_image.origin_as_hex == "0x10"
+                assert region_image.size_as_hex == "0x30"
+                assert region_image.freespace_as_hex == "0x10"
+            if region_image.name == "rootfs":
+                assert region_image.origin_as_hex == "0x50"
+                assert region_image.size_as_hex == "0x30"
+                assert region_image.freespace_as_hex == "0x10"
+            if region_image.name == "dtb":
+                assert region_image.origin_as_hex == "0x90"
+                assert region_image.size_as_hex == "0x30"
+                assert region_image.freespace_as_hex == "0x328"
 
 
 def test_distance_three_regions_touching_no_collisions():
@@ -71,19 +71,19 @@ def test_distance_three_regions_touching_no_collisions():
 
         d = mm.diagram.Diagram()
 
-        for region in d.mm.image_list:
-            if region.name == "kernel":
-                assert region._origin == "0x10"
-                assert region._size == "0x30"
-                assert region.remain == "0x0"
-            if region.name == "rootfs":
-                assert region._origin == "0x40"
-                assert region._size == "0x30"
-                assert region.remain == "0x0"
-            if region.name == "dtb":
-                assert region._origin == "0x70"
-                assert region._size == "0x30"
-                assert region.remain == "0x348"
+        for region_image in d.mm.image_list:
+            if region_image.name == "kernel":
+                assert region_image.origin_as_hex == "0x10"
+                assert region_image.size_as_hex == "0x30"
+                assert region_image.freespace_as_hex == "0x0"
+            if region_image.name == "rootfs":
+                assert region_image.origin_as_hex == "0x40"
+                assert region_image.size_as_hex == "0x30"
+                assert region_image.freespace_as_hex == "0x0"
+            if region_image.name == "dtb":
+                assert region_image.origin_as_hex == "0x70"
+                assert region_image.size_as_hex == "0x30"
+                assert region_image.freespace_as_hex == "0x348"
 
 
 def test_distance_three_regions_diff_size_no_collisions():
@@ -111,19 +111,19 @@ def test_distance_three_regions_diff_size_no_collisions():
 
         d = mm.diagram.Diagram()
 
-        for region in d.mm.image_list:
-            if region.name == "kernel":
-                assert region._origin == "0x10"
-                assert region._size == "0x10"
-                assert region.remain == "0x30"
-            if region.name == "rootfs":
-                assert region._origin == "0x50"
-                assert region._size == "0x20"
-                assert region.remain == "0x20"
-            if region.name == "dtb":
-                assert region._origin == "0x90"
-                assert region._size == "0x30"
-                assert region.remain == "0x328"
+        for region_image in d.mm.image_list:
+            if region_image.name == "kernel":
+                assert region_image.origin_as_hex == "0x10"
+                assert region_image.size_as_hex == "0x10"
+                assert region_image.freespace_as_hex == "0x30"
+            if region_image.name == "rootfs":
+                assert region_image.origin_as_hex == "0x50"
+                assert region_image.size_as_hex == "0x20"
+                assert region_image.freespace_as_hex == "0x20"
+            if region_image.name == "dtb":
+                assert region_image.origin_as_hex == "0x90"
+                assert region_image.size_as_hex == "0x30"
+                assert region_image.freespace_as_hex == "0x328"
 
 
 def test_distance_three_regions_bottom_collision():
@@ -151,19 +151,19 @@ def test_distance_three_regions_bottom_collision():
 
         d = mm.diagram.Diagram()
 
-        for region in d.mm.image_list:
-            if region.name == "kernel":
-                assert region._origin == "0x10"
-                assert region._size == "0x60"
-                assert region.remain == "-0x20"
-            if region.name == "rootfs":
-                assert region._origin == "0x50"
-                assert region._size == "0x30"
-                assert region.remain == "0x10"
-            if region.name == "dtb":
-                assert region._origin == "0x90"
-                assert region._size == "0x30"
-                assert region.remain == "0x328"
+        for region_image in d.mm.image_list:
+            if region_image.name == "kernel":
+                assert region_image.origin_as_hex == "0x10"
+                assert region_image.size_as_hex == "0x60"
+                assert region_image.freespace_as_hex == "-0x20"
+            if region_image.name == "rootfs":
+                assert region_image.origin_as_hex == "0x50"
+                assert region_image.size_as_hex == "0x30"
+                assert region_image.freespace_as_hex == "0x10"
+            if region_image.name == "dtb":
+                assert region_image.origin_as_hex == "0x90"
+                assert region_image.size_as_hex == "0x30"
+                assert region_image.freespace_as_hex == "0x328"
 
 
 def test_distance_three_regions_bottom_middle_collision():
@@ -191,19 +191,19 @@ def test_distance_three_regions_bottom_middle_collision():
 
         d = mm.diagram.Diagram()
 
-        for region in d.mm.image_list:
-            if region.name == "kernel":
-                assert region._origin == "0x10"
-                assert region._size == "0x60"
-                assert region.remain == "-0x20"
-            if region.name == "rootfs":
-                assert region._origin == "0x50"
-                assert region._size == "0x50"
-                assert region.remain == "-0x10"
-            if region.name == "dtb":
-                assert region._origin == "0x90"
-                assert region._size == "0x30"
-                assert region.remain == "0x328"
+        for region_image in d.mm.image_list:
+            if region_image.name == "kernel":
+                assert region_image.origin_as_hex == "0x10"
+                assert region_image.size_as_hex == "0x60"
+                assert region_image.freespace_as_hex == "-0x20"
+            if region_image.name == "rootfs":
+                assert region_image.origin_as_hex == "0x50"
+                assert region_image.size_as_hex == "0x50"
+                assert region_image.freespace_as_hex == "-0x10"
+            if region_image.name == "dtb":
+                assert region_image.origin_as_hex == "0x90"
+                assert region_image.size_as_hex == "0x30"
+                assert region_image.freespace_as_hex == "0x328"
 
 
 def test_distance_five_regions_bottom_top_collision():
@@ -237,24 +237,24 @@ def test_distance_five_regions_bottom_top_collision():
 
         d = mm.diagram.Diagram()
 
-        for region in d.mm.image_list:
-            if region.name == "kernel":
-                assert region._origin == "0x10"
-                assert region._size == "0x50"
-                assert region.remain == "-0x10"
-            if region.name == "rootfs":
-                assert region._origin == "0x50"
-                assert region._size == "0x30"
-                assert region.remain == "0x10"
-            if region.name == "dtb":
-                assert region._origin == "0x90"
-                assert region._size == "0x30"
-                assert region.remain == "0x10"
-            if region.name == "uboot":
-                assert region._origin == "0xD0"
-                assert region._size == "0x50"
-                assert region.remain == "-0x10"
-            if region.name == "uboot-scr":
-                assert region._origin == "0x110"
-                assert region._size == "0x30"
-                assert region.remain == "0x2a8"
+        for region_image in d.mm.image_list:
+            if region_image.name == "kernel":
+                assert region_image.origin_as_hex == "0x10"
+                assert region_image.size_as_hex == "0x50"
+                assert region_image.freespace_as_hex == "-0x10"
+            if region_image.name == "rootfs":
+                assert region_image.origin_as_hex == "0x50"
+                assert region_image.size_as_hex == "0x30"
+                assert region_image.freespace_as_hex == "0x10"
+            if region_image.name == "dtb":
+                assert region_image.origin_as_hex == "0x90"
+                assert region_image.size_as_hex == "0x30"
+                assert region_image.freespace_as_hex == "0x10"
+            if region_image.name == "uboot":
+                assert region_image.origin_as_hex == "0xd0"
+                assert region_image.size_as_hex == "0x50"
+                assert region_image.freespace_as_hex == "-0x10"
+            if region_image.name == "uboot-scr":
+                assert region_image.origin_as_hex == "0x110"
+                assert region_image.size_as_hex == "0x30"
+                assert region_image.freespace_as_hex == "0x2a8"

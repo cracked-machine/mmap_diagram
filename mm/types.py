@@ -15,19 +15,13 @@ class RegionImage:
     """Copy of the PIL colour string map, we remove colours until all are gone.
     Therefore avoiding random picking of duplicate colours"""
 
-    def __init__(self, parent: str, name: str, origin: str, size: str):
+    def __init__(self, parent: str, name: str):
 
         self.parent: str = parent
         """The name of the mm.metamodel.MemoryMap parent of this region"""
 
         self.name: str = name
         """region name"""
-
-        self._origin: str = origin
-        """region address as hex"""
-
-        self._size: str = size
-        """size in bytes"""
 
         self.colour = self._pick_available_colour()
         """random colour for region block"""
@@ -46,14 +40,41 @@ class RegionImage:
             del MemoryRegionImage._remaining_colours["lightslategray"]
 
     @property
-    def origin(self):
-        """get region address as integer"""
-        return int(self._origin, 16)
+    def origin_as_hex(self):
+        """ lookup memory_region_origin from metamodel  """
+        return hex(mm.diagram.Diagram.model.memory_maps[self.parent].memory_regions[self.name].memory_region_origin)
 
     @property
-    def size(self):
-        """get region size as integer"""
-        return int(self._size, 16)
+    def size_as_hex(self):
+        """ lookup memory_region_size from metamodel  """
+        return hex(mm.diagram.Diagram.model.memory_maps[self.parent].memory_regions[self.name].memory_region_size)
+
+    @property
+    def freespace_as_hex(self):
+        """ lookup memory_region freespace from metamodel  """
+        return hex(mm.diagram.Diagram.model.memory_maps[self.parent].memory_regions[self.name].freespace)
+
+    @property
+    def origin_as_int(self):
+        """ lookup memory_region_origin from metamodel  """
+        return mm.diagram.Diagram.model.memory_maps[self.parent].memory_regions[self.name].memory_region_origin
+
+    @property
+    def size_as_int(self):
+        """ lookup memory_region_size from metamodel  """
+        return mm.diagram.Diagram.model.memory_maps[self.parent].memory_regions[self.name].memory_region_size
+
+    @property
+    def freespace_as_int(self):
+        """ lookup memory_region freespace from metamodel  """
+        return mm.diagram.Diagram.model.memory_maps[self.parent].memory_regions[self.name].freespace
+
+
+    @property
+    def collisions(self):
+        """ lookup memory_region collision from metamodel  """
+        return mm.diagram.Diagram.model.memory_maps[self.parent].memory_regions[self.name].collisions
+
 
     def _pick_available_colour(self):
         # remove the picked colour from the list so it can't be picked again
@@ -78,7 +99,6 @@ class RegionImage:
 @typeguard.typechecked
 class MemoryRegionImage(RegionImage):
     def __str__(self):
-        from mm.diagram import Diagram
         return (
             "|"
             + "<span style='color:"
@@ -86,50 +106,49 @@ class MemoryRegionImage(RegionImage):
             + "'>"
             + str(self.name)
             + "</span>|"
-            + str(self._origin)
+            + str(self.origin_as_hex)
             + "|"
-            + str(self._size)
+            + str(self.size_as_hex)
             + "|"
-            + str(Diagram.model.memory_maps[self.parent].memory_regions[self.name].freespace)
+            + str(self.freespace_as_hex)
             + "|"
-            + str(Diagram.model.memory_maps[self.parent].memory_regions[self.name].collisions)
+            + str(self.collisions)
             + "|"
         )
 
     def get_data_as_list(self) -> List:
         """Get selected instance attributes"""
-        from mm.diagram import Diagram
-        if Diagram.model.memory_maps[self.parent].memory_regions[self.name].collisions:
+        if self.collisions:
             return [
                 str(self.name),
-                str(self._origin),
-                str(self._size),
-                str(Diagram.model.memory_maps[self.parent].memory_regions[self.name].freespace),
-                "-" + str(Diagram.model.memory_maps[self.parent].memory_regions[self.name].collisions),
+                str(self.origin_as_hex),
+                str(self.size_as_hex),
+                str(self.freespace_as_hex),
+                "-" + str(self.collisions),
             ]
         else:
             return [
                 str(self.name),
-                str(self._origin),
-                str(self._size),
-                str(Diagram.model.memory_maps[self.parent].memory_regions[self.name].freespace),
+                str(self.origin_as_hex),
+                str(self.size_as_hex),
+                str(self.freespace_as_hex),
                 "+" + str(None),
             ]
 
     def create_img(self, img_width: int, font_size: int):
 
         logging.info(self)
-        if not self.size:
+        if not self.size_as_hex:
             logging.warning("Zero size region will not be added.")
             return None
 
         # MemoryRegionImage Blocks and text
-        region_img = PIL.Image.new("RGBA", (img_width, self.size), color="white")
+        region_img = PIL.Image.new("RGBA", (img_width, int(self.size_as_hex,16)), color="white")
         self.region_canvas = PIL.ImageDraw.Draw(region_img)
 
         # height is -1 to avoid clipping the top border
         self.region_canvas.rectangle(
-            (0, 0, img_width, self.size - 1),
+            (0, 0, img_width, int(self.size_as_hex,16) - 1),
             fill=self.colour,
             outline=self.bordercolour,
             width=1,
@@ -141,29 +160,27 @@ class MemoryRegionImage(RegionImage):
         self.img = region_img
 
 @typeguard.typechecked
-class VoidRegionImage(RegionImage):
+class VoidRegionImage():
 
-    def __init__(self, size: str):
+    def __init__(self):
 
         self.name: str = "~~~~~ SKIPPED ~~~~~"
         self.img: PIL.Image = None
+        self.size_as_hex: str = 40
 
-        super().__init__("None", self.name, "0x0", size)
+        # super().__init__("None", self.name, "0x0", size)
 
     def create_img(self, img_width: int, font_size: int):
 
         logging.info(self)
-        if not self.size:
-            logging.warning("Zero size regions will not be added.")
-            return None
 
         # MemoryRegionImage Blocks and text
-        self.img = PIL.Image.new("RGBA", (img_width + 1, self.size), color="white")
+        self.img = PIL.Image.new("RGBA", (img_width + 1, self.size_as_hex), color="white")
         self.region_canvas = PIL.ImageDraw.Draw(self.img)
 
         # height is -1 to avoid clipping the top border
         self.region_canvas.rectangle(
-            (0, 0, img_width, self.size - 1),
+            (0, 0, img_width, self.size_as_hex - 1),
             fill="oldlace",
             outline="black",
             width=1,
@@ -174,7 +191,7 @@ class VoidRegionImage(RegionImage):
         txt_img = TextLabelImage(text=self.name, font_size=font_size).img
         self.img.paste(
             txt_img,
-            ((img_width - txt_img.width) // 2, (self.size - txt_img.height) // 2),
+            ((img_width - txt_img.width) // 2, (self.size_as_hex - txt_img.height) // 2),
         )
 
 
