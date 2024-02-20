@@ -13,7 +13,7 @@ import sys
 import pathlib
 import logging
 
-import mm.types
+import mm.image
 import mm.metamodel
 
 root = logging.getLogger()
@@ -55,11 +55,11 @@ class MemoryMapDiagram:
         self._legend_width = Diagram.model.diagram_width // 2
         """width of the area used for text annotations/legend"""
 
-        self.voidregion = mm.types.VoidRegionImage()
+        self.voidregion = mm.image.VoidRegionImage()
         """The reusable object used to represent the void regions in the memory map"""
         self.voidregion.create_img(img_width=(Diagram.model.diagram_width - 20), font_size=self.default_region_text_size)
 
-        self.top_addr_lbl = mm.types.TextLabelImage(hex(Diagram.model.diagram_height), self.fixed_legend_text_size)
+        self.top_addr_lbl = mm.image.TextLabelImage(hex(Diagram.model.diagram_height), self.fixed_legend_text_size)
         """Make sure this is created after rescale"""
 
         self.image_list = self._create_image_list()
@@ -68,12 +68,12 @@ class MemoryMapDiagram:
         self._create_markdown(self.image_list)
         self._create_table_image(self.image_list)
 
-    def _create_image_list(self) -> List[mm.types.MemoryRegionImage]:
+    def _create_image_list(self) -> List[mm.image.MemoryRegionImage]:
 
-        image_list: List[mm.types.MemoryRegionImage] = []
+        image_list: List[mm.image.MemoryRegionImage] = []
         for mmap_name, mmap in Diagram.model.memory_maps.items():
             for region_name, region in mmap.memory_regions.items():
-                new_mr_image = mm.types.MemoryRegionImage(
+                new_mr_image = mm.image.MemoryRegionImage(
                     mmap_name,
                     region_name
                 )
@@ -95,7 +95,7 @@ class MemoryMapDiagram:
 
         return image_list
     
-    def _draw_image_list(self, image_list: List[mm.types.MemoryRegionImage]):
+    def _draw_image_list(self, image_list: List[mm.image.MemoryRegionImage]):
 
         new_diagram_img = PIL.Image.new("RGB", (Diagram.model.diagram_width, Diagram.model.diagram_height), color=self.bgcolour)
         # paste each new graphic element image to main image
@@ -113,7 +113,7 @@ class MemoryMapDiagram:
             )
 
             # Origin address text for this memory region
-            origin_text_label = mm.types.TextLabelImage(
+            origin_text_label = mm.image.TextLabelImage(
                 memregion.origin_as_hex, self.fixed_legend_text_size)
             new_diagram_img.paste(
                 origin_text_label.img,
@@ -122,7 +122,7 @@ class MemoryMapDiagram:
 
             # End address text for this memory region
             region_end_addr = int(memregion.origin_as_hex,16) + int(memregion.size_as_hex, 16)
-            region_end_addr_lbl = mm.types.TextLabelImage(hex(region_end_addr), self.fixed_legend_text_size)
+            region_end_addr_lbl = mm.image.TextLabelImage(hex(region_end_addr), self.fixed_legend_text_size)
             new_diagram_img.paste(
                 region_end_addr_lbl.img,
                 (0, region_end_addr - region_end_addr_lbl.height + 1),
@@ -130,7 +130,7 @@ class MemoryMapDiagram:
 
             # Top address text for the whole diagram
             top_addr = Diagram.model.diagram_height
-            top_addr_lbl = mm.types.TextLabelImage(hex(top_addr), self.fixed_legend_text_size)
+            top_addr_lbl = mm.image.TextLabelImage(hex(top_addr), self.fixed_legend_text_size)
             new_diagram_img.paste(top_addr_lbl.img, (0, top_addr - top_addr_lbl.height - 5))
 
             # Dash Lines from text to memregion
@@ -184,7 +184,7 @@ class MemoryMapDiagram:
         img_file_path = pathlib.Path(Diagram.pargs.out).stem + "_full.png"
         new_diagram_img.save(pathlib.Path(Diagram.pargs.out).parent / img_file_path)
 
-    def _insert_void_regions(self, original_img: PIL.Image.Image, memregion_list: List[mm.types.MemoryRegionImage]):
+    def _insert_void_regions(self, original_img: PIL.Image.Image, memregion_list: List[mm.image.MemoryRegionImage]):
         """Remove large empty spaces and replace them with fixed size VoidRegionImage objects.
         This function actually chops up the existing diagram image into smaller images containing
         only MemoryRegions. It then pastes the smaller image into a new image, inserting VoidRegionImage
@@ -260,7 +260,7 @@ class MemoryMapDiagram:
             img_file_path = pathlib.Path(Diagram.pargs.out).stem + "_cropped.png"
             new_cropped_image.save(pathlib.Path(Diagram.pargs.out).parent / img_file_path)
 
-    def _create_markdown(self, region_list: List[mm.types.MemoryRegionImage]):
+    def _create_markdown(self, region_list: List[mm.image.MemoryRegionImage]):
         """Create markdown doc containing the diagram image and text-base summary table"""
         with open(Diagram.pargs.out, "w") as f:
             f.write(f"""![memory map diagram]({pathlib.Path(Diagram.pargs.out).stem}.png)\n""")
@@ -269,13 +269,13 @@ class MemoryMapDiagram:
             for memregion in region_list:
                 f.write(f"{memregion}\n")
 
-    def _create_table_image(self, region_list: List[mm.types.MemoryRegionImage]):
+    def _create_table_image(self, region_list: List[mm.image.MemoryRegionImage]):
         """Create a png image of the summary table"""
         table_data = []
         for memregion in reversed(region_list):
             table_data.append(memregion.get_data_as_list())
 
-        table: PIL.Image.Image = mm.types.Table().draw_table(
+        table: PIL.Image.Image = mm.image.Table().draw_table(
             table=table_data,
             header=["Name", "Origin", "Size", "Free Space", "Collisions"],
             font=PIL.ImageFont.load_default(self.table_text_size),

@@ -1,6 +1,6 @@
 import mm.diagram
 import unittest
-import mm.types
+import mm.image
 
 # These tests only check the distance between adjacent regions
 # They don't check the output image sizes so we don't care what value we set to the voidthreshold.

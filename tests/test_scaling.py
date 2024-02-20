@@ -1,6 +1,6 @@
 import mm.diagram
 import unittest
-import mm.types
+import mm.image
 import PIL.Image
 import pathlib
 import pytest
