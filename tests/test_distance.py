@@ -12,26 +12,19 @@ def test_distance_three_regions_same_size_no_collisions():
     with unittest.mock.patch(
         "sys.argv",
         [
-            "mm.diagram",
-            "kernel",
-            "0x10",
-            "0x30",
-            "rootfs",
-            "0x50",
-            "0x30",
-            "dtb",
-            "0x90",
-            "0x30",
-            "-o",
-            f"/tmp/pytest/{__name__}.md",
-            "-l",
-            diagram_height,
+            "mm.diagram", 
+            "kernel", "0x10", "0x30",
+            "rootfs", "0x50", "0x30",
+            "dtb", "0x90", "0x30",
+            "-o", f"/tmp/pytest/{__name__}.md",
+            "-l", diagram_height,
         ],
     ):
 
         d = mm.diagram.Diagram()
 
-        for region_image in d.mm.image_list:
+        # we only have a single mmd in mmd_list for this test
+        for region_image in d.mmd_list[0].image_list:
             if region_image.name == "kernel":
                 assert region_image.origin_as_hex == "0x10"
                 assert region_image.size_as_hex == "0x30"
@@ -53,25 +46,18 @@ def test_distance_three_regions_touching_no_collisions():
         "sys.argv",
         [
             "mm.diagram",
-            "kernel",
-            "0x10",
-            "0x30",
-            "rootfs",
-            "0x40",
-            "0x30",
-            "dtb",
-            "0x70",
-            "0x30",
-            "-o",
-            f"/tmp/pytest/{__name__}.md",
-            "-l",
-            diagram_height,
+            "kernel", "0x10", "0x30",
+            "rootfs", "0x40", "0x30",
+            "dtb", "0x70", "0x30",
+            "-o", f"/tmp/pytest/{__name__}.md",
+            "-l", diagram_height,
         ],
     ):
 
         d = mm.diagram.Diagram()
 
-        for region_image in d.mm.image_list:
+        # we only have a single mmd in mmd_list for this test
+        for region_image in d.mmd_list[0].image_list:
             if region_image.name == "kernel":
                 assert region_image.origin_as_hex == "0x10"
                 assert region_image.size_as_hex == "0x30"
@@ -93,25 +79,18 @@ def test_distance_three_regions_diff_size_no_collisions():
         "sys.argv",
         [
             "mm.diagram",
-            "kernel",
-            "0x10",
-            "0x10",
-            "rootfs",
-            "0x50",
-            "0x20",
-            "dtb",
-            "0x90",
-            "0x30",
-            "-o",
-            f"/tmp/pytest/{__name__}.md",
-            "-l",
-            diagram_height,
+            "kernel", "0x10", "0x10",
+            "rootfs", "0x50", "0x20",
+            "dtb", "0x90", "0x30",
+            "-o", f"/tmp/pytest/{__name__}.md",
+            "-l", diagram_height,
         ],
     ):
 
         d = mm.diagram.Diagram()
 
-        for region_image in d.mm.image_list:
+        # we only have a single mmd in mmd_list for this test
+        for region_image in d.mmd_list[0].image_list:
             if region_image.name == "kernel":
                 assert region_image.origin_as_hex == "0x10"
                 assert region_image.size_as_hex == "0x10"
@@ -133,25 +112,18 @@ def test_distance_three_regions_bottom_collision():
         "sys.argv",
         [
             "mm.diagram",
-            "kernel",
-            "0x10",
-            "0x60",
-            "rootfs",
-            "0x50",
-            "0x30",
-            "dtb",
-            "0x90",
-            "0x30",
-            "-o",
-            f"/tmp/pytest/{__name__}.md",
-            "-l",
-            diagram_height,
+            "kernel", "0x10", "0x60",
+            "rootfs", "0x50", "0x30",
+            "dtb", "0x90", "0x30",
+            "-o", f"/tmp/pytest/{__name__}.md",
+            "-l", diagram_height,
         ],
     ):
 
         d = mm.diagram.Diagram()
 
-        for region_image in d.mm.image_list:
+        # we only have a single mmd in mmd_list for this test
+        for region_image in d.mmd_list[0].image_list:
             if region_image.name == "kernel":
                 assert region_image.origin_as_hex == "0x10"
                 assert region_image.size_as_hex == "0x60"
@@ -173,25 +145,18 @@ def test_distance_three_regions_bottom_middle_collision():
         "sys.argv",
         [
             "mm.diagram",
-            "kernel",
-            "0x10",
-            "0x60",
-            "rootfs",
-            "0x50",
-            "0x50",
-            "dtb",
-            "0x90",
-            "0x30",
-            "-o",
-            f"/tmp/pytest/{__name__}.md",
-            "-l",
-            diagram_height,
+            "kernel", "0x10", "0x60",
+            "rootfs", "0x50", "0x50",
+            "dtb", "0x90", "0x30",
+            "-o", f"/tmp/pytest/{__name__}.md",
+            "-l", diagram_height,
         ],
     ):
 
         d = mm.diagram.Diagram()
 
-        for region_image in d.mm.image_list:
+        # we only have a single mmd in mmd_list for this test
+        for region_image in d.mmd_list[0].image_list:
             if region_image.name == "kernel":
                 assert region_image.origin_as_hex == "0x10"
                 assert region_image.size_as_hex == "0x60"
@@ -213,31 +178,20 @@ def test_distance_five_regions_bottom_top_collision():
         "sys.argv",
         [
             "mm.diagram",
-            "kernel",
-            "0x10",
-            "0x50",
-            "rootfs",
-            "0x50",
-            "0x30",
-            "dtb",
-            "0x90",
-            "0x30",
-            "uboot",
-            "0xD0",
-            "0x50",
-            "uboot-scr",
-            "0x110",
-            "0x30",
-            "-o",
-            f"/tmp/pytest/{__name__}.md",
-            "-l",
-            str(diagram_height),
+            "kernel", "0x10", "0x50",
+            "rootfs", "0x50", "0x30",
+            "dtb", "0x90", "0x30",
+            "uboot", "0xD0", "0x50",
+            "uboot-scr", "0x110", "0x30",
+            "-o", f"/tmp/pytest/{__name__}.md",
+            "-l", str(diagram_height),
         ],
     ):
 
         d = mm.diagram.Diagram()
 
-        for region_image in d.mm.image_list:
+        # we only have a single mmd in mmd_list for this test
+        for region_image in d.mmd_list[0].image_list:
             if region_image.name == "kernel":
                 assert region_image.origin_as_hex == "0x10"
                 assert region_image.size_as_hex == "0x50"

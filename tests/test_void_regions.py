@@ -28,19 +28,11 @@ def test_void_region_default(setup):
         "sys.argv",
         [
             "mm.diagram",
-            "kernel",
-            "0x10",
-            "0x30",
-            "rootfs",
-            "0x50",
-            "0x30",
-            "dtb",
-            "0x190",
-            "0x30",
-            "-o",
-            str(setup["report"]),
-            "-l",
-            hex(diagram_height),
+            "kernel", "0x10", "0x30",
+            "rootfs", "0x50", "0x30",
+            "dtb", "0x190", "0x30",
+            "-o", str(setup["report"]),
+            "-l", hex(diagram_height),
         ],
     ):
 
@@ -50,7 +42,7 @@ def test_void_region_default(setup):
         assert mm.diagram.Diagram.pargs.scale == 1
         assert mm.diagram.Diagram.pargs.voidthreshold == hex(1000)
 
-        for region_image in d.mm.image_list:
+        for region_image in d.mmd_list[0].image_list:
             if region_image.name == "kernel":
                 assert region_image.origin_as_hex == "0x10"
                 assert region_image.size_as_hex == "0x30"
@@ -83,21 +75,12 @@ def test_void_region_uservalue_500(setup):
         "sys.argv",
         [
             "mm.diagram",
-            "kernel",
-            "0x10",
-            "0x30",
-            "rootfs",
-            "0x50",
-            "0x30",
-            "dtb",
-            "0x190",
-            "0x30",
-            "-o",
-            str(setup["report"]),
-            "-l",
-            hex(diagram_height),
-            "-v",
-            hex(500),
+            "kernel", "0x10", "0x30",
+            "rootfs", "0x50", "0x30",
+            "dtb", "0x190", "0x30",
+            "-o", str(setup["report"]),
+            "-l", hex(diagram_height),
+            "-v", hex(500),
         ],
     ):
 
@@ -106,7 +89,7 @@ def test_void_region_uservalue_500(setup):
         # assumes the defaults haven't changed
         assert mm.diagram.Diagram.pargs.scale == 1
 
-        for region_image in d.mm.image_list:
+        for region_image in d.mmd_list[0].image_list:
             
             if region_image.name == "kernel":
                 assert region_image.origin_as_hex == "0x10"
@@ -141,21 +124,12 @@ def test_void_region_uservalue_200(setup):
         "sys.argv",
         [
             "mm.diagram",
-            "kernel",
-            "0x10",
-            "0x30",
-            "rootfs",
-            "0x50",
-            "0x30",
-            "dtb",
-            "0x190",
-            "0x30",
-            "-o",
-            str(setup["report"]),
-            "-l",
-            hex(diagram_height),
-            "-v",
-            hex(200),
+            "kernel", "0x10", "0x30",
+            "rootfs", "0x50", "0x30",
+            "dtb", "0x190", "0x30",
+            "-o", str(setup["report"]),
+            "-l", hex(diagram_height),
+            "-v", hex(200),
         ],
     ):
 
@@ -164,7 +138,7 @@ def test_void_region_uservalue_200(setup):
         # assumes the defaults haven't changed
         assert mm.diagram.Diagram.pargs.scale == 1
 
-        for region_image in d.mm.image_list:
+        for region_image in d.mmd_list[0].image_list:
             
             if region_image.name == "kernel":
                 assert region_image.origin_as_hex == "0x10"

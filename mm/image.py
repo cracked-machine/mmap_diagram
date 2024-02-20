@@ -8,6 +8,7 @@ from typing import List, Dict
 import logging
 
 import mm.diagram 
+import mm.metamodel
 
 @typeguard.typechecked
 class RegionImage:
@@ -217,8 +218,8 @@ class TextLabelImage:
         self.height = bottom - top
         """The label height"""
 
-        self.bgcolour = "oldlace"
-        """The background colour to use for the region text label"""
+        # self.bgcolour = "oldlace"
+        # """The background colour to use for the region text label"""
 
         self.fgcolour = "black"
         """The foreground colour to use for the region text label"""
@@ -231,7 +232,11 @@ class TextLabelImage:
     def _create_img(self):
 
         # make the image bigger than the actual text bbox so there is plenty of space for the text
-        self.img = PIL.Image.new("RGB", (self.width * 2, self.height * 2), color=self.bgcolour)
+        self.img = PIL.Image.new(
+            "RGB", 
+            (self.width * 2, self.height * 2), 
+            color=mm.diagram.Diagram.model.diagram_bgcolour)
+        
         canvas = PIL.ImageDraw.Draw(self.img)
         # center the text in the oversized image, bias the y-pos by 1/5
         canvas.text(

@@ -6,7 +6,7 @@ import PIL.ImageDraw
 import PIL.ImageColor
 import PIL.ImageFont
 
-from typing import List
+from typing import List, Dict
 import typeguard
 
 import sys
@@ -33,9 +33,10 @@ class MemoryMapDiagram:
         gap: int = 4
         len: int = gap // 2
 
-    def __init__(self):
-        self.bgcolour = "oldlace"
-        """background colour for diagram"""
+    def __init__(self, memory_map_metadata: Dict[str, mm.metamodel.MemoryMap]):
+
+        # self.bgcolour = "oldlace"
+        # """background colour for diagram"""
 
         self.default_region_text_size: int = 12
         """Default size for memregion text"""
@@ -49,9 +50,6 @@ class MemoryMapDiagram:
         self.voidthreshold: int = int(Diagram.pargs.voidthreshold, 16)
         """Void space threshold for adding VoidRegionImage objs"""
 
-        # TODO needed?
-        self.scale_factor: int = Diagram.pargs.scale
-
         self._legend_width = Diagram.model.diagram_width // 2
         """width of the area used for text annotations/legend"""
 
@@ -62,42 +60,53 @@ class MemoryMapDiagram:
         self.top_addr_lbl = mm.image.TextLabelImage(hex(Diagram.model.diagram_height), self.fixed_legend_text_size)
         """Make sure this is created after rescale"""
 
-        self.image_list = self._create_image_list()
+        self.final_image_full: PIL.Image.Image = None
+        """Final image for this Memory Map - without void regions"""
 
-        # TODO replace self._region_list with return image_list from self._create_image_list()
+        self.final_image_reduced: PIL.Image.Image = None
+        """Final image for this Memory Map - with void regions"""
+
+        self.image_list = self._create_image_list(memory_map_metadata)
         self._create_markdown(self.image_list)
         self._create_table_image(self.image_list)
 
-    def _create_image_list(self) -> List[mm.image.MemoryRegionImage]:
+    def _create_image_list(self, memory_map_metadata: Dict[str, mm.metamodel.MemoryMap]) -> List[mm.image.MemoryRegionImage]:
 
-        image_list: List[mm.image.MemoryRegionImage] = []
-        for mmap_name, mmap in Diagram.model.memory_maps.items():
-            for region_name, region in mmap.memory_regions.items():
-                new_mr_image = mm.image.MemoryRegionImage(
-                    mmap_name,
-                    region_name
-                )
-                image_list.append(new_mr_image)
-                
-
-            # assign the draw indent by ascending origin
-            image_list.sort(key=lambda x: x.origin_as_int, reverse=False)
-            region_indent = 0
-            for image in image_list:
-                image.draw_indent = region_indent
-                region_indent += 5
-
-            # sort in descending size order for z-order.
-            # smaller in foreground, larger in background
-            image_list.sort(key=lambda x: x.size_as_int, reverse=True)
+        assert len(memory_map_metadata) == 1, "MemoryMapDiagram should omly be initialised with a single mm.metamodel.MemoryMap."
         
-            self._draw_image_list(image_list)
+        image_list: List[mm.image.MemoryRegionImage] = []
+    
+        mmap_name = next(iter(memory_map_metadata))
+        for region_name in memory_map_metadata[mmap_name].memory_regions.keys():
+            new_mr_image = mm.image.MemoryRegionImage(
+                mmap_name,
+                region_name
+            )
+            image_list.append(new_mr_image)
+            
+
+        # assign the draw indent by ascending origin
+        image_list.sort(key=lambda x: x.origin_as_int, reverse=False)
+        region_indent = 0
+        for image in image_list:
+            image.draw_indent = region_indent
+            region_indent += 5
+
+        # sort in descending size order for z-order.
+        # smaller in foreground, larger in background
+        image_list.sort(key=lambda x: x.size_as_int, reverse=True)
+    
+        self._draw_image_list(image_list)
 
         return image_list
     
     def _draw_image_list(self, image_list: List[mm.image.MemoryRegionImage]):
 
-        new_diagram_img = PIL.Image.new("RGB", (Diagram.model.diagram_width, Diagram.model.diagram_height), color=self.bgcolour)
+        new_diagram_img = PIL.Image.new(
+            "RGB", 
+            (Diagram.model.diagram_width, Diagram.model.diagram_height), 
+            color=mm.diagram.Diagram.model.diagram_bgcolour)
+        
         # paste each new graphic element image to main image
         for memregion in image_list:
             memregion.create_img(
@@ -177,12 +186,7 @@ class MemoryMapDiagram:
         self._insert_void_regions(new_diagram_img, image_list)
 
         # rotate the entire diagram so the origin is at the bottom
-        new_diagram_img = new_diagram_img.rotate(180)
-
-        # TODO disable save and store in class instance variable
-        # output image file
-        img_file_path = pathlib.Path(Diagram.pargs.out).stem + "_full.png"
-        new_diagram_img.save(pathlib.Path(Diagram.pargs.out).parent / img_file_path)
+        self.final_image_full = new_diagram_img.rotate(180)
 
     def _insert_void_regions(self, original_img: PIL.Image.Image, memregion_list: List[mm.image.MemoryRegionImage]):
         """Remove large empty spaces and replace them with fixed size VoidRegionImage objects.
@@ -214,9 +218,8 @@ class MemoryMapDiagram:
 
         if not region_subset_list:
             # no spaces were found in the diagram to be above the void threshold
-            img_file_path = pathlib.Path(Diagram.pargs.out).stem + "_cropped.png"
-            original_img = original_img.rotate(180)
-            original_img.save(pathlib.Path(Diagram.pargs.out).parent / img_file_path)
+            self.final_image_reduced = original_img.rotate(180)
+
         else:
             # calculate the new reduced diagram image height plus some padding
             new_cropped_height = (
@@ -226,7 +229,11 @@ class MemoryMapDiagram:
             )
 
             # now create the new image alternating the region subsets and void regions
-            new_cropped_image = PIL.Image.new("RGB", (Diagram.model.diagram_width, new_cropped_height), color=self.bgcolour)
+            new_cropped_image = PIL.Image.new(
+                "RGB", 
+                (Diagram.model.diagram_width, new_cropped_height), 
+                color=mm.diagram.Diagram.model.diagram_bgcolour)
+            
             y_pos = 0
             for region_subset in region_subset_list:
                 new_cropped_image.paste(region_subset, (0, y_pos))
@@ -256,9 +263,7 @@ class MemoryMapDiagram:
                 )
 
             # TODO disable save and store in class instance variable
-            new_cropped_image = new_cropped_image.rotate(180)
-            img_file_path = pathlib.Path(Diagram.pargs.out).stem + "_cropped.png"
-            new_cropped_image.save(pathlib.Path(Diagram.pargs.out).parent / img_file_path)
+            self.final_image_reduced = new_cropped_image.rotate(180)
 
     def _create_markdown(self, region_list: List[mm.image.MemoryRegionImage]):
         """Create markdown doc containing the diagram image and text-base summary table"""
@@ -289,17 +294,62 @@ class MemoryMapDiagram:
 
 class Diagram:
     pargs: argparse.Namespace = None
-    model: mm.metamodel.Diagram = None
+    
 
     def __init__(self):
 
+        self.mmd_list: List[MemoryMapDiagram] = []
+        """ instances of the memory map diagram"""
+
         self._parse_args()
         self._validate_pargs()
-
-        # TODO import data into mm.schema.Diagram model instead
         Diagram.model = self._create_model()
 
-        self.mm = MemoryMapDiagram()
+        self._draw_full_img_diagram()
+        self._draw_reduced_img_diagram()
+
+    def _draw_full_img_diagram(self):
+
+        for mmap_name, mmap in Diagram.model.memory_maps.items():
+            self.mmd_list.append(MemoryMapDiagram({mmap_name: mmap}))
+
+        full_diagram_img = PIL.Image.new(
+            "RGB", 
+            (Diagram.model.diagram_width, Diagram.model.diagram_height), 
+            color=mm.diagram.Diagram.model.diagram_bgcolour)
+        
+        for mmd in self.mmd_list:
+            full_diagram_img.paste(
+                mmd.final_image_full, 
+                (0, 0))
+
+        img_file_path = pathlib.Path(Diagram.pargs.out).stem + "_full.png"
+        full_diagram_img.save(pathlib.Path(Diagram.pargs.out).parent / img_file_path)
+
+    def _draw_reduced_img_diagram(self):
+
+        # the original dimension may have shrunk for the 
+        # reduced mm diagram due to void region cropping
+        max_reduced_diagram_height = Diagram.model.diagram_height
+        max_reduced_diagram_width = Diagram.model.diagram_width
+        for mmd in self.mmd_list:
+            if mmd.final_image_reduced.height < max_reduced_diagram_height:
+                max_reduced_diagram_height = mmd.final_image_reduced.height
+            if mmd.final_image_reduced.width < max_reduced_diagram_width:
+                max_reduced_diagram_width = mmd.final_image_reduced.width
+
+        reduced_diagram_img = PIL.Image.new(
+            "RGB", 
+            (max_reduced_diagram_width, max_reduced_diagram_height), 
+            color=mm.diagram.Diagram.model.diagram_bgcolour)
+        
+        for mmd in self.mmd_list:
+            reduced_diagram_img.paste(
+                mmd.final_image_reduced, 
+                (0, 0))
+
+        img_file_path = pathlib.Path(Diagram.pargs.out).stem + "_cropped.png"
+        reduced_diagram_img.save(pathlib.Path(Diagram.pargs.out).parent / img_file_path)
 
     def _parse_args(self):
         """Setup the command line interface"""

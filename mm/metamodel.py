@@ -95,6 +95,10 @@ class Diagram(ConfigParent):
         int,
         pydantic.Field(..., description="The width of the diagram.")
     ]
+    diagram_bgcolour: Annotated[
+        str,
+        pydantic.Field("oldlace", description="The background colour used for the diagram")
+    ] 
     memory_maps: Annotated[
         dict[str, MemoryMap],
         pydantic.Field(..., description="The diagram frame. Can contain many memory maps.")

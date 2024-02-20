@@ -34,12 +34,12 @@
         "memory_region_origin": {
           "description": "Origin address of the MemoryMap. In hex format string.",
           "title": "Memory Region Origin",
-          "type": "string"
+          "type": "integer"
         },
         "memory_region_size": {
           "description": "Size (in bytes) of the MemoryMap. In hex format string.",
           "title": "Memory Region Size",
-          "type": "string"
+          "type": "integer"
         },
         "memory_region_links": {
           "default": [],
@@ -64,7 +64,7 @@
           "default": "",
           "description": "Internal Use",
           "title": "Freespace",
-          "type": "string"
+          "type": "integer"
         },
         "collisions": {
           "Description": "Internal Use",
@@ -96,6 +96,12 @@
       "description": "The width of the diagram.",
       "title": "Diagram Width",
       "type": "integer"
+    },
+    "diagram_bgcolour": {
+      "default": "oldlace",
+      "description": "The background colour used for the diagram",
+      "title": "Diagram Bgcolour",
+      "type": "string"
     },
     "memory_maps": {
       "additionalProperties": {

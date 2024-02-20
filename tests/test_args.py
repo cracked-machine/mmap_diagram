@@ -70,30 +70,59 @@ def test_invalid_duplicate_name_arg():
         assert len(d.model.memory_maps[memmap_name].memory_regions) == 1
 
 def test_scale_arg():
-    with unittest.mock.patch("sys.argv", ["mm.diagram", "a", "0x10", "0x10", "-s", "3"]):
+    with unittest.mock.patch(
+        "sys.argv", 
+        ["mm.diagram", 
+         "a", "0x10", "0x10", 
+         "-s", "3"]):
+        
         mm.diagram.Diagram()
 
-    with unittest.mock.patch("sys.argv", ["mm.diagram", "a", "0x10", "0x10", "-s", "0x3"]):
+    with unittest.mock.patch(
+        "sys.argv", 
+        ["mm.diagram", 
+         "a", "0x10", "0x10", 
+         "-s", "0x3"]):
+        
         with pytest.raises(SystemExit):
             mm.diagram.Diagram()
 
 def test_voidthresh_arg():
-    with unittest.mock.patch("sys.argv", ["mm.diagram", "a", "0x10", "0x10", "-v", "1000"]):
+    with unittest.mock.patch(
+        "sys.argv", 
+        ["mm.diagram", 
+         "a", "0x10", "0x10", 
+         "-v", "1000"]):
+        
         with pytest.raises(SystemExit):
             mm.diagram.Diagram()
 
-    with unittest.mock.patch("sys.argv", ["mm.diagram", "a", "0x10", "0x10", "-v", "0x3e8"]):
+    with unittest.mock.patch(
+        "sys.argv", 
+        ["mm.diagram", 
+         "a", "0x10", "0x10", 
+         "-v", "0x3e8"]):
+        
         mm.diagram.Diagram()
         
 def test_invalid_2000_limit_arg_format(setup):
-    with unittest.mock.patch("sys.argv", ["mm.diagram", "a", "0x10", "0x10", "-l", "2000"]):
+    with unittest.mock.patch(
+        "sys.argv", 
+        ["mm.diagram", 
+         "a", "0x10", "0x10", 
+         "-l", "2000"]):
+        
         with pytest.raises(SystemExit):
             mm.diagram.Diagram()
 
 def test_default_limit_arg_format(setup):
     """should create custom report dir/files"""
 
-    with unittest.mock.patch("sys.argv", ["mm.diagram", "a", "0x10", "0x10", "-o", str(setup["report"])]):
+    with unittest.mock.patch(
+        "sys.argv", 
+        ["mm.diagram", 
+         "a", "0x10", "0x10", 
+         "-o", str(setup["report"])]):
 
         mm.diagram.Diagram()
         default_limit = mm.diagram.Diagram.pargs.limit
@@ -117,7 +146,11 @@ def test_valid_2000_limit_arg_format(setup):
     """should create custom report dir/files"""
 
     with unittest.mock.patch(
-        "sys.argv", ["mm.diagram", "a", "0x10", "0x10", "-o", str(setup["report"]), "-l", hex(2000)]
+        "sys.argv", 
+        ["mm.diagram", 
+         "a", "0x10", "0x10", 
+         "-o", str(setup["report"]), 
+         "-l", hex(2000)]
     ):
 
         mm.diagram.Diagram()

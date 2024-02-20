@@ -29,21 +29,12 @@ def test_generate_doc_example_normal(setup):
         "sys.argv",
         [
             "mm.diagram",
-            "kernel",
-            "0x10",
-            "0x30",
-            "rootfs",
-            "0x50",
-            "0x30",
-            "dtb",
-            "0x190",
-            "0x30",
-            "-o",
-            str(setup["report"]),
-            "-l",
-            hex(diagram_height),
-            "-v",
-            hex(200),
+            "kernel", "0x10", "0x30",
+            "rootfs", "0x50", "0x30",
+            "dtb", "0x190", "0x30",
+            "-o", str(setup["report"]),
+            "-l", hex(diagram_height),
+            "-v", hex(200),
         ],
     ):
 
@@ -52,7 +43,8 @@ def test_generate_doc_example_normal(setup):
         # assumes the defaults haven't changed
         assert mm.diagram.Diagram.pargs.scale == 1
 
-        for region_image in d.mm.image_list:
+        # we only have a single mmd in mmd_list for this test
+        for region_image in d.mmd_list[0].image_list:
             if region_image.name == "kernel":
                 assert region_image.origin_as_hex == "0x10"
                 assert region_image.size_as_hex == "0x30"
@@ -86,27 +78,19 @@ def test_generate_doc_example_collisions(setup):
         "sys.argv",
         [
             "mm.diagram",
-            "kernel",
-            "0x10",
-            "0x60",
-            "rootfs",
-            "0x50",
-            "0x50",
-            "dtb",
-            "0x90",
-            "0x30",
-            "-o",
-            str(setup["report"]),
-            "-l",
-            diagram_height,
-            "-v",
-            hex(200),
+            "kernel", "0x10", "0x60",
+            "rootfs", "0x50", "0x50",
+            "dtb", "0x90", "0x30",
+            "-o", str(setup["report"]),
+            "-l", diagram_height,
+            "-v", hex(200),
         ],
     ):
 
         d =mm.diagram.Diagram()
 
-        for region_image in d.mm.image_list:
+        # we only have a single mmd in mmd_list for this test
+        for region_image in d.mmd_list[0].image_list:
             if region_image.name == "kernel":
                 assert region_image.origin_as_hex == "0x10"
                 assert region_image.size_as_hex == "0x60"
