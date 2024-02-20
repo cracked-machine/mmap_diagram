@@ -137,3 +137,46 @@ def test_generate_doc_example_two_maps(input, setup):
 
         assert setup["image_full"].exists()
         assert setup["image_cropped"].exists()
+
+@pytest.mark.parametrize("setup", [{"file_prefix": "_three_maps"}], indirect=True)
+def test_generate_doc_example_three_maps(input, setup):
+    """ """
+    input["memory_maps"]['flash'] = {
+        "map_height": 1000,
+        "map_width": 400,                
+        "memory_regions": 
+        {
+            "Blob4": {
+            "memory_region_origin": "0x10",
+            "memory_region_size": "0x150"
+            },
+            "Blob5": {
+            "memory_region_origin": "0x120",
+            "memory_region_size": "0x70"
+            }
+        }        
+    }
+
+    output_file = pathlib.Path("./doc/example/three_maps_input.json")
+    with output_file.open("w") as fp:
+        fp.write(json.dumps(input, indent=2))
+
+
+    diagram_height = 1000
+    with unittest.mock.patch(
+        "sys.argv",
+            [
+                "mm.diagram",
+                "-f", str(output_file),
+                "-o", str(setup["report"]),
+                "-l", hex(diagram_height),
+                "-v", hex(200),
+            ],
+        ):
+
+        mm.diagram.Diagram()
+
+        assert setup["report"].exists()
+
+        assert setup["image_full"].exists()
+        assert setup["image_cropped"].exists()
