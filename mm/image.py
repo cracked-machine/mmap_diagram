@@ -176,7 +176,7 @@ class VoidRegionImage():
 
     def __init__(self):
 
-        self.name: str = "~~~ SKIPPED ~~~"
+        self.name: str = "~ SKIPPED ~"
         self.img: PIL.Image.Image = None
         self.size_as_hex: str = 40
 
