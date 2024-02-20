@@ -75,6 +75,13 @@ class RegionImage:
         """ lookup memory_region collision from metamodel  """
         return mm.diagram.Diagram.model.memory_maps[self.parent].memory_regions[self.name].collisions
 
+    @property
+    def collisions_as_hex(self):
+        """ lookup memory_region collision from metamodel  """
+        d = mm.diagram.Diagram.model.memory_maps[self.parent].memory_regions[self.name].collisions.copy()
+        for k, v in d.items(): d[k] = hex(v)
+        return d
+
 
     def _pick_available_colour(self):
         # remove the picked colour from the list so it can't be picked again
@@ -112,7 +119,7 @@ class MemoryRegionImage(RegionImage):
             + "|"
             + str(self.freespace_as_hex)
             + "|"
-            + str(self.collisions)
+            + str(self.collisions_as_hex)
             + "|"
         )
 
@@ -124,7 +131,7 @@ class MemoryRegionImage(RegionImage):
                 str(self.origin_as_hex),
                 str(self.size_as_hex),
                 str(self.freespace_as_hex),
-                "-" + str(self.collisions),
+                "-" + str(self.collisions_as_hex),
             ]
         else:
             return [
