@@ -239,8 +239,7 @@ class TextLabelImage:
         self.img = PIL.Image.new(
             "RGB", 
             (self.width, (self.height)), 
-            # color=mm.diagram.Diagram.model.diagram_bgcolour)
-            color="yellow")
+            color=mm.diagram.Diagram.model.diagram_bgcolour)
         
         canvas = PIL.ImageDraw.Draw(self.img)
         # center the text in the oversized image, bias the y-pos by 1/5

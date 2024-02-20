@@ -76,8 +76,7 @@ class MemoryMapDiagram:
        
 
         self.image_list = self._create_image_list(memory_map_metadata)
-        self._create_markdown(self.image_list)
-        # self._create_table_image(self.image_list)
+
 
     def _create_image_list(self, memory_map_metadata: Dict[str, mm.metamodel.MemoryMap]) -> List[mm.image.MemoryRegionImage]:
         
@@ -117,7 +116,6 @@ class MemoryMapDiagram:
             (self.width, 
              self.height), 
             color=mm.diagram.Diagram.model.diagram_bgcolour)
-            # color="yellow")
         
         # paste each new graphic element image to main image
         for memregion in image_list:
@@ -236,7 +234,6 @@ class MemoryMapDiagram:
                 "RGB", 
                 (self.width, new_cropped_height), 
                 color=mm.diagram.Diagram.model.diagram_bgcolour)
-                # color="yellow")
             
             y_pos = 0
             for region_subset in region_subset_list:
@@ -278,16 +275,6 @@ class MemoryMapDiagram:
 
         self.final_image_reduced = self.final_image_reduced.rotate(180)
 
-    def _create_markdown(self, region_list: List[mm.image.MemoryRegionImage]):
-        """Create markdown doc containing the diagram image """
-        """and text-base summary table"""
-        with open(Diagram.pargs.out, "w") as f:
-            f.write(f"""![memory map diagram]({pathlib.Path(Diagram.pargs.out).stem}.png)\n""")
-            f.write("|name|origin|size|free Space|collisions\n")
-            f.write("|:-|:-|:-|:-|:-|\n")
-            for memregion in region_list:
-                f.write(f"{memregion}\n")
-
 class Diagram:
     pargs: argparse.Namespace = None
     model = None
@@ -308,7 +295,7 @@ class Diagram:
         self._draw_full_img_diagram()
         self._draw_reduced_img_diagram()
         self._create_table_image(self.mmd_list)
-        
+        self._create_markdown(self.mmd_list)        
 
     def _draw_full_img_diagram(self):
 
@@ -399,6 +386,17 @@ class Diagram:
 
         tableimg_file_path = pathlib.Path(Diagram.pargs.out).stem + "_table.png"
         table.save(pathlib.Path(Diagram.pargs.out).parent / tableimg_file_path)
+
+    def _create_markdown(self,  mmd_list: List[MemoryMapDiagram]):
+        """Create markdown doc containing the diagram image """
+        """and text-base summary table"""
+        with open(Diagram.pargs.out, "w") as f:
+            f.write(f"""![memory map diagram]({pathlib.Path(Diagram.pargs.out).stem}_cropped.png)\n""")
+            f.write("|name|origin|size|free Space|collisions\n")
+            f.write("|:-|:-|:-|:-|:-|\n")
+            for region_map_list in mmd_list:
+                for memregion in (region_map_list.image_list):            
+                    f.write(f"{memregion}\n")
 
     def _parse_args(self):
         """Setup the command line interface"""
