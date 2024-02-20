@@ -389,6 +389,13 @@ class Diagram:
             type=str,
         )
 
+        parser.add_argument(
+            "-f",
+            "--file",
+            help="JSON input file for multiple memory maps (and links) support. Please see doc/example/input.json for help.",
+            type=str,
+        )
+
         Diagram.pargs = parser.parse_args()
 
     def _validate_pargs(self):
