@@ -168,3 +168,16 @@ def test_valid_2000_limit_arg_format(setup):
         assert setup["image_cropped"].exists()
         outimg = PIL.Image.open(str(setup["image_cropped"]))
         assert outimg.size[1] == 112
+
+def test_input_file():
+
+    with unittest.mock.patch(
+        "sys.argv", 
+        ["mm.diagram", 
+         "-f", "doc/example/input.json",
+         "-l", hex(1000),
+         "-v", hex(500)
+        ]):
+        
+        d = mm.diagram.Diagram()
+        pass

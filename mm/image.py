@@ -33,7 +33,7 @@ class RegionImage:
         self.draw_indent = 0
         """Index counter for incrementally shrinking the drawing indent"""
 
-        self.img: PIL.Image
+        self.img: PIL.Image.Image
 
         # both 'lightslategray' and 'lightslategrey' are the same colour
         # and we don't want duplicate colours in our diagram
@@ -106,6 +106,7 @@ class RegionImage:
 
 @typeguard.typechecked
 class MemoryRegionImage(RegionImage):
+
     def __str__(self):
         return (
             "|"
@@ -156,14 +157,17 @@ class MemoryRegionImage(RegionImage):
 
         # height is -1 to avoid clipping the top border
         self.region_canvas.rectangle(
-            (0, 0, img_width, int(self.size_as_hex,16) - 1),
+            (0, 0, img_width - 1, int(self.size_as_hex,16) - 1),
             fill=self.colour,
             outline=self.bordercolour,
             width=1,
         )
 
         # draw name text
-        region_img.paste(TextLabelImage(text=self.name, font_size=font_size).img, (5, 5))
+        txt_img =  TextLabelImage(text=self.name, font_size=font_size).img
+        region_img.paste(
+            txt_img, 
+            ((img_width - txt_img.width) // 2, 2))
 
         self.img = region_img
 
@@ -172,8 +176,8 @@ class VoidRegionImage():
 
     def __init__(self):
 
-        self.name: str = "~~~~~ SKIPPED ~~~~~"
-        self.img: PIL.Image = None
+        self.name: str = "~~~ SKIPPED ~~~"
+        self.img: PIL.Image.Image = None
         self.size_as_hex: str = 40
 
     def create_img(self, img_width: int, font_size: int):
@@ -209,13 +213,13 @@ class TextLabelImage:
         self.font = PIL.ImageFont.load_default(font_size)
         """The font used to display the text"""
 
-        _, top, right, bottom = self.font.getbbox(self.text)
+        left, top, right, bottom = self.font.getbbox(self.text)
         """The dimensions required for the text"""
 
         self.width = right
         """The label width"""
 
-        self.height = bottom - top
+        self.height = bottom
         """The label height"""
 
         # self.bgcolour = "oldlace"
@@ -234,13 +238,15 @@ class TextLabelImage:
         # make the image bigger than the actual text bbox so there is plenty of space for the text
         self.img = PIL.Image.new(
             "RGB", 
-            (self.width * 2, self.height * 2), 
-            color=mm.diagram.Diagram.model.diagram_bgcolour)
+            (self.width, (self.height)), 
+            # color=mm.diagram.Diagram.model.diagram_bgcolour)
+            color="yellow")
         
         canvas = PIL.ImageDraw.Draw(self.img)
         # center the text in the oversized image, bias the y-pos by 1/5
         canvas.text(
-            xy=(self.width / 2, (self.height / 2 - (self.height / 5))),
+            # xy=(self.width / 2, (self.height / 2 - (self.height / 5))),
+            xy=(0, -1),
             text=self.text,
             fill=self.fgcolour,
             font=self.font,

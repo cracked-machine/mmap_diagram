@@ -11,20 +11,20 @@
           "type": "object"
         },
         "map_height": {
-          "description": "The height of the memory map.",
+          "default": 0,
+          "description": "Internal Use. This will be automically adjusted depending on the diagram size and number of memory maps.",
           "title": "Map Height",
           "type": "integer"
         },
         "map_width": {
-          "description": "The width of the memory map.",
+          "default": 0,
+          "description": "Internal Use. This will be automically adjusted depending on the diagram size and number of memory maps.",
           "title": "Map Width",
           "type": "integer"
         }
       },
       "required": [
-        "memory_regions",
-        "map_height",
-        "map_width"
+        "memory_regions"
       ],
       "title": "MemoryMap",
       "type": "object"
@@ -95,6 +95,12 @@
     "diagram_width": {
       "description": "The width of the diagram.",
       "title": "Diagram Width",
+      "type": "integer"
+    },
+    "diagram_legend_width": {
+      "default": 30,
+      "description": "The percentage width of the diagram legend",
+      "title": "Diagram Legend Width",
       "type": "integer"
     },
     "diagram_bgcolour": {

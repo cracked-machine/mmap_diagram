@@ -60,8 +60,10 @@ class MemoryRegion(ConfigParent):
 
     @pydantic.field_validator("memory_region_origin", "memory_region_size", mode="before")
     @classmethod
-    def check_empty_str(cls, v: str):
-        assert v, "Empty string found!"
+    def check_empty_str(cls, v: any):
+        assert v, "Empty value found!"
+        if isinstance(v, int):
+            v = hex(v)
         assert v[:2] == "0x"
         return int(v, 16)
 
@@ -73,11 +75,11 @@ class MemoryMap(ConfigParent):
     ]
     map_height: Annotated[
         int,
-        pydantic.Field(..., description="Internal Use. This will be automically adjusted depending on the diagram size and number of memory maps.")
+        pydantic.Field(0, description="Internal Use. This will be automically adjusted depending on the diagram size and number of memory maps.")
     ]
     map_width: Annotated[
         int,
-        pydantic.Field(..., description="Internal Use. This will be automically adjusted depending on the diagram size and number of memory maps.")
+        pydantic.Field(0, description="Internal Use. This will be automically adjusted depending on the diagram size and number of memory maps.")
     ]
 
 class Diagram(ConfigParent):
@@ -94,6 +96,10 @@ class Diagram(ConfigParent):
     diagram_width: Annotated[
         int,
         pydantic.Field(..., description="The width of the diagram.")
+    ]
+    diagram_legend_width: Annotated[
+        int,
+        pydantic.Field(30, description="The percentage width of the diagram legend")
     ]
     diagram_bgcolour: Annotated[
         str,
@@ -147,15 +153,20 @@ class Diagram(ConfigParent):
     @pydantic.model_validator(mode="after")
     def resize_memory_maps_to_fit_diagram_width(self):
         """ Resize the multiple memory maps to fit within the diagram"""
+        # assume all memory maps should always be same height as overall diagram
+        for memory_map in self.memory_maps.values():
+            memory_map.map_height = self.diagram_height
+        
+        # command line input (only one memory map possible)
         if len(self.memory_maps) == 1:
-            return self
+            pass
         else:
-            new_memory_map_width = self.diagram_width / len(self.memory_maps) 
+            new_memory_map_width = self.diagram_width // len(self.memory_maps) 
             new_memory_map_width - 10 # allow for some extra space
             for memory_map in self.memory_maps.values():
                 memory_map.map_width = new_memory_map_width
-        
-            return self
+
+        return self
 
     @pydantic.model_validator(mode="after")
     def calc_nearest_region(self):

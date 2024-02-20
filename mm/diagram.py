@@ -16,6 +16,8 @@ import logging
 import mm.image
 import mm.metamodel
 
+import json
+
 root = logging.getLogger()
 root.setLevel(logging.DEBUG)
 
@@ -50,12 +52,6 @@ class MemoryMapDiagram:
         self.voidthreshold: int = int(Diagram.pargs.voidthreshold, 16)
         """Void space threshold for adding VoidRegionImage objs"""
 
-        self._legend_width = Diagram.model.diagram_width // 2
-        """width of the area used for text annotations/legend"""
-
-        self.voidregion = mm.image.VoidRegionImage()
-        """The reusable object used to represent the void regions in the memory map"""
-        self.voidregion.create_img(img_width=(Diagram.model.diagram_width - 20), font_size=self.default_region_text_size)
 
         self.top_addr_lbl = mm.image.TextLabelImage(hex(Diagram.model.diagram_height), self.fixed_legend_text_size)
         """Make sure this is created after rescale"""
@@ -65,14 +61,28 @@ class MemoryMapDiagram:
 
         self.final_image_reduced: PIL.Image.Image = None
         """Final image for this Memory Map - with void regions"""
+        
+        assert len(memory_map_metadata) == 1, "MemoryMapDiagram should omly be initialised with a single mm.metamodel.MemoryMap."
+        
+        self.width = next(iter(memory_map_metadata.values())).map_width
+        self.height = next(iter(memory_map_metadata.values())).map_height
+
+        legend_width_pixels = (self.width // 100) * Diagram.model.diagram_legend_width
+        self._legend_width = legend_width_pixels
+        """width of the area used for text annotations/legend"""
+
+        self.voidregion = mm.image.VoidRegionImage()
+        """The reusable object used to represent the void regions in the memory map"""
+        self.voidregion.create_img(
+            img_width=(self.width - self._legend_width - (self.width//5)), 
+            font_size=self.default_region_text_size)
+       
 
         self.image_list = self._create_image_list(memory_map_metadata)
         self._create_markdown(self.image_list)
         self._create_table_image(self.image_list)
 
     def _create_image_list(self, memory_map_metadata: Dict[str, mm.metamodel.MemoryMap]) -> List[mm.image.MemoryRegionImage]:
-
-        assert len(memory_map_metadata) == 1, "MemoryMapDiagram should omly be initialised with a single mm.metamodel.MemoryMap."
         
         image_list: List[mm.image.MemoryRegionImage] = []
     
@@ -95,38 +105,36 @@ class MemoryMapDiagram:
         # sort in descending size order for z-order.
         # smaller in foreground, larger in background
         image_list.sort(key=lambda x: x.size_as_int, reverse=True)
-    
+        
+
         self._draw_image_list(image_list)
 
         return image_list
     
-    def _draw_image_list(self, image_list: List[mm.image.MemoryRegionImage]):
-
+    def _draw_image_list(
+            self, 
+            image_list: List[mm.image.MemoryRegionImage]):
+        
         new_diagram_img = PIL.Image.new(
             "RGB", 
-            (Diagram.model.diagram_width, Diagram.model.diagram_height), 
+            (self.width, 
+             self.height), 
             color=mm.diagram.Diagram.model.diagram_bgcolour)
+            # color="yellow")
         
         # paste each new graphic element image to main image
         for memregion in image_list:
             memregion.create_img(
-                img_width=(Diagram.model.diagram_width - self._legend_width),
+                img_width=(self.width - self._legend_width - (self.width//5)),
                 font_size=self.default_region_text_size,
             )
             if not memregion.img:
                 continue
             new_diagram_img.paste(
                 memregion.img,
-                (self._legend_width + memregion.draw_indent, int(memregion.origin_as_hex,16)),
+                ((((self.width - memregion.draw_indent - self._legend_width) - memregion.img.width) // 2) + self._legend_width, 
+                 int(memregion.origin_as_hex,16)),
                 memregion.img,
-            )
-
-            # Origin address text for this memory region
-            origin_text_label = mm.image.TextLabelImage(
-                memregion.origin_as_hex, self.fixed_legend_text_size)
-            new_diagram_img.paste(
-                origin_text_label.img,
-                (0, int(memregion.origin_as_hex,16) - origin_text_label.height + 1),
             )
 
             # End address text for this memory region
@@ -134,21 +142,15 @@ class MemoryMapDiagram:
             region_end_addr_lbl = mm.image.TextLabelImage(hex(region_end_addr), self.fixed_legend_text_size)
             new_diagram_img.paste(
                 region_end_addr_lbl.img,
-                (0, region_end_addr - region_end_addr_lbl.height + 1),
+                (5, region_end_addr - (region_end_addr_lbl.height // 2) + 1),
             )
-
-            # Top address text for the whole diagram
-            top_addr = Diagram.model.diagram_height
-            top_addr_lbl = mm.image.TextLabelImage(hex(top_addr), self.fixed_legend_text_size)
-            new_diagram_img.paste(top_addr_lbl.img, (0, top_addr - top_addr_lbl.height - 5))
 
             # Dash Lines from text to memregion
             line_canvas = PIL.ImageDraw.Draw(new_diagram_img)
             for x in range(
-                region_end_addr_lbl.width * 2,
-                self._legend_width - 10,
-                MemoryMapDiagram.DashedLine.gap,
-            ):
+                region_end_addr_lbl.width + 10,
+                self._legend_width,
+                MemoryMapDiagram.DashedLine.gap):
                 line_canvas.line(
                     (
                         x,
@@ -160,11 +162,17 @@ class MemoryMapDiagram:
                     width=MemoryMapDiagram.DashedLine.width,
                 )
 
+            # Origin address text for this memory region
+            origin_text_label = mm.image.TextLabelImage(memregion.origin_as_hex, self.fixed_legend_text_size)
+            new_diagram_img.paste(
+                origin_text_label.img,
+                (5, int(memregion.origin_as_hex,16) - (origin_text_label.height // 2) + 1 ),
+            )
+
             for x in range(
-                origin_text_label.width * 2,
-                self._legend_width - 10,
-                MemoryMapDiagram.DashedLine.gap,
-            ):
+                origin_text_label.width + 10,
+                self._legend_width,
+                MemoryMapDiagram.DashedLine.gap):
                 line_canvas.line(
                     (
                         x,
@@ -176,19 +184,17 @@ class MemoryMapDiagram:
                     width=1,
                 )
 
-            for x in range(top_addr_lbl.width * 2, Diagram.model.diagram_width - 10, MemoryMapDiagram.DashedLine.gap):
-                line_canvas.line(
-                    (x, top_addr - 7, x + MemoryMapDiagram.DashedLine.len, top_addr - 7),
-                    fill="black",
-                    width=MemoryMapDiagram.DashedLine.width,
-                )
+
 
         self._insert_void_regions(new_diagram_img, image_list)
 
         # rotate the entire diagram so the origin is at the bottom
         self.final_image_full = new_diagram_img.rotate(180)
 
-    def _insert_void_regions(self, original_img: PIL.Image.Image, memregion_list: List[mm.image.MemoryRegionImage]):
+    def _insert_void_regions(
+            self, 
+            original_img: PIL.Image.Image, 
+            memregion_list: List[mm.image.MemoryRegionImage]):
         """Remove large empty spaces and replace them with fixed size VoidRegionImage objects.
         This function actually chops up the existing diagram image into smaller images containing
         only MemoryRegions. It then pastes the smaller image into a new image, inserting VoidRegionImage
@@ -218,7 +224,7 @@ class MemoryMapDiagram:
 
         if not region_subset_list:
             # no spaces were found in the diagram to be above the void threshold
-            self.final_image_reduced = original_img.rotate(180)
+            self.final_image_reduced = original_img
 
         else:
             # calculate the new reduced diagram image height plus some padding
@@ -231,42 +237,53 @@ class MemoryMapDiagram:
             # now create the new image alternating the region subsets and void regions
             new_cropped_image = PIL.Image.new(
                 "RGB", 
-                (Diagram.model.diagram_width, new_cropped_height), 
+                (self.width, new_cropped_height), 
                 color=mm.diagram.Diagram.model.diagram_bgcolour)
+                # color="yellow")
             
             y_pos = 0
             for region_subset in region_subset_list:
                 new_cropped_image.paste(region_subset, (0, y_pos))
                 y_pos = y_pos + region_subset.height
 
-                new_cropped_image.paste(self.voidregion.img, (10, y_pos))
+                new_cropped_image.paste(
+                    self.voidregion.img, 
+                    # ((new_cropped_image.width - self.voidregion.img.width) // 2, y_pos)
+    
+                    (((new_cropped_image.width - self._legend_width - self.voidregion.img.width) // 2) + self._legend_width, y_pos)
+                )
                 y_pos = y_pos + self.voidregion.img.height
 
             # Diagram End Address Text
             new_cropped_image.paste(
                 self.top_addr_lbl.img,
-                (0, new_cropped_image.height - self.top_addr_lbl.height - 10),
+                (5, new_cropped_image.height - self.top_addr_lbl.height - 10),
             )
 
             # Diagram End Dash Line
             line_canvas = PIL.ImageDraw.Draw(new_cropped_image)
-            for x in range(self.top_addr_lbl.width * 2, Diagram.model.diagram_width - 10, MemoryMapDiagram.DashedLine.gap):
+            for x in range(
+                self.top_addr_lbl.width + 10, 
+                self._legend_width, 
+                MemoryMapDiagram.DashedLine.gap):
                 line_canvas.line(
                     (
                         x,
-                        new_cropped_image.height - self.top_addr_lbl.height - 3,
+                        new_cropped_image.height - self.top_addr_lbl.height - 5,
                         x + MemoryMapDiagram.DashedLine.len,
-                        new_cropped_image.height - self.top_addr_lbl.height - 3,
+                        new_cropped_image.height - self.top_addr_lbl.height - 5,
                     ),
                     fill="black",
                     width=MemoryMapDiagram.DashedLine.width,
                 )
 
-            # TODO disable save and store in class instance variable
-            self.final_image_reduced = new_cropped_image.rotate(180)
+            self.final_image_reduced = new_cropped_image
+
+        self.final_image_reduced = self.final_image_reduced.rotate(180)
 
     def _create_markdown(self, region_list: List[mm.image.MemoryRegionImage]):
-        """Create markdown doc containing the diagram image and text-base summary table"""
+        """Create markdown doc containing the diagram image """
+        """and text-base summary table"""
         with open(Diagram.pargs.out, "w") as f:
             f.write(f"""![memory map diagram]({pathlib.Path(Diagram.pargs.out).stem}.png)\n""")
             f.write("|name|origin|size|free Space|collisions\n")
@@ -305,23 +322,43 @@ class Diagram:
         self._validate_pargs()
         Diagram.model = self._create_model()
 
+        for mmap_name, mmap in Diagram.model.memory_maps.items():
+            self.mmd_list.append(MemoryMapDiagram({mmap_name: mmap}))
+            pass
+
         self._draw_full_img_diagram()
         self._draw_reduced_img_diagram()
 
     def _draw_full_img_diagram(self):
 
-        for mmap_name, mmap in Diagram.model.memory_maps.items():
-            self.mmd_list.append(MemoryMapDiagram({mmap_name: mmap}))
 
         full_diagram_img = PIL.Image.new(
             "RGB", 
             (Diagram.model.diagram_width, Diagram.model.diagram_height), 
             color=mm.diagram.Diagram.model.diagram_bgcolour)
         
-        for mmd in self.mmd_list:
+        for idx, mmd in enumerate(self.mmd_list):
             full_diagram_img.paste(
                 mmd.final_image_full, 
-                (0, 0))
+                (idx * mmd.width, 0))
+            
+        # Top address text for the whole diagram
+        line_canvas = PIL.ImageDraw.Draw(full_diagram_img)
+        top_addr = Diagram.model.diagram_height
+        top_addr_lbl = mm.image.TextLabelImage(hex(top_addr), mmd.fixed_legend_text_size)
+        full_diagram_img = full_diagram_img.rotate(180)
+        full_diagram_img.paste(top_addr_lbl.img, (5, top_addr - top_addr_lbl.height - 5))
+        full_diagram_img = full_diagram_img.rotate(180)
+
+        for x in range(
+            top_addr_lbl.width, 
+            mmd.width, 
+            MemoryMapDiagram.DashedLine.gap):
+            line_canvas.line(
+                (x, top_addr - 7, x + MemoryMapDiagram.DashedLine.len, top_addr - 7),
+                fill="black",
+                width=MemoryMapDiagram.DashedLine.width,
+            )
 
         img_file_path = pathlib.Path(Diagram.pargs.out).stem + "_full.png"
         full_diagram_img.save(pathlib.Path(Diagram.pargs.out).parent / img_file_path)
@@ -330,24 +367,33 @@ class Diagram:
 
         # the original dimension may have shrunk for the 
         # reduced mm diagram due to void region cropping
-        max_reduced_diagram_height = Diagram.model.diagram_height
-        max_reduced_diagram_width = Diagram.model.diagram_width
-        for mmd in self.mmd_list:
-            if mmd.final_image_reduced.height < max_reduced_diagram_height:
-                max_reduced_diagram_height = mmd.final_image_reduced.height
-            if mmd.final_image_reduced.width < max_reduced_diagram_width:
-                max_reduced_diagram_width = mmd.final_image_reduced.width
-
+        # TODO restore original
+        self.mmd_list.sort(key=lambda x: x.final_image_reduced.height, reverse=True)
+        max_reduced_diagram_height = self.mmd_list[0].final_image_reduced.height
+ 
+        if self.mmd_list[0].final_image_reduced.height > Diagram.model.diagram_height:
+            logging.warning(f"The largest reduced memory map exceeds the overal diagram height. Clamping to {Diagram.model.diagram_height}")
+            self.mmd_list[0].final_image_reduced.height = Diagram.model.diagram_height
+ 
         reduced_diagram_img = PIL.Image.new(
             "RGB", 
-            (max_reduced_diagram_width, max_reduced_diagram_height), 
+            (Diagram.model.diagram_width, max_reduced_diagram_height), 
             color=mm.diagram.Diagram.model.diagram_bgcolour)
         
-        for mmd in self.mmd_list:
+        # maps have been cropped to potentially different sizes. To ensure they 
+        # line up at zero on the y-axis we rotate each one 180 deg before pasting 
+        # them into the main diagram image. We then need to rotate the main image
+        # back 180 deg. Because of this the legend positions are now incorrectly 
+        # mirrored on the y-axis, so we need to subtract their x-axis positions 
+        # from the main diagram image width(!)
+        for idx, mmd in enumerate(self.mmd_list):
+            mmd.final_image_reduced = mmd.final_image_reduced.rotate(180)
             reduced_diagram_img.paste(
                 mmd.final_image_reduced, 
-                (0, 0))
+                ( (idx * mmd.width), 0))
+            
 
+        reduced_diagram_img = reduced_diagram_img.rotate(180)
         img_file_path = pathlib.Path(Diagram.pargs.out).stem + "_cropped.png"
         reduced_diagram_img.save(pathlib.Path(Diagram.pargs.out).parent / img_file_path)
 
@@ -415,38 +461,45 @@ class Diagram:
         # check data point cardinality
         if len(sys.argv) == 1:
             raise SystemExit("must pass in data points")
-        if len(Diagram.pargs.regions) % 3:
-            raise SystemExit("command line input data should be in multiples of three") 
+        if not Diagram.pargs.file:
+            if len(Diagram.pargs.regions) % 3:
+                raise SystemExit("command line input data should be in multiples of three") 
+        else:
+            assert pathlib.Path(Diagram.pargs.file).resolve().exists()
 
     def _create_model(self) -> mm.metamodel.Diagram:
-        # TODO implement multi- memory map support (only single mm for now)
-
-        # Create the minimal empty dict 
-        inputdict = {
-            "$schema": "../../mm/schema.json",
-            "diagram_name": "testd",
-            "diagram_height": int(Diagram.pargs.limit,16) * Diagram.pargs.scale,
-            "diagram_width": 400 * Diagram.pargs.scale,
-            "memory_maps": { 
-                "testmm": { 
-                    "map_height": int(Diagram.pargs.limit,16) * Diagram.pargs.scale,
-                    "map_width": 400 * Diagram.pargs.scale,
-                    "memory_regions": { } # regions added below
+        
+        if Diagram.pargs.file:
+            with pathlib.Path(Diagram.pargs.file).resolve().open("r") as fp:
+                inputdict = json.load(fp)
+        else:
+                
+            # command line parameters only support one memory map per diagram
+            inputdict = {
+                "$schema": "../../mm/schema.json",
+                "diagram_name": "testd",
+                "diagram_height": int(Diagram.pargs.limit,16) * Diagram.pargs.scale,
+                "diagram_width": 400 * Diagram.pargs.scale,
+                "memory_maps": { 
+                    "singlemm": { 
+                        "map_height": int(Diagram.pargs.limit,16) * Diagram.pargs.scale,
+                        "map_width": 400 * Diagram.pargs.scale,
+                        "memory_regions": { } # regions added below
+                    }
                 }
             }
-        }
 
-        # start adding mem regions from the command line arg
-        for datatuple in self._batched(Diagram.pargs.regions, 3):
-            # prevent overwriting duplicates
-            if datatuple[0] in inputdict['memory_maps']['testmm']['memory_regions']:
-                logging.warning(f"{str(datatuple[0])} already exists. Skipping {str(datatuple)}.")
-                continue
+            # start adding mem regions from the command line arg
+            for datatuple in self._batched(Diagram.pargs.regions, 3):
+                # prevent overwriting duplicates
+                if datatuple[0] in inputdict['memory_maps']['singlemm']['memory_regions']:
+                    logging.warning(f"{str(datatuple[0])} already exists. Skipping {str(datatuple)}.")
+                    continue
 
-            inputdict['memory_maps']['testmm']['memory_regions'][datatuple[0]] = {
-                    "memory_region_origin": datatuple[1],
-                    "memory_region_size": datatuple[2]
-                }
+                inputdict['memory_maps']['singlemm']['memory_regions'][datatuple[0]] = {
+                        "memory_region_origin": datatuple[1],
+                        "memory_region_size": datatuple[2]
+                    }
             
         return mm.metamodel.Diagram(**inputdict)
 
