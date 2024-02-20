@@ -73,11 +73,11 @@ class MemoryMap(ConfigParent):
     ]
     map_height: Annotated[
         int,
-        pydantic.Field(..., description="The height of the memory map.")
+        pydantic.Field(..., description="Internal Use. This will be automically adjusted depending on the diagram size and number of memory maps.")
     ]
     map_width: Annotated[
         int,
-        pydantic.Field(..., description="The width of the memory map.")
+        pydantic.Field(..., description="Internal Use. This will be automically adjusted depending on the diagram size and number of memory maps.")
     ]
 
 class Diagram(ConfigParent):
@@ -143,7 +143,20 @@ class Diagram(ConfigParent):
                 f"Child MemoryRegion '{region_link_child_memregion}' in {regionlink['link']} is a dangling reference!"
 
         return v
-    
+
+    @pydantic.model_validator(mode="after")
+    def resize_memory_maps_to_fit_diagram_width(self):
+        """ Resize the multiple memory maps to fit within the diagram"""
+        if len(self.memory_maps) == 1:
+            return self
+        else:
+            new_memory_map_width = self.diagram_width / len(self.memory_maps) 
+            new_memory_map_width - 10 # allow for some extra space
+            for memory_map in self.memory_maps.values():
+                memory_map.map_width = new_memory_map_width
+        
+            return self
+
     @pydantic.model_validator(mode="after")
     def calc_nearest_region(self):
         """Find the nearest neighbour region and if they have collided"""
