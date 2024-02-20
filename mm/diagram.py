@@ -264,7 +264,7 @@ class MemoryMapDiagram:
         """Create markdown doc containing the diagram image and text-base summary table"""
         with open(Diagram.pargs.out, "w") as f:
             f.write(f"""![memory map diagram]({pathlib.Path(Diagram.pargs.out).stem}.png)\n""")
-            f.write("|name|origin|size|remaining|collisions\n")
+            f.write("|name|origin|size|free Space|collisions\n")
             f.write("|:-|:-|:-|:-|:-|\n")
             for memregion in region_list:
                 f.write(f"{memregion}\n")
@@ -277,7 +277,7 @@ class MemoryMapDiagram:
 
         table: PIL.Image.Image = mm.types.Table().draw_table(
             table=table_data,
-            header=["Name", "Origin", "Size", "Remains", "Collisions"],
+            header=["Name", "Origin", "Size", "Free Space", "Collisions"],
             font=PIL.ImageFont.load_default(self.table_text_size),
             stock=True,
             colors={"red": "green", "green": "red"},
