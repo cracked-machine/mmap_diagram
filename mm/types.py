@@ -168,8 +168,6 @@ class VoidRegionImage():
         self.img: PIL.Image = None
         self.size_as_hex: str = 40
 
-        # super().__init__("None", self.name, "0x0", size)
-
     def create_img(self, img_width: int, font_size: int):
 
         logging.info(self)
@@ -187,7 +185,6 @@ class VoidRegionImage():
         )
 
         # draw name text
-        region_w, region_h = self.img.size
         txt_img = TextLabelImage(text=self.name, font_size=font_size).img
         self.img.paste(
             txt_img,
