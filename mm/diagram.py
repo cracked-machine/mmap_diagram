@@ -127,7 +127,7 @@ class MemoryMapDiagram:
                 continue
             new_diagram_img.paste(
                 memregion.img,
-                ((((self.width - memregion.draw_indent - self._legend_width) - memregion.img.width) // 2) + self._legend_width, 
+                ((((self.width + memregion.draw_indent - self._legend_width) - memregion.img.width) // 2) + self._legend_width, 
                  int(memregion.origin_as_hex,16)),
                 memregion.img,
             )
