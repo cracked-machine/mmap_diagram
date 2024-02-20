@@ -46,9 +46,6 @@ class MemoryMapDiagram:
         self.fixed_legend_text_size = 12
         """Fixed size for legend text"""
 
-        self.table_text_size = 15
-        """Fixed size for table text"""
-
         self.voidthreshold: int = int(Diagram.pargs.voidthreshold, 16)
         """Void space threshold for adding VoidRegionImage objs"""
 
@@ -80,7 +77,7 @@ class MemoryMapDiagram:
 
         self.image_list = self._create_image_list(memory_map_metadata)
         self._create_markdown(self.image_list)
-        self._create_table_image(self.image_list)
+        # self._create_table_image(self.image_list)
 
     def _create_image_list(self, memory_map_metadata: Dict[str, mm.metamodel.MemoryMap]) -> List[mm.image.MemoryRegionImage]:
         
@@ -291,27 +288,9 @@ class MemoryMapDiagram:
             for memregion in region_list:
                 f.write(f"{memregion}\n")
 
-    def _create_table_image(self, region_list: List[mm.image.MemoryRegionImage]):
-        """Create a png image of the summary table"""
-        table_data = []
-        for memregion in reversed(region_list):
-            table_data.append(memregion.get_data_as_list())
-
-        table: PIL.Image.Image = mm.image.Table().draw_table(
-            table=table_data,
-            header=["Name", "Origin", "Size", "Free Space", "Collisions"],
-            font=PIL.ImageFont.load_default(self.table_text_size),
-            stock=True,
-            colors={"red": "green", "green": "red"},
-        )
-
-        # TODO disable save and store in class instance variable
-        tableimg_file_path = pathlib.Path(Diagram.pargs.out).stem + "_table.png"
-        table.save(pathlib.Path(Diagram.pargs.out).parent / tableimg_file_path)
-
 class Diagram:
     pargs: argparse.Namespace = None
-    
+    model = None
 
     def __init__(self):
 
@@ -328,6 +307,8 @@ class Diagram:
 
         self._draw_full_img_diagram()
         self._draw_reduced_img_diagram()
+        self._create_table_image(self.mmd_list)
+        
 
     def _draw_full_img_diagram(self):
 
@@ -396,6 +377,28 @@ class Diagram:
         reduced_diagram_img = reduced_diagram_img.rotate(180)
         img_file_path = pathlib.Path(Diagram.pargs.out).stem + "_cropped.png"
         reduced_diagram_img.save(pathlib.Path(Diagram.pargs.out).parent / img_file_path)
+
+    def _create_table_image(self, mmd_list: List[MemoryMapDiagram]):
+        """Create a png image of the summary table"""
+
+        table_text_size = 15
+        """Fixed size for table text"""
+        table_data = []
+        
+        for region_map_list in mmd_list:
+            for memregion in (region_map_list.image_list):
+                table_data.append(memregion.get_data_as_list())
+
+        table: PIL.Image.Image = mm.image.Table().draw_table(
+            table=table_data,
+            header=["Name", "Origin", "Size", "Free Space", "Collisions"],
+            font=PIL.ImageFont.load_default(table_text_size),
+            stock=True,
+            colors={"red": "green", "green": "red"},
+        )
+
+        tableimg_file_path = pathlib.Path(Diagram.pargs.out).stem + "_table.png"
+        table.save(pathlib.Path(Diagram.pargs.out).parent / tableimg_file_path)
 
     def _parse_args(self):
         """Setup the command line interface"""
