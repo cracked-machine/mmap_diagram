@@ -255,6 +255,45 @@ class TextLabelImage:
         self.img = self.img.rotate(180)
 
 
+@typeguard.typechecked
+class ArrowBlock:
+    def __init__(self, size: int = 20, line: str = "black", fill: str = "white"):
+
+        # draw an arrow in the unit square (4px by 4px)
+        w = 4 * size
+        h = 4 * size
+
+        self.arrow_layer = PIL.Image.new("RGBA", (w + 1, h + 1))        
+        arrow_draw = PIL.ImageDraw.Draw(self.arrow_layer)
+        arrow_draw.polygon(
+            [
+                (0, h//4), (w//2, h//4), (w//2, 0), (w, h//2),
+                (w//2, h), (w//2, h//2 + h//4), (0, h//2 + h//4)
+            ], 
+            fill=fill, 
+            outline=line, 
+            width=2)
+
+    def apply_alpha(
+            self, 
+            dest: PIL.Image.Image, 
+            pos: Tuple[int,int] = (0,0), 
+            alpha: int = 255):
+        
+
+        mask_layer = PIL.Image.new('RGBA', dest.size, (0,0,0,0))
+        mask_layer.paste(self.arrow_layer, pos)
+
+        # from PIL.Image import Transform
+        # mask_layer = mask_layer.transform(dest.size, Transform.AFFINE, (1, 0.5, -100, 1, 1, -100))
+        
+        alpha_layer = mask_layer.copy()
+        alpha_layer.putalpha(alpha)
+        
+        mask_layer.paste(alpha_layer, mask_layer)
+        
+        return PIL.Image.alpha_composite(dest, mask_layer)
+
 class Table:
 
     def _position_tuple(self, *args):
