@@ -83,10 +83,10 @@ class MemoryMapDiagram:
         image_list: List[mm.image.MemoryRegionImage] = []
     
         mmap_name = next(iter(memory_map_metadata))
-        for region_name in memory_map_metadata[mmap_name].memory_regions.keys():
+        for region_name, region in memory_map_metadata.get(mmap_name).memory_regions.items():
             new_mr_image = mm.image.MemoryRegionImage(
-                mmap_name,
-                region_name
+                region_name,
+                region
             )
             image_list.append(new_mr_image)
             
@@ -115,7 +115,7 @@ class MemoryMapDiagram:
             "RGB", 
             (self.width, 
              self.height), 
-            color=mm.diagram.Diagram.model.diagram_bgcolour)
+            color=Diagram.model.diagram_bgcolour)
         
         # paste each new graphic element image to main image
         for memregion in image_list:
@@ -233,7 +233,7 @@ class MemoryMapDiagram:
             new_cropped_image = PIL.Image.new(
                 "RGB", 
                 (self.width, new_cropped_height), 
-                color=mm.diagram.Diagram.model.diagram_bgcolour)
+                color=Diagram.model.diagram_bgcolour)
             
             y_pos = 0
             for region_subset in region_subset_list:
@@ -276,6 +276,7 @@ class MemoryMapDiagram:
         self.final_image_reduced = self.final_image_reduced.rotate(180)
 
 class Diagram:
+    # somehow pytest can see these 
     pargs: argparse.Namespace = None
     model = None
 
@@ -303,7 +304,7 @@ class Diagram:
         full_diagram_img = PIL.Image.new(
             "RGB", 
             (Diagram.model.diagram_width, Diagram.model.diagram_height), 
-            color=mm.diagram.Diagram.model.diagram_bgcolour)
+            color=Diagram.model.diagram_bgcolour)
         
         for idx, mmd in enumerate(self.mmd_list):
             full_diagram_img.paste(
@@ -344,9 +345,9 @@ class Diagram:
             self.mmd_list[0].final_image_reduced.height = Diagram.model.diagram_height
  
         reduced_diagram_img = PIL.Image.new(
-            "RGB", 
+            "RGBA", 
             (Diagram.model.diagram_width, max_reduced_diagram_height), 
-            color=mm.diagram.Diagram.model.diagram_bgcolour)
+            color=Diagram.model.diagram_bgcolour)
         
         # maps have been cropped to potentially different sizes. To ensure they 
         # line up at zero on the y-axis we rotate each one 180 deg before pasting 
@@ -362,6 +363,7 @@ class Diagram:
             
 
         reduced_diagram_img = reduced_diagram_img.rotate(180)
+        
         img_file_path = pathlib.Path(Diagram.pargs.out).stem + "_cropped.png"
         reduced_diagram_img.save(pathlib.Path(Diagram.pargs.out).parent / img_file_path)
 

@@ -4,10 +4,8 @@ import PIL.Image
 import PIL.ImageDraw
 import PIL.ImageColor
 import PIL.ImageFont
-from typing import List, Dict
+from typing import List, Dict, Tuple
 import logging
-
-import mm.diagram 
 import mm.metamodel
 
 @typeguard.typechecked
@@ -16,13 +14,13 @@ class RegionImage:
     """Copy of the PIL colour string map, we remove colours until all are gone.
     Therefore avoiding random picking of duplicate colours"""
 
-    def __init__(self, parent: str, name: str):
-
-        self.parent: str = parent
-        """The name of the mm.metamodel.MemoryMap parent of this region"""
+    def __init__(self, name: str, metadata: mm.metamodel.MemoryRegion):
 
         self.name: str = name
         """region name"""
+
+        self.metadata: mm.metamodel.MemoryRegion = metadata
+        """instance of the pydantic metamodel class for this specific memory region"""
 
         self.colour = self._pick_available_colour()
         """random colour for region block"""
@@ -43,43 +41,45 @@ class RegionImage:
     @property
     def origin_as_hex(self):
         """ lookup memory_region_origin from metamodel  """
-        return hex(mm.diagram.Diagram.model.memory_maps[self.parent].memory_regions[self.name].memory_region_origin)
+        return hex(self.metadata.memory_region_origin)
 
     @property
     def size_as_hex(self):
         """ lookup memory_region_size from metamodel  """
-        return hex(mm.diagram.Diagram.model.memory_maps[self.parent].memory_regions[self.name].memory_region_size)
+        return hex(self.metadata.memory_region_size)
 
     @property
     def freespace_as_hex(self):
         """ lookup memory_region freespace from metamodel  """
-        return hex(mm.diagram.Diagram.model.memory_maps[self.parent].memory_regions[self.name].freespace)
+        return hex(self.metadata.freespace)
 
     @property
     def origin_as_int(self):
         """ lookup memory_region_origin from metamodel  """
-        return mm.diagram.Diagram.model.memory_maps[self.parent].memory_regions[self.name].memory_region_origin
+        return self.metadata.memory_region_origin
 
     @property
     def size_as_int(self):
         """ lookup memory_region_size from metamodel  """
-        return mm.diagram.Diagram.model.memory_maps[self.parent].memory_regions[self.name].memory_region_size
+        return self.metadata.memory_region_size
 
     @property
     def freespace_as_int(self):
         """ lookup memory_region freespace from metamodel  """
-        return mm.diagram.Diagram.model.memory_maps[self.parent].memory_regions[self.name].freespace
+        return self.metadata.freespace
 
 
     @property
     def collisions(self):
         """ lookup memory_region collision from metamodel  """
-        return mm.diagram.Diagram.model.memory_maps[self.parent].memory_regions[self.name].collisions
+        from mm.diagram import Diagram
+        return self.metadata.collisions
 
     @property
     def collisions_as_hex(self):
         """ lookup memory_region collision from metamodel  """
-        d = mm.diagram.Diagram.model.memory_maps[self.parent].memory_regions[self.name].collisions.copy()
+        from mm.diagram import Diagram
+        d = self.metadata.collisions.copy()
         for k, v in d.items(): d[k] = hex(v)
         return d
 
@@ -222,8 +222,8 @@ class TextLabelImage:
         self.height = bottom
         """The label height"""
 
-        # self.bgcolour = "oldlace"
-        # """The background colour to use for the region text label"""
+        self.bgcolour = "oldlace"
+        """The background colour to use for the region text label"""
 
         self.fgcolour = "black"
         """The foreground colour to use for the region text label"""
@@ -239,7 +239,7 @@ class TextLabelImage:
         self.img = PIL.Image.new(
             "RGB", 
             (self.width, (self.height)), 
-            color=mm.diagram.Diagram.model.diagram_bgcolour)
+            color=self.bgcolour)
         
         canvas = PIL.ImageDraw.Draw(self.img)
         # center the text in the oversized image, bias the y-pos by 1/5

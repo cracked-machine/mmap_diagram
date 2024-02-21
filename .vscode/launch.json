@@ -9,10 +9,9 @@
             "console": "integratedTerminal",
             "module": "mm.diagram",
             "args": [
-                "kernel", "0x10", "0x10",
-                "rootfs", "0x40", "0xDD",
-                "dtb", "0xCC", "0xCC",
-                "-o", "doc/example/report.md"
+                "-f", "doc/example/input.json",
+                "-l", "0x3e8",
+                "-v", "0x1f4"
             ],
             "justMyCode": false
         },
