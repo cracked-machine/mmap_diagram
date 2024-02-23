@@ -26,7 +26,6 @@ formatter = logging.Formatter("%(levelname)s - %(message)s")
 handler.setFormatter(formatter)
 root.addHandler(handler)
 
-
 @typeguard.typechecked
 class MemoryMapDiagram:
 
@@ -37,9 +36,6 @@ class MemoryMapDiagram:
 
     def __init__(self, memory_map_metadata: Dict[str, mm.metamodel.MemoryMap]):
 
-        # self.bgcolour = "oldlace"
-        # """background colour for diagram"""
-
         self.default_region_text_size: int = 12
         """Default size for memregion text"""
 
@@ -48,7 +44,6 @@ class MemoryMapDiagram:
 
         self.voidthreshold: int = int(Diagram.pargs.voidthreshold, 16)
         """Void space threshold for adding VoidRegionImage objs"""
-
 
         self.top_addr_lbl = mm.image.TextLabelImage(hex(Diagram.model.diagram_height), self.fixed_legend_text_size)
         """Make sure this is created after rescale"""
@@ -68,12 +63,10 @@ class MemoryMapDiagram:
         self._legend_width = legend_width_pixels
         """width of the area used for text annotations/legend"""
 
-        self.voidregion = mm.image.VoidRegionImage()
-        """The reusable object used to represent the void regions in the memory map"""
-        self.voidregion.create_img(
+        self.voidregion = mm.image.VoidRegionImage(
             img_width=(self.width - self._legend_width - (self.width//5)), 
             font_size=self.default_region_text_size)
-       
+        """The reusable object used to represent the void regions in the memory map"""       
 
         self.image_list = self._create_image_list(memory_map_metadata)
 
@@ -86,11 +79,12 @@ class MemoryMapDiagram:
         for region_name, region in memory_map_metadata.get(mmap_name).memory_regions.items():
             new_mr_image = mm.image.MemoryRegionImage(
                 region_name,
-                region
+                region,
+                img_width=(self.width - self._legend_width - (self.width//5)),
+                font_size=self.default_region_text_size
             )
             image_list.append(new_mr_image)
             
-
         # assign the draw indent by ascending origin
         image_list.sort(key=lambda x: x.origin_as_int, reverse=False)
         region_indent = 0
@@ -102,34 +96,30 @@ class MemoryMapDiagram:
         # smaller in foreground, larger in background
         image_list.sort(key=lambda x: x.size_as_int, reverse=True)
         
-
-        self._draw_image_list(image_list)
+        self._draw(image_list)
 
         return image_list
     
-    def _draw_image_list(
+    def _draw(
             self, 
             image_list: List[mm.image.MemoryRegionImage]):
         
         new_diagram_img = PIL.Image.new(
-            "RGB", 
+            "RGBA", 
             (self.width, 
              self.height), 
             color=Diagram.model.diagram_bgcolour)
         
         # paste each new graphic element image to main image
         for memregion in image_list:
-            memregion.create_img(
-                img_width=(self.width - self._legend_width - (self.width//5)),
-                font_size=self.default_region_text_size,
-            )
             if not memregion.img:
                 continue
-            new_diagram_img.paste(
-                memregion.img,
-                ((((self.width + memregion.draw_indent - self._legend_width) - memregion.img.width) // 2) + self._legend_width, 
+
+            new_diagram_img = memregion.overlay(
+                dest=new_diagram_img, 
+                pos=((((self.width + memregion.draw_indent - self._legend_width) - memregion.img.width) // 2) + self._legend_width, 
                  int(memregion.origin_as_hex,16)),
-                memregion.img,
+                alpha=255
             )
 
             # End address text for this memory region
@@ -179,21 +169,19 @@ class MemoryMapDiagram:
                     width=1,
                 )
 
-
-
-        self._insert_void_regions(new_diagram_img, image_list)
+        self._defrag(new_diagram_img, image_list)
 
         # rotate the entire diagram so the origin is at the bottom
         self.final_image_full = new_diagram_img.rotate(180)
 
-    def _insert_void_regions(
+    def _defrag(
             self, 
             original_img: PIL.Image.Image, 
             memregion_list: List[mm.image.MemoryRegionImage]):
         """Remove large empty spaces and replace them with fixed size VoidRegionImage objects.
-        This function actually chops up the existing diagram image into smaller images containing
-        only MemoryRegions. It then pastes the smaller image into a new image, inserting VoidRegionImage
-        images inbetween"""
+        This function actually chops up the existing diagram image into smaller images containing only
+        contiguous MemoryRegions. It then pastes these image groups into a new image, inserting VoidRegionImage
+        images inbetween to represent the removed empty spaces"""
 
         # find the large empty spaces in the memory map
         region_subset_list: List[PIL.Image.Image] = []
@@ -231,21 +219,22 @@ class MemoryMapDiagram:
 
             # now create the new image alternating the region subsets and void regions
             new_cropped_image = PIL.Image.new(
-                "RGB", 
+                "RGBA", 
                 (self.width, new_cropped_height), 
                 color=Diagram.model.diagram_bgcolour)
             
             y_pos = 0
             for region_subset in region_subset_list:
+                
                 new_cropped_image.paste(region_subset, (0, y_pos))
+                
                 y_pos = y_pos + region_subset.height
 
                 new_cropped_image.paste(
-                    self.voidregion.img, 
-                    # ((new_cropped_image.width - self.voidregion.img.width) // 2, y_pos)
-    
+                    self.voidregion.img,     
                     (((new_cropped_image.width - self._legend_width - self.voidregion.img.width) // 2) + self._legend_width, y_pos)
                 )
+
                 y_pos = y_pos + self.voidregion.img.height
 
             # Diagram End Address Text
@@ -281,6 +270,7 @@ class Diagram:
     model = None
 
     def __init__(self):
+        self.arrow_img = mm.image.ArrowBlock(fill="red")
 
         self.mmd_list: List[MemoryMapDiagram] = []
         """ instances of the memory map diagram"""
@@ -363,6 +353,8 @@ class Diagram:
             
 
         reduced_diagram_img = reduced_diagram_img.rotate(180)
+
+        reduced_diagram_img= self.arrow_img.overlay(reduced_diagram_img, alpha=128)
         
         img_file_path = pathlib.Path(Diagram.pargs.out).stem + "_cropped.png"
         reduced_diagram_img.save(pathlib.Path(Diagram.pargs.out).parent / img_file_path)

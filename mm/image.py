@@ -9,34 +9,84 @@ import logging
 import mm.metamodel
 
 @typeguard.typechecked
-class RegionImage:
-    _remaining_colours: Dict = PIL.ImageColor.colormap.copy()
-    """Copy of the PIL colour string map, we remove colours until all are gone.
-    Therefore avoiding random picking of duplicate colours"""
+class Image():
 
-    def __init__(self, name: str, metadata: mm.metamodel.MemoryRegion):
+    _colours: Dict = PIL.ImageColor.colormap.copy()
+    """Copy of the PIL colour string map"""
+
+    @classmethod
+    def init(cls):
+        # remove any duplicate colour values from the dict
+        temp = {val: key for key, val in Image._colours.items()}
+        Image._colours = {val: key for key, val in temp.items()}       
+
+    def __init__(self, name: str):
+        Image.init()
+
+        self.img: PIL.Image.Image
 
         self.name: str = name
         """region name"""
 
+        self.line = "black"
+        """The border colour to use for the region"""
+
+        self.fill = self._pick_available_colour()
+        """random colour for region block"""
+
+    def _draw(self, **kwargs):
+        raise NotImplementedError
+
+    def overlay(self, dest: PIL.Image.Image, pos: Tuple[int,int] = (0,0), alpha: int = 255) -> PIL.Image.Image:
+        """Overlay this image onto the dest image. Return the composite image"""        
+
+        mask_layer = PIL.Image.new('RGBA', dest.size, (0,0,0,0))
+        mask_layer.paste(self.img, pos)
+
+        # from PIL.Image import Transform
+        # mask_layer = mask_layer.transform(dest.size, Transform.AFFINE, (1, 0.5, -100, 1, 1, -100))
+        
+        alpha_layer = mask_layer.copy()
+        alpha_layer.putalpha(alpha)
+        
+        mask_layer.paste(alpha_layer, mask_layer)
+        
+        return PIL.Image.alpha_composite(dest, mask_layer)
+    
+    def _pick_available_colour(self) -> str:
+        """Pick a random colour from the  remove the picked colour from the list so it can't be picked again"""
+        try:
+            logging.debug(f"{self.name}:")
+            # make sure we don't pick a colour that is too bright.
+            # A0A0A0 was arbitrarily decided to be "too bright" :)
+            chosen_colour_name, chosen_colour_code = random.choice(list(Image._colours.items()))
+            while int(chosen_colour_code[1:], 16) > int("A0A0A0", 16):
+                logging.debug(f"\tRejected {chosen_colour_name}({chosen_colour_code})")
+                # del Image._colours[chosen_colour_name]
+                chosen_colour_name, chosen_colour_code = random.choice(list(Image._colours.items()))
+
+            # del Image._colours[chosen_colour_name]
+            logging.debug(f"\tSelected {chosen_colour_name}({chosen_colour_code})")
+        except (IndexError, KeyError):
+            logging.critical("Ran out of colours!")
+            raise SystemExit()
+        logging.debug(f"\t### {len(Image._colours)} colours left ###")
+        return chosen_colour_name
+
+@typeguard.typechecked
+class MemoryRegionImage(Image):
+
+    def __init__(self, name: str, metadata: mm.metamodel.MemoryRegion, img_width: int, font_size: int):
+
+        super().__init__(name)
+
         self.metadata: mm.metamodel.MemoryRegion = metadata
         """instance of the pydantic metamodel class for this specific memory region"""
 
-        self.colour = self._pick_available_colour()
-        """random colour for region block"""
-
-        self.bordercolour = "black"
-        """The border colour to use for the region"""
-
         self.draw_indent = 0
         """Index counter for incrementally shrinking the drawing indent"""
-
-        self.img: PIL.Image.Image
-
-        # both 'lightslategray' and 'lightslategrey' are the same colour
-        # and we don't want duplicate colours in our diagram
-        if "lightslategray" in MemoryRegionImage._remaining_colours:
-            del MemoryRegionImage._remaining_colours["lightslategray"]
+        
+        self._draw(img_width, font_size)
 
     @property
     def origin_as_hex(self):
@@ -83,35 +133,11 @@ class RegionImage:
         for k, v in d.items(): d[k] = hex(v)
         return d
 
-
-    def _pick_available_colour(self):
-        # remove the picked colour from the list so it can't be picked again
-        try:
-            logging.debug(f"{self.name}:")
-            # make sure we don't pick a colour that is too bright.
-            # A0A0A0 was arbitrarily decided to be "too bright" :)
-            chosen_colour_name, chosen_colour_code = random.choice(list(MemoryRegionImage._remaining_colours.items()))
-            while int(chosen_colour_code[1:], 16) > int("A0A0A0", 16):
-                logging.debug(f"\tRejected {chosen_colour_name}({chosen_colour_code})")
-                # del MemoryRegionImage._remaining_colours[chosen_colour_name]
-                chosen_colour_name, chosen_colour_code = random.choice(list(MemoryRegionImage._remaining_colours.items()))
-
-            # del MemoryRegionImage._remaining_colours[chosen_colour_name]
-            logging.debug(f"\tSelected {chosen_colour_name}({chosen_colour_code})")
-        except (IndexError, KeyError):
-            logging.critical("Ran out of colours!")
-            raise SystemExit()
-        logging.debug(f"\t### {len(MemoryRegionImage._remaining_colours)} colours left ###")
-        return chosen_colour_name
-
-@typeguard.typechecked
-class MemoryRegionImage(RegionImage):
-
     def __str__(self):
         return (
             "|"
             + "<span style='color:"
-            + str(self.colour)
+            + str(self.fill)
             + "'>"
             + str(self.name)
             + "</span>|"
@@ -144,7 +170,7 @@ class MemoryRegionImage(RegionImage):
                 "+" + str(None),
             ]
 
-    def create_img(self, img_width: int, font_size: int):
+    def _draw(self, img_width: int, font_size: int):
 
         logging.info(self)
         if not self.size_as_hex:
@@ -158,8 +184,8 @@ class MemoryRegionImage(RegionImage):
         # height is -1 to avoid clipping the top border
         self.region_canvas.rectangle(
             (0, 0, img_width - 1, int(self.size_as_hex,16) - 1),
-            fill=self.colour,
-            outline=self.bordercolour,
+            fill=self.fill,
+            outline=self.line,
             width=1,
         )
 
@@ -172,15 +198,15 @@ class MemoryRegionImage(RegionImage):
         self.img = region_img
 
 @typeguard.typechecked
-class VoidRegionImage():
+class VoidRegionImage(Image):
 
-    def __init__(self):
-
-        self.name: str = "~ SKIPPED ~"
-        self.img: PIL.Image.Image = None
+    def __init__(self, img_width: int, font_size: int):
+        super().__init__(name="~ SKIPPED ~")
+        
         self.size_as_hex: str = 40
+        self._draw(img_width, font_size)
 
-    def create_img(self, img_width: int, font_size: int):
+    def _draw(self, img_width: int, font_size: int):
 
         logging.info(self)
 
@@ -205,15 +231,14 @@ class VoidRegionImage():
 
 
 @typeguard.typechecked
-class TextLabelImage:
+class TextLabelImage(Image):
     def __init__(self, text: str, font_size: int):
-        self.text = text
-        """The display label text"""
+        super().__init__(name=text)
 
         self.font = PIL.ImageFont.load_default(font_size)
         """The font used to display the text"""
 
-        left, top, right, bottom = self.font.getbbox(self.text)
+        left, top, right, bottom = self.font.getbbox(self.name)
         """The dimensions required for the text"""
 
         self.width = right
@@ -228,12 +253,9 @@ class TextLabelImage:
         self.fgcolour = "black"
         """The foreground colour to use for the region text label"""
 
-        self.img: PIL.Image.Image
-        """The image object. Use this with PIL.Image.paste()"""
+        self._draw()
 
-        self._create_img()
-
-    def _create_img(self):
+    def _draw(self):
 
         # make the image bigger than the actual text bbox so there is plenty of space for the text
         self.img = PIL.Image.new(
@@ -246,7 +268,7 @@ class TextLabelImage:
         canvas.text(
             # xy=(self.width / 2, (self.height / 2 - (self.height / 5))),
             xy=(0, -1),
-            text=self.text,
+            text=self.name,
             fill=self.fgcolour,
             font=self.font,
         )
@@ -256,15 +278,15 @@ class TextLabelImage:
 
 
 @typeguard.typechecked
-class ArrowBlock:
+class ArrowBlock(Image):
     def __init__(self, size: int = 20, line: str = "black", fill: str = "white"):
 
         # draw an arrow in the unit square (4px by 4px)
         w = 4 * size
         h = 4 * size
 
-        self.arrow_layer = PIL.Image.new("RGBA", (w + 1, h + 1))        
-        arrow_draw = PIL.ImageDraw.Draw(self.arrow_layer)
+        self.img = PIL.Image.new("RGBA", (w + 1, h + 1))        
+        arrow_draw = PIL.ImageDraw.Draw(self.img)
         arrow_draw.polygon(
             [
                 (0, h//4), (w//2, h//4), (w//2, 0), (w, h//2),
@@ -274,25 +296,6 @@ class ArrowBlock:
             outline=line, 
             width=2)
 
-    def apply_alpha(
-            self, 
-            dest: PIL.Image.Image, 
-            pos: Tuple[int,int] = (0,0), 
-            alpha: int = 255):
-        
-
-        mask_layer = PIL.Image.new('RGBA', dest.size, (0,0,0,0))
-        mask_layer.paste(self.arrow_layer, pos)
-
-        # from PIL.Image import Transform
-        # mask_layer = mask_layer.transform(dest.size, Transform.AFFINE, (1, 0.5, -100, 1, 1, -100))
-        
-        alpha_layer = mask_layer.copy()
-        alpha_layer.putalpha(alpha)
-        
-        mask_layer.paste(alpha_layer, mask_layer)
-        
-        return PIL.Image.alpha_composite(dest, mask_layer)
 
 class Table:
 
