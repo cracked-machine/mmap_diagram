@@ -91,10 +91,6 @@ class MemoryMapDiagram:
         for image in image_list:
             image.draw_indent = region_indent
             region_indent += 5
-
-        # sort in descending size order for z-order.
-        # smaller in foreground, larger in background
-        image_list.sort(key=lambda x: x.size_as_int, reverse=True)
         
         self._draw(image_list)
 
@@ -111,15 +107,18 @@ class MemoryMapDiagram:
             color=Diagram.model.diagram_bgcolour)
         
         # paste each new graphic element image to main image
+        alpha = 255
         for memregion in image_list:
             if not memregion.img:
                 continue
-
+        
+            alpha = alpha - 12
+            
             new_diagram_img = memregion.overlay(
                 dest=new_diagram_img, 
                 pos=((((self.width + memregion.draw_indent - self._legend_width) - memregion.img.width) // 2) + self._legend_width, 
                  int(memregion.origin_as_hex,16)),
-                alpha=255
+                alpha=alpha
             )
 
             # End address text for this memory region
@@ -151,7 +150,7 @@ class MemoryMapDiagram:
             origin_text_label = mm.image.TextLabelImage(memregion.origin_as_hex, self.fixed_legend_text_size)
             new_diagram_img.paste(
                 origin_text_label.img,
-                (5, int(memregion.origin_as_hex,16) - (origin_text_label.height // 2) + 1 ),
+                (5, int(memregion.origin_as_hex,16) - (origin_text_label.height // 2) + 3 ),
             )
 
             for x in range(
@@ -186,8 +185,7 @@ class MemoryMapDiagram:
         # find the large empty spaces in the memory map
         region_subset_list: List[PIL.Image.Image] = []
         img_addr_idx = 0
-        # TODO sort memregion_list by ascending
-        # memregion_list.sort(key=lambda x: x.size_as_hex, reverse=True)
+
         for memregion in memregion_list:
             region_end_addr = memregion.origin_as_int + memregion.size_as_int
             if memregion.freespace_as_int > self.voidthreshold:
@@ -282,12 +280,15 @@ class Diagram:
         Diagram._validate_pargs()
         Diagram.model = Diagram._create_model()
 
+        # Create the individual memory map diagrams (full and reduced)
         for mmap_name, mmap in Diagram.model.memory_maps.items():
             self.mmd_list.append(MemoryMapDiagram({mmap_name: mmap}))
             pass
 
+        # composite the memory map diagrams into single diagram
         self._draw_full_img_diagram()
         self._draw_reduced_img_diagram()
+
         self._create_table_image(self.mmd_list)
         self._create_markdown(self.mmd_list)        
 

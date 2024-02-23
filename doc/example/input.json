@@ -2,12 +2,14 @@
   "diagram_name": "TestDiagram",
   "diagram_height": 1000,
   "diagram_width": 400,
+  "diagram_legend_width": 30,
+  "diagram_bgcolour": "oldlace",
   "memory_maps": {
     "eMMC": {
       "memory_regions": {
         "Blob1": {
-          "memory_region_origin": "0x10",
-          "memory_region_size": "0x10",
+          "memory_region_origin": 16,
+          "memory_region_size": 16,
           "memory_region_links": [
             [
               "DRAM",
@@ -17,27 +19,33 @@
               "DRAM",
               "Blob3"
             ]
-          ]
+          ],
+          "freespace": 968,
+          "collisions": {}
         }
       },
       "map_height": 1000,
-      "map_width": 400
+      "map_width": 200
     },
     "DRAM": {
       "memory_regions": {
         "Blob2": {
-          "memory_region_origin": "0x10",
-          "memory_region_size": "0x10",
-          "memory_region_links": []
+          "memory_region_origin": 16,
+          "memory_region_size": 16,
+          "memory_region_links": [],
+          "freespace": 48,
+          "collisions": {}
         },
         "Blob3": {
-          "memory_region_origin": "0x50",
-          "memory_region_size": "0x10",
-          "memory_region_links": []
+          "memory_region_origin": 80,
+          "memory_region_size": 16,
+          "memory_region_links": [],
+          "freespace": 904,
+          "collisions": {}
         }
       },
       "map_height": 1000,
-      "map_width": 400
+      "map_width": 200
     }
   }
 }

@@ -118,7 +118,6 @@ class MemoryRegionImage(Image):
         """ lookup memory_region freespace from metamodel  """
         return self.metadata.freespace
 
-
     @property
     def collisions(self):
         """ lookup memory_region collision from metamodel  """
@@ -171,29 +170,24 @@ class MemoryRegionImage(Image):
             ]
 
     def _draw(self, img_width: int, font_size: int):
+        """Create the image for the region rectangle and its inset name label"""
 
         logging.info(self)
         if not self.size_as_hex:
             logging.warning("Zero size region will not be added.")
             return None
 
-        # MemoryRegionImage Blocks and text
-        region_img = PIL.Image.new("RGBA", (img_width, int(self.size_as_hex,16)), color="white")
-        self.region_canvas = PIL.ImageDraw.Draw(region_img)
-
-        # height is -1 to avoid clipping the top border
-        self.region_canvas.rectangle(
-            (0, 0, img_width - 1, int(self.size_as_hex,16) - 1),
-            fill=self.fill,
-            outline=self.line,
-            width=1,
-        )
+        if self.freespace_as_int < 0:
+            region_img = DashedRectangle(
+                img_width, int(self.size_as_hex,16), fill=self.fill, line=self.line, dash=(0,0,8,0), stroke=2).img
+        else:
+            region_img = DashedRectangle(
+                img_width, int(self.size_as_hex,16), fill=self.fill, line=self.line, dash=(0,0,0,0), stroke=2).img
+            
 
         # draw name text
-        txt_img =  TextLabelImage(text=self.name, font_size=font_size).img
-        region_img.paste(
-            txt_img, 
-            ((img_width - txt_img.width) // 2, 2))
+        txt_lbl =  TextLabelImage(text=self.name, font_size=font_size)
+        region_img = txt_lbl.overlay(region_img, ((img_width - txt_lbl.img.width) // 2, 2), 192 )
 
         self.img = region_img
 
@@ -210,20 +204,10 @@ class VoidRegionImage(Image):
 
         logging.info(self)
 
-        # MemoryRegionImage Blocks and text
-        self.img = PIL.Image.new("RGBA", (img_width + 1, self.size_as_hex), color="white")
-        self.region_canvas = PIL.ImageDraw.Draw(self.img)
-
-        # height is -1 to avoid clipping the top border
-        self.region_canvas.rectangle(
-            (0, 0, img_width, self.size_as_hex - 1),
-            fill="oldlace",
-            outline="black",
-            width=1,
-        )
+        self.img = DashedRectangle(img_width, self.size_as_hex, dash=(8,0,8,0), stroke=2, line="grey").img
 
         # draw name text
-        txt_img = TextLabelImage(text=self.name, font_size=font_size).img
+        txt_img = TextLabelImage(text=self.name, font_size=font_size, font_colour="grey").img
         self.img.paste(
             txt_img,
             ((img_width - txt_img.width) // 2, (self.size_as_hex - txt_img.height) // 2),
@@ -232,7 +216,7 @@ class VoidRegionImage(Image):
 
 @typeguard.typechecked
 class TextLabelImage(Image):
-    def __init__(self, text: str, font_size: int):
+    def __init__(self, text: str, font_size: int, font_colour: str = "black"):
         super().__init__(name=text)
 
         self.font = PIL.ImageFont.load_default(font_size)
@@ -250,7 +234,7 @@ class TextLabelImage(Image):
         self.bgcolour = "oldlace"
         """The background colour to use for the region text label"""
 
-        self.fgcolour = "black"
+        self.fgcolour = font_colour
         """The foreground colour to use for the region text label"""
 
         self._draw()
@@ -259,7 +243,7 @@ class TextLabelImage(Image):
 
         # make the image bigger than the actual text bbox so there is plenty of space for the text
         self.img = PIL.Image.new(
-            "RGB", 
+            "RGBA", 
             (self.width, (self.height)), 
             color=self.bgcolour)
         
@@ -295,6 +279,77 @@ class ArrowBlock(Image):
             fill=fill, 
             outline=line, 
             width=2)
+
+@typeguard.typechecked
+class DashedRectangle(Image):
+    def __init__(
+            self, 
+            w: int, 
+            h: int, 
+            dash: Tuple[int, int, int, int] = (0,0,0,0),
+            fill: str = "white", 
+            line: str = "black", 
+            stroke: float = 1):
+        """dash is 4-tuple of top, right, bottom, left edges, set to 0 or 1 to disable"""
+
+        top_dash = dash[0] if dash[0] > 1 else 1
+        
+        bottom_dot = dash[2] if dash[2] > 1 else 1
+        
+
+        self.img = PIL.Image.new("RGBA", (w , h), color=fill)        
+        canvas = PIL.ImageDraw.Draw(self.img)
+        line_center = (stroke // 2)  
+        
+        # start from top edge at 0,0 and go clockwise back to 0,0
+
+        # top line: enable dash with top_dash > 1
+        if top_dash > 1:
+            for x in range(0, w, top_dash):
+                if stroke % 2:
+                    canvas.line(xy=[(x, line_center), 
+                                    (x + (top_dash // 2), line_center)], 
+                                fill=line, width=stroke)
+                else:
+                    canvas.line(xy=[(x, line_center - 1), 
+                                    (x + (top_dash // 2), line_center - 1)], 
+                                fill=line, width=stroke)        
+        else:
+            if stroke % 2:
+                canvas.line(xy=[(0, line_center), 
+                                (w, line_center)], 
+                            fill=line, width=stroke)
+            else:
+                canvas.line(xy=[(0, line_center - 1), 
+                                (w, line_center - 1)], 
+                            fill=line, width=stroke)   
+        # right line
+        canvas.line(xy=[(w - line_center - 1, 0), 
+                        (w - line_center - 1, h - line_center - 1)], 
+                    fill=line, width=stroke)
+        
+                                
+        # bottom line: enable dash with top_dash > 1
+        if bottom_dot > 1:
+            for x in range(0, w, bottom_dot):
+                canvas.line(xy=[(x, h - line_center - 1), 
+                                (x + (bottom_dot // 2), h - line_center - 1)], 
+                            fill=line, width=stroke)
+        else:
+            canvas.line(xy=[(0, h - line_center - 1), 
+                            (w, h - line_center - 1)], 
+                        fill=line, width=stroke)            
+
+        # left line
+        if stroke % 2:
+            canvas.line(xy=[(line_center, 0), 
+                            (line_center, h - line_center - 1)], 
+                        fill=line, width=stroke)
+        else:
+            canvas.line(xy=[(line_center - 1, 0), 
+                            (line_center - 1, h - line_center - 1)], 
+                        fill=line, width=stroke)
+            
 
 
 class Table:

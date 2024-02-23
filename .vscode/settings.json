@@ -1,15 +1,16 @@
 {
     "terminal.integrated.defaultProfile.linux": "bash",
     "git.autofetch": true,
-    
     "python.testing.pytestArgs": [
         "tests",
         "-s"
     ],
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
-    "flake8.args": [
-        "--max-line-length=150"
-     ],
-    "python.defaultInterpreterPath": "venv/bin/python3"
+    "black-formatter.args": [
+        "-line-length=80"
+    ],
+    "python.defaultInterpreterPath": "venv/bin/python3",
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "ms-python.black-formatter"
 }

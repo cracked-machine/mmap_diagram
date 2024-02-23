@@ -147,12 +147,16 @@ def test_generate_doc_example_three_maps(input, setup):
         "memory_regions": 
         {
             "Blob4": {
-            "memory_region_origin": "0x10",
-            "memory_region_size": "0x150"
+            "memory_region_origin": hex(10),
+            "memory_region_size": hex(60)
             },
             "Blob5": {
-            "memory_region_origin": "0x120",
-            "memory_region_size": "0x70"
+            "memory_region_origin": hex(50),
+            "memory_region_size": hex(100)
+            },
+            "Blob6": {
+            "memory_region_origin": hex(80),
+            "memory_region_size": hex(150)
             }
         }        
     }
