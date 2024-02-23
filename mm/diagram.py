@@ -265,19 +265,22 @@ class MemoryMapDiagram:
         self.final_image_reduced = self.final_image_reduced.rotate(180)
 
 class Diagram:
-    # somehow pytest can see these 
+    
     pargs: argparse.Namespace = None
-    model = None
+    """Command line arguments"""
+    model: mm.metamodel.Diagram = None
+    """Parsed metamodel from user input json file or
+       command line 'region' argument"""
 
     def __init__(self):
-        self.arrow_img = mm.image.ArrowBlock(fill="red")
+        # self.arrow_img = mm.image.ArrowBlock(fill="red")
 
         self.mmd_list: List[MemoryMapDiagram] = []
         """ instances of the memory map diagram"""
 
-        self._parse_args()
-        self._validate_pargs()
-        Diagram.model = self._create_model()
+        Diagram._parse_args()
+        Diagram._validate_pargs()
+        Diagram.model = Diagram._create_model()
 
         for mmap_name, mmap in Diagram.model.memory_maps.items():
             self.mmd_list.append(MemoryMapDiagram({mmap_name: mmap}))
@@ -289,7 +292,6 @@ class Diagram:
         self._create_markdown(self.mmd_list)        
 
     def _draw_full_img_diagram(self):
-
 
         full_diagram_img = PIL.Image.new(
             "RGB", 
@@ -354,7 +356,7 @@ class Diagram:
 
         reduced_diagram_img = reduced_diagram_img.rotate(180)
 
-        reduced_diagram_img= self.arrow_img.overlay(reduced_diagram_img, alpha=128)
+        # reduced_diagram_img= self.arrow_img.overlay(reduced_diagram_img, alpha=128)
         
         img_file_path = pathlib.Path(Diagram.pargs.out).stem + "_cropped.png"
         reduced_diagram_img.save(pathlib.Path(Diagram.pargs.out).parent / img_file_path)
@@ -392,7 +394,8 @@ class Diagram:
                 for memregion in (region_map_list.image_list):            
                     f.write(f"{memregion}\n")
 
-    def _parse_args(self):
+    @classmethod
+    def _parse_args(cls):
         """Setup the command line interface"""
         parser = argparse.ArgumentParser(
             description="""Generate a diagram showing how binary regions co-exist within memory."""
@@ -439,7 +442,8 @@ class Diagram:
 
         Diagram.pargs = parser.parse_args()
 
-    def _validate_pargs(self):
+    @classmethod
+    def _validate_pargs(cls):
         """"Validate the command line arguments"""
         # parse hex/int inputs
         if not Diagram.pargs.limit[:2] == "0x":
@@ -461,8 +465,9 @@ class Diagram:
                 raise SystemExit("command line input data should be in multiples of three") 
         else:
             assert pathlib.Path(Diagram.pargs.file).resolve().exists()
-
-    def _create_model(self) -> mm.metamodel.Diagram:
+    
+    @classmethod
+    def _create_model(cls) -> mm.metamodel.Diagram:
         
         if Diagram.pargs.file:
             with pathlib.Path(Diagram.pargs.file).resolve().open("r") as fp:
@@ -485,7 +490,7 @@ class Diagram:
             }
 
             # start adding mem regions from the command line arg
-            for datatuple in self._batched(Diagram.pargs.regions, 3):
+            for datatuple in Diagram._batched(Diagram.pargs.regions, 3):
                 # prevent overwriting duplicates
                 if datatuple[0] in inputdict['memory_maps']['singlemm']['memory_regions']:
                     logging.warning(f"{str(datatuple[0])} already exists. Skipping {str(datatuple)}.")
@@ -498,7 +503,8 @@ class Diagram:
             
         return mm.metamodel.Diagram(**inputdict)
 
-    def _batched(self, iterable, n):
+    @classmethod
+    def _batched(cls, iterable, n):
         """Split iterable into batches"""
         """batched('ABCDEFG', 3) --> ABC DEF G"""
         if n < 1:
