@@ -91,17 +91,19 @@ class MemoryMapDiagram:
         if Diagram.model.indent_scheme == "alternate":
             prev_indent = False
             for image in image_list:
-                image.draw_indent = region_indent
-                if not prev_indent:
-                    region_indent = 5
-                    prev_indent = True
-                else:
-                    region_indent = 0
-                    prev_indent = False
+                if image.collisions:
+                    image.draw_indent = region_indent
+                    if not prev_indent:
+                        region_indent = 5
+                        prev_indent = True
+                    else:
+                        region_indent = 0
+                        prev_indent = False
         if Diagram.model.indent_scheme == "linear":
             for image in image_list:
-                image.draw_indent = region_indent
-                region_indent += 5
+                if image.collisions:
+                    image.draw_indent = region_indent
+                    region_indent += 5
             
         self._draw(image_list)
 
