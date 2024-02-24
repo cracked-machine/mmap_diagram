@@ -381,6 +381,9 @@ class Diagram:
             for memregion in (region_map_list.image_list):
                 table_data.append(memregion.get_data_as_list())
 
+        # sort by ascending origin value starting from the table bottom
+        table_data.sort(key=lambda x: int(x[1],16), reverse=True)
+
         table: PIL.Image.Image = mm.image.Table().draw_table(
             table=table_data,
             header=["Name", "Origin", "Size", "Free Space", "Collisions"],
@@ -395,13 +398,20 @@ class Diagram:
     def _create_markdown(self,  mmd_list: List[MemoryMapDiagram]):
         """Create markdown doc containing the diagram image """
         """and text-base summary table"""
+        table_list = []
+        for region_map_list in mmd_list:
+            for memregion in (region_map_list.image_list): 
+                table_list.append(memregion)           
+
+        # sort by ascending origin value starting from the table bottom
+        table_list.sort(key=lambda x: x.origin_as_int, reverse=True)
+
         with open(Diagram.pargs.out, "w") as f:
             f.write(f"""![memory map diagram]({pathlib.Path(Diagram.pargs.out).stem}_cropped.png)\n""")
             f.write("|name|origin|size|free Space|collisions\n")
             f.write("|:-|:-|:-|:-|:-|\n")
-            for region_map_list in mmd_list:
-                for memregion in (region_map_list.image_list):            
-                    f.write(f"{memregion}\n")
+            for mr in table_list:
+                f.write(f"{mr}\n")
 
     @classmethod
     def _parse_args(cls):
