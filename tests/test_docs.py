@@ -114,8 +114,18 @@ def test_generate_doc_example_collisions(setup):
 def test_generate_doc_example_two_maps(input, setup):
     """ """
 
-    output_file = pathlib.Path("./doc/example/two_maps_input.json")
-    with output_file.open("w") as fp:
+    input['memory_maps']['eMMC']['memory_regions']['Blob4'] = {
+        "memory_region_origin": "0x100",
+        "memory_region_size": "0x10"
+    }
+
+    input['memory_maps']['DRAM']['memory_regions']['Blob5'] = {
+        "memory_region_origin": "0x30",
+        "memory_region_size": "0x10"
+    }
+
+    input_file = pathlib.Path("./doc/example/two_maps_input.json")
+    with input_file.open("w") as fp:
         fp.write(json.dumps(input, indent=2))
 
 
@@ -124,12 +134,14 @@ def test_generate_doc_example_two_maps(input, setup):
         "sys.argv",
             [
                 "mm.diagram",
-                "-f", str(output_file),
+                "-f", str(input_file),
                 "-o", str(setup["report"]),
                 "-l", hex(diagram_height),
                 "-v", hex(200),
             ],
         ):
+
+        
 
         mm.diagram.Diagram()
 
@@ -161,8 +173,8 @@ def test_generate_doc_example_three_maps(input, setup):
         }        
     }
 
-    output_file = pathlib.Path("./doc/example/three_maps_input.json")
-    with output_file.open("w") as fp:
+    input_file = pathlib.Path("./doc/example/three_maps_input.json")
+    with input_file.open("w") as fp:
         fp.write(json.dumps(input, indent=2))
 
 
@@ -171,7 +183,7 @@ def test_generate_doc_example_three_maps(input, setup):
         "sys.argv",
             [
                 "mm.diagram",
-                "-f", str(output_file),
+                "-f", str(input_file),
                 "-o", str(setup["report"]),
                 "-l", hex(diagram_height),
                 "-v", hex(200),
