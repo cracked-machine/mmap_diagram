@@ -197,20 +197,21 @@ class VoidRegionImage(Image):
     def __init__(self, img_width: int, font_size: int):
         super().__init__(name="~ SKIPPED ~")
         
-        self.size_as_hex: str = 40
+        self.size_as_hex: str = hex(40)
+        self.size_as_int: int = int(self.size_as_hex,16)
         self._draw(img_width, font_size)
 
     def _draw(self, img_width: int, font_size: int):
 
         logging.info(self)
 
-        self.img = DashedRectangle(img_width, self.size_as_hex, dash=(8,0,8,0), stroke=2, line="grey").img
+        self.img = DashedRectangle(img_width, self.size_as_int, dash=(8,0,8,0), stroke=2, line="grey").img
 
         # draw name text
         txt_img = TextLabelImage(text=self.name, font_size=font_size, font_colour="grey").img
         self.img.paste(
             txt_img,
-            ((img_width - txt_img.width) // 2, (self.size_as_hex - txt_img.height) // 2),
+            ((img_width - txt_img.width) // 2, (self.size_as_int - txt_img.height) // 2),
         )
 
 
