@@ -247,28 +247,28 @@ class MemoryMapDiagram:
 
                 y_pos = y_pos + self.voidregion.img.height
 
-            # Diagram End Address Text
-            new_cropped_image.paste(
-                self.top_addr_lbl.img,
-                (5, new_cropped_image.height - self.top_addr_lbl.height - 10),
-            )
+            # # Diagram End Address Text
+            # new_cropped_image.paste(
+            #     self.top_addr_lbl.img,
+            #     (5, new_cropped_image.height - self.top_addr_lbl.height - 10),
+            # )
 
-            # Diagram End Dash Line
-            line_canvas = PIL.ImageDraw.Draw(new_cropped_image)
-            for x in range(
-                self.top_addr_lbl.width + 10, 
-                self._legend_width, 
-                MemoryMapDiagram.DashedLine.gap):
-                line_canvas.line(
-                    (
-                        x,
-                        new_cropped_image.height - self.top_addr_lbl.height - 5,
-                        x + MemoryMapDiagram.DashedLine.len,
-                        new_cropped_image.height - self.top_addr_lbl.height - 5,
-                    ),
-                    fill="black",
-                    width=MemoryMapDiagram.DashedLine.width,
-                )
+            # # Diagram End Dash Line
+            # line_canvas = PIL.ImageDraw.Draw(new_cropped_image)
+            # for x in range(
+            #     self.top_addr_lbl.width + 10, 
+            #     self._legend_width, 
+            #     MemoryMapDiagram.DashedLine.gap):
+            #     line_canvas.line(
+            #         (
+            #             x,
+            #             new_cropped_image.height - self.top_addr_lbl.height - 5,
+            #             x + MemoryMapDiagram.DashedLine.len,
+            #             new_cropped_image.height - self.top_addr_lbl.height - 5,
+            #         ),
+            #         fill="black",
+            #         width=MemoryMapDiagram.DashedLine.width,
+            #     )
 
             self.final_image_reduced = new_cropped_image
 
@@ -317,19 +317,21 @@ class Diagram:
                 (idx * mmd.width, 0))
             
         # Top address text for the whole diagram
-        line_canvas = PIL.ImageDraw.Draw(full_diagram_img)
         top_addr = Diagram.model.diagram_height
         top_addr_lbl = mm.image.TextLabelImage(hex(top_addr), mmd.fixed_legend_text_size)
+        # draw image and label upside-down so that their bottom edges line up together (image origin is top-left)
         full_diagram_img = full_diagram_img.transpose(PIL.Image.FLIP_TOP_BOTTOM)
         full_diagram_img.paste(top_addr_lbl.img, (5, top_addr - top_addr_lbl.height - 5))
+        # now we flip back so that everything is the right way up and lined up at the bottom edge
         full_diagram_img = full_diagram_img.transpose(PIL.Image.FLIP_TOP_BOTTOM)
 
+        line_canvas = PIL.ImageDraw.Draw(full_diagram_img)
         for x in range(
-            top_addr_lbl.width, 
-            mmd.width, 
+            top_addr_lbl.width + 10, 
+            top_addr_lbl.width + 50, 
             MemoryMapDiagram.DashedLine.gap):
             line_canvas.line(
-                (x, top_addr - 7, x + MemoryMapDiagram.DashedLine.len, top_addr - 7),
+                (x, top_addr_lbl.height, x + MemoryMapDiagram.DashedLine.len, top_addr_lbl.height),
                 fill="black",
                 width=MemoryMapDiagram.DashedLine.width,
             )
@@ -341,7 +343,6 @@ class Diagram:
 
         # the original dimension may have shrunk for the 
         # reduced mm diagram due to void region cropping
-        # TODO restore original
         self.mmd_list.sort(key=lambda x: x.final_image_reduced.height, reverse=True)
         max_reduced_diagram_height = self.mmd_list[0].final_image_reduced.height
  
@@ -354,19 +355,34 @@ class Diagram:
             (Diagram.model.diagram_width, max_reduced_diagram_height), 
             color=Diagram.model.diagram_bgcolour)
         
-        # maps have been cropped to potentially different sizes. To ensure they 
-        # line up at zero on the y-axis we rotate each one 180 deg before pasting 
-        # them into the main diagram image. We then need to rotate the main image
-        # back 180 deg. Because of this the legend positions are now incorrectly 
-        # mirrored on the y-axis, so we need to subtract their x-axis positions 
-        # from the main diagram image width(!)
         for idx, mmd in enumerate(self.mmd_list):
+            # draw maps upside-down so that their bottom edges line up together (image origin is top-left)
             mmd.final_image_reduced = mmd.final_image_reduced.transpose(PIL.Image.FLIP_TOP_BOTTOM)
             reduced_diagram_img.paste(
                 mmd.final_image_reduced, 
                 ( (idx * mmd.width), 0))
 
+        top_addr = Diagram.model.diagram_height
+        top_addr_lbl = mm.image.TextLabelImage(hex(top_addr), mmd.fixed_legend_text_size)
+        reduced_diagram_img.paste(top_addr_lbl.img, (5, max_reduced_diagram_height - top_addr_lbl.height - 5))
+        line_canvas = PIL.ImageDraw.Draw(reduced_diagram_img)
+        for x in range(
+            top_addr_lbl.width + 10, 
+            top_addr_lbl.width + 50, 
+            MemoryMapDiagram.DashedLine.gap):
+            line_canvas.line(
+                (
+                    x, 
+                    max_reduced_diagram_height - top_addr_lbl.height, 
+                    x + MemoryMapDiagram.DashedLine.len, 
+                    max_reduced_diagram_height - top_addr_lbl.height),
+                fill="black",
+                width=MemoryMapDiagram.DashedLine.width,
+            )
+
+        # now we flip back so that everything is the right way up and lined up at the bottom edge
         reduced_diagram_img = reduced_diagram_img.transpose(PIL.Image.FLIP_TOP_BOTTOM)
+
         # reduced_diagram_img= self.arrow_img.overlay(reduced_diagram_img, alpha=128)
         
         img_file_path = pathlib.Path(Diagram.pargs.out).stem + "_cropped.png"
