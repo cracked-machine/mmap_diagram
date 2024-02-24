@@ -36,6 +36,8 @@ class MemoryMapDiagram:
 
     def __init__(self, memory_map_metadata: Dict[str, mm.metamodel.MemoryMap]):
 
+        self.name = next(iter(memory_map_metadata))
+
         self.default_region_text_size: int = 12
         """Default size for memregion text"""
 
@@ -119,6 +121,8 @@ class MemoryMapDiagram:
              self.height), 
             color=Diagram.model.diagram_bgcolour)
         
+        map_name_lbl = mm.image.TextLabelImage(self.name, self.fixed_legend_text_size, font_colour="red")
+        new_diagram_img.paste(im=map_name_lbl.img, box=(new_diagram_img.width // 2, new_diagram_img.height - map_name_lbl.height ))
         # paste each new graphic element image to main image
         alpha = 255
         for memregion in image_list:
@@ -227,12 +231,16 @@ class MemoryMapDiagram:
                 + 20
             )
 
+
             # now create the new image alternating the region subsets and void regions
             new_cropped_image = PIL.Image.new(
                 "RGBA", 
                 (self.width, new_cropped_height), 
                 color=Diagram.model.diagram_bgcolour)
             
+            map_name_lbl = mm.image.TextLabelImage(self.name, self.fixed_legend_text_size, font_colour="red")
+            new_cropped_image.paste(im=map_name_lbl.img, box=(new_cropped_image.width // 2, new_cropped_height - map_name_lbl.height ))
+        
             y_pos = 0
             for region_subset in region_subset_list:
                 
@@ -361,6 +369,7 @@ class Diagram:
             reduced_diagram_img.paste(
                 mmd.final_image_reduced, 
                 ( (idx * mmd.width), 0))
+            # mapn_ame_lbl = mm.image.TextLabelImage(mmd., mmd.fixed_legend_text_size)
 
         top_addr = Diagram.model.diagram_height
         top_addr_lbl = mm.image.TextLabelImage(hex(top_addr), mmd.fixed_legend_text_size)
