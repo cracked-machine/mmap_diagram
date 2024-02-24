@@ -88,10 +88,21 @@ class MemoryMapDiagram:
         # assign the draw indent by ascending origin
         image_list.sort(key=lambda x: x.origin_as_int, reverse=False)
         region_indent = 0
-        for image in image_list:
-            image.draw_indent = region_indent
-            region_indent += 5
-        
+        if Diagram.model.indent_scheme == "alternate":
+            prev_indent = False
+            for image in image_list:
+                image.draw_indent = region_indent
+                if not prev_indent:
+                    region_indent = 5
+                    prev_indent = True
+                else:
+                    region_indent = 0
+                    prev_indent = False
+        if Diagram.model.indent_scheme == "linear":
+            for image in image_list:
+                image.draw_indent = region_indent
+                region_indent += 5
+            
         self._draw(image_list)
 
         return image_list

@@ -1,5 +1,13 @@
 {
   "$defs": {
+    "IndentScheme": {
+      "enum": [
+        "linear",
+        "alternate"
+      ],
+      "title": "IndentScheme",
+      "type": "string"
+    },
     "MemoryMap": {
       "properties": {
         "memory_regions": {
@@ -116,6 +124,15 @@
       "description": "The diagram frame. Can contain many memory maps.",
       "title": "Memory Maps",
       "type": "object"
+    },
+    "indent_scheme": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/IndentScheme"
+        }
+      ],
+      "default": "linear",
+      "description": "Drawing indent for Memory Regions"
     }
   },
   "required": [

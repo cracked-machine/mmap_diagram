@@ -2,18 +2,23 @@
 import pydantic
 import pathlib
 import json
-from typing import Tuple
+from typing import Tuple, Literal
 from typing_extensions import Annotated
 import logging
+import enum
 
 class ConfigParent(pydantic.BaseModel):
     model_config = pydantic.ConfigDict(
         validate_assignment=True,
         revalidate_instances="always",
         validate_default=True,
-        validate_return=True
+        validate_return=True,
+        use_enum_values=True
     )
 
+class IndentScheme(str, enum.Enum):
+    linear = 'linear'
+    alternate = 'alternate'
 
 # data model
 class MemoryRegion(ConfigParent):
@@ -108,6 +113,10 @@ class Diagram(ConfigParent):
     memory_maps: Annotated[
         dict[str, MemoryMap],
         pydantic.Field(..., description="The diagram frame. Can contain many memory maps.")
+    ]
+    indent_scheme: Annotated[
+        IndentScheme,
+        pydantic.Field(IndentScheme.linear, description="Drawing indent for Memory Regions")
     ]
 
     @pydantic.field_validator("diagram_name")
