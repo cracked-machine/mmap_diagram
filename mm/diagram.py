@@ -181,8 +181,7 @@ class MemoryMapDiagram:
 
         self._defrag(new_diagram_img, image_list)
 
-        # rotate the entire diagram so the origin is at the bottom
-        self.final_image_full = new_diagram_img.rotate(180)
+        self.final_image_full = new_diagram_img.transpose(PIL.Image.FLIP_TOP_BOTTOM)
 
     def _defrag(
             self, 
@@ -271,7 +270,7 @@ class MemoryMapDiagram:
 
             self.final_image_reduced = new_cropped_image
 
-        self.final_image_reduced = self.final_image_reduced.rotate(180)
+        self.final_image_reduced = self.final_image_reduced.transpose(PIL.Image.FLIP_TOP_BOTTOM)
 
 class Diagram:
     
@@ -319,9 +318,9 @@ class Diagram:
         line_canvas = PIL.ImageDraw.Draw(full_diagram_img)
         top_addr = Diagram.model.diagram_height
         top_addr_lbl = mm.image.TextLabelImage(hex(top_addr), mmd.fixed_legend_text_size)
-        full_diagram_img = full_diagram_img.rotate(180)
+        full_diagram_img = full_diagram_img.transpose(PIL.Image.FLIP_TOP_BOTTOM)
         full_diagram_img.paste(top_addr_lbl.img, (5, top_addr - top_addr_lbl.height - 5))
-        full_diagram_img = full_diagram_img.rotate(180)
+        full_diagram_img = full_diagram_img.transpose(PIL.Image.FLIP_TOP_BOTTOM)
 
         for x in range(
             top_addr_lbl.width, 
@@ -360,14 +359,12 @@ class Diagram:
         # mirrored on the y-axis, so we need to subtract their x-axis positions 
         # from the main diagram image width(!)
         for idx, mmd in enumerate(self.mmd_list):
-            mmd.final_image_reduced = mmd.final_image_reduced.rotate(180)
+            mmd.final_image_reduced = mmd.final_image_reduced.transpose(PIL.Image.FLIP_TOP_BOTTOM)
             reduced_diagram_img.paste(
                 mmd.final_image_reduced, 
                 ( (idx * mmd.width), 0))
-            
 
-        reduced_diagram_img = reduced_diagram_img.rotate(180)
-
+        reduced_diagram_img = reduced_diagram_img.transpose(PIL.Image.FLIP_TOP_BOTTOM)
         # reduced_diagram_img= self.arrow_img.overlay(reduced_diagram_img, alpha=128)
         
         img_file_path = pathlib.Path(Diagram.pargs.out).stem + "_cropped.png"

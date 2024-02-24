@@ -258,9 +258,8 @@ class TextLabelImage(Image):
             font=self.font,
         )
 
-        # the final diagram image will be flipped so start with the text upside down
-        self.img = self.img.rotate(180)
-
+        # the final diagram image will be flipped so start with the text upside down        
+        self.img = self.img.transpose(PIL.Image.FLIP_TOP_BOTTOM)
 
 @typeguard.typechecked
 class ArrowBlock(Image):
