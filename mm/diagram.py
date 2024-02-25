@@ -29,6 +29,9 @@ root.addHandler(handler)
 @typeguard.typechecked
 class MemoryMapDiagram:
 
+    max_cropped_height = 0
+    """Keep track of the tallest mm diagram so we can """
+
     class DashedLine:
         width: int = 1
         gap: int = 4
@@ -48,7 +51,6 @@ class MemoryMapDiagram:
         """Void space threshold for adding VoidRegionImage objs"""
 
 
-        self.name_lbl = mm.image.TextLabelImage(self.name, self.fixed_legend_text_size, font_colour="red")
 
         self.final_image_full: PIL.Image.Image = None
         """Final image for this Memory Map - without void regions"""
@@ -61,10 +63,15 @@ class MemoryMapDiagram:
         self.width = next(iter(memory_map_metadata.values())).map_width
         self.height = next(iter(memory_map_metadata.values())).map_height
 
+
         legend_width_pixels = (self.width // 100) * Diagram.model.diagram_legend_width
         self._legend_width = legend_width_pixels
         """width of the area used for text annotations/legend"""
 
+        self.name_lbl = mm.image.MapNameImage(self.name, 
+                                              img_width=(self.width - self._legend_width - (self.width//5)), 
+                                              font_size=self.default_region_text_size)
+        
         self.voidregion = mm.image.VoidRegionImage(
             img_width=(self.width - self._legend_width - (self.width//5)), 
             font_size=self.default_region_text_size)
@@ -111,16 +118,15 @@ class MemoryMapDiagram:
 
         return image_list
     
-    def _draw(
-            self, 
-            image_list: List[mm.image.MemoryRegionImage]):
+    def _draw(self, 
+              image_list: List[mm.image.MemoryRegionImage]):
         
         # map_name_lbl = mm.image.TextLabelImage(self.name, self.fixed_legend_text_size, font_colour="red")
         new_diagram_img = PIL.Image.new(
             "RGBA", 
             (self.width, 
              self.height), 
-            color=Diagram.model.diagram_bgcolour)
+            color="lemonchiffon")
         
         # new_diagram_img.paste(im=map_name_lbl.img, box=(new_diagram_img.width // 2, new_diagram_img.height - map_name_lbl.height ))
         # paste each new graphic element image to main image
@@ -130,10 +136,13 @@ class MemoryMapDiagram:
                 continue
         
             alpha = alpha - 12
-            
+
+            # use this to position the map name outside of this loop
+            self.region_x_pos = (((self.width + memregion.draw_indent - self._legend_width) - memregion.img.width) // 2) + self._legend_width
+           
             new_diagram_img = memregion.overlay(
                 dest=new_diagram_img, 
-                pos=((((self.width + memregion.draw_indent - self._legend_width) - memregion.img.width) // 2) + self._legend_width, 
+                pos=(self.region_x_pos, 
                  int(memregion.origin_as_hex,16)),
                 alpha=alpha
             )
@@ -229,6 +238,7 @@ class MemoryMapDiagram:
                 + (len(region_subset_list) * self.voidregion.img.height)
                 + 20 
             )
+            if new_cropped_height > MemoryMapDiagram.max_cropped_height: MemoryMapDiagram.max_cropped_height = new_cropped_height
 
             # now create the new image alternating the region subsets and void regions
             new_cropped_image = PIL.Image.new(
@@ -296,12 +306,7 @@ class Diagram:
             full_diagram_img.paste(
                 mmd.final_image_full, 
                 (idx * mmd.width, 0))
-            # add the name label
-            full_diagram_img = full_diagram_img.transpose(PIL.Image.FLIP_TOP_BOTTOM)
-            full_diagram_img.paste(
-                mmd.name_lbl.img, 
-                ((idx * mmd.width) + (mmd.final_image_full.width // 2), full_diagram_img.height - mmd.name_lbl.img.height))
-            full_diagram_img = full_diagram_img.transpose(PIL.Image.FLIP_TOP_BOTTOM)
+
             
         # Top address text for the whole diagram
         top_addr = Diagram.model.diagram_height
@@ -337,9 +342,14 @@ class Diagram:
             logging.warning(f"The largest reduced memory map exceeds the overal diagram height. Clamping to {Diagram.model.diagram_height}")
             self.mmd_list[0].final_image_reduced.height = Diagram.model.diagram_height
  
+        max_name_lbl_height = 0
+        for mmd in self.mmd_list:
+            if mmd.name_lbl.img.height > max_name_lbl_height:
+                max_name_lbl_height = mmd.name_lbl.img.height
+
         reduced_diagram_img = PIL.Image.new(
             "RGBA", 
-            (Diagram.model.diagram_width, max_reduced_diagram_height), 
+            (Diagram.model.diagram_width, max_reduced_diagram_height + max_name_lbl_height), 
             color=Diagram.model.diagram_bgcolour)
         
         for idx, mmd in enumerate(self.mmd_list):
@@ -349,10 +359,12 @@ class Diagram:
             reduced_diagram_img.paste(
                 mmd.final_image_reduced, 
                 ( (idx * mmd.width), 0))
+            
             # add the name label
-            reduced_diagram_img.paste(
-                mmd.name_lbl.img, 
-                ((idx * mmd.width) + (mmd.final_image_reduced.width // 2), reduced_diagram_img.height - mmd.name_lbl.img.height))
+            reduced_diagram_img = mmd.name_lbl.overlay(
+                reduced_diagram_img,
+                ( (idx * mmd.width), reduced_diagram_img.height - mmd.name_lbl.img.height),
+                alpha=255)
 
         top_addr = Diagram.model.diagram_height
         top_addr_lbl = mm.image.TextLabelImage(hex(top_addr), mmd.fixed_legend_text_size)

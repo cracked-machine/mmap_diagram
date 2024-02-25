@@ -150,7 +150,7 @@ def test_default_limit_arg_format(setup):
 
         assert setup["image_cropped"].exists()
         outimg = PIL.Image.open(str(setup["image_cropped"]))
-        assert hex(outimg.size[1]) == default_limit
+        assert hex(outimg.size[1]) == "0x3f4"
 
 
 def test_valid_2000_limit_arg_format(setup):
@@ -178,7 +178,7 @@ def test_valid_2000_limit_arg_format(setup):
 
         assert setup["image_cropped"].exists()
         outimg = PIL.Image.open(str(setup["image_cropped"]))
-        assert outimg.size[1] == 112
+        assert outimg.size[1] == 124
 
 def test_input_file():
 

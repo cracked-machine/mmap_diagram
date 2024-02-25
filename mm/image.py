@@ -74,6 +74,34 @@ class Image():
         return chosen_colour_name
 
 @typeguard.typechecked
+class MapNameImage(Image):
+
+    def __init__(self, name: str, img_width: int, font_size: int):
+
+        super().__init__(name)
+        
+        self._draw(img_width, font_size)
+
+    def _draw(self, img_width: int, font_size: int):
+        """Create the image for the region rectangle and its inset name label"""
+
+        txt_lbl =  TextLabelImage(text=self.name, font_size=font_size)
+
+        generic_img = DashedRectangle(img_width, 
+                                      txt_lbl.img.height, 
+                                      fill="steelblue", 
+                                      line="black", 
+                                      dash=(8,0,8,0), 
+                                      stroke=2).img
+
+
+        # draw name text
+        generic_img = txt_lbl.overlay(generic_img, 
+                                      ((img_width - txt_lbl.img.width) // 2, 2), 192)
+
+        self.img = generic_img
+
+@typeguard.typechecked
 class MemoryRegionImage(Image):
 
     def __init__(self, name: str, metadata: mm.metamodel.MemoryRegion, img_width: int, font_size: int):

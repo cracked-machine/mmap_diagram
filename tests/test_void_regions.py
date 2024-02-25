@@ -64,7 +64,7 @@ def test_void_region_default(setup):
 
         assert setup["image_cropped"].exists()
         found_size = PIL.Image.open(str(setup["image_cropped"])).size
-        assert found_size == (400, 528)
+        assert found_size == (400, 540)
 
 
 def test_void_region_uservalue_500(setup):
@@ -113,7 +113,7 @@ def test_void_region_uservalue_500(setup):
         # empty section between rootfs and dtb should be retained
         assert setup["image_cropped"].exists()
         found_size = PIL.Image.open(str(setup["image_cropped"])).size
-        assert found_size == (400, 528)
+        assert found_size == (400, 540)
 
 
 def test_void_region_uservalue_200(setup):
@@ -162,4 +162,4 @@ def test_void_region_uservalue_200(setup):
         # reduced void threshold, so empty section between rootfs and dtb should be voided, making the file smaller
         assert setup["image_cropped"].exists()
         found_size = PIL.Image.open(str(setup["image_cropped"])).size
-        assert found_size == (400, 316)
+        assert found_size == (400, 328)

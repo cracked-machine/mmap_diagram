@@ -68,7 +68,7 @@ def test_generate_doc_example_normal(setup):
         # reduced void threshold, so empty section between rootfs and dtb should be voided, making the file smaller
         assert setup["image_cropped"].exists()
         found_size = PIL.Image.open(str(setup["image_cropped"])).size
-        assert found_size == (400, 316)
+        assert found_size == (400, 328)
 
 
 @pytest.mark.parametrize("setup", [{"file_prefix": "_collisions"}], indirect=True)
