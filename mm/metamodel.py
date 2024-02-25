@@ -116,7 +116,7 @@ class Diagram(ConfigParent):
     ]
     indent_scheme: Annotated[
         IndentScheme,
-        pydantic.Field(IndentScheme.linear, description="Drawing indent for Memory Regions")
+        pydantic.Field(IndentScheme.alternate, description="Drawing indent for Memory Regions")
     ]
 
     @pydantic.field_validator("diagram_name")

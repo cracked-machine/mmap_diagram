@@ -131,7 +131,7 @@
           "$ref": "#/$defs/IndentScheme"
         }
       ],
-      "default": "linear",
+      "default": "alternate",
       "description": "Drawing indent for Memory Regions"
     }
   },
