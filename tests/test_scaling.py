@@ -32,7 +32,7 @@ def test_scaling_x1(setup):
     """ """
     default_diagram_width = 400
     requested_diagram_height = 2000
-    expected_cropped_height = 284
+    expected_cropped_height = 294
     requested_scale = 1
 
     with unittest.mock.patch(
@@ -87,7 +87,7 @@ def test_scaling_x2(setup):
     """ """
     default_diagram_width = 400
     requested_diagram_height = 1000
-    expected_cropped_height = 284
+    expected_cropped_height = 294
     requested_scale = 2
 
     with unittest.mock.patch(

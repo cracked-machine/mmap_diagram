@@ -88,8 +88,8 @@ class MapNameImage(Image):
         txt_lbl =  TextLabelImage(text=self.name, font_size=font_size)
 
         generic_img = DashedRectangle(img_width, 
-                                      txt_lbl.img.height, 
-                                      fill="steelblue", 
+                                      txt_lbl.img.height + 10, 
+                                      fill="silver", 
                                       line="black", 
                                       dash=(8,0,8,0), 
                                       stroke=2).img
@@ -97,7 +97,7 @@ class MapNameImage(Image):
 
         # draw name text
         generic_img = txt_lbl.overlay(generic_img, 
-                                      ((img_width - txt_lbl.img.width) // 2, 2), 192)
+                                      ((img_width - txt_lbl.img.width) // 2, 5), 192)
 
         self.img = generic_img
 
