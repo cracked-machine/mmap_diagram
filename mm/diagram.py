@@ -47,8 +47,8 @@ class MemoryMapDiagram:
         self.voidthreshold: int = int(Diagram.pargs.voidthreshold, 16)
         """Void space threshold for adding VoidRegionImage objs"""
 
-        self.top_addr_lbl = mm.image.TextLabelImage(hex(Diagram.model.diagram_height), self.fixed_legend_text_size)
-        """Make sure this is created after rescale"""
+
+        self.name_lbl = mm.image.TextLabelImage(self.name, self.fixed_legend_text_size, font_colour="red")
 
         self.final_image_full: PIL.Image.Image = None
         """Final image for this Memory Map - without void regions"""
@@ -115,14 +115,14 @@ class MemoryMapDiagram:
             self, 
             image_list: List[mm.image.MemoryRegionImage]):
         
+        # map_name_lbl = mm.image.TextLabelImage(self.name, self.fixed_legend_text_size, font_colour="red")
         new_diagram_img = PIL.Image.new(
             "RGBA", 
             (self.width, 
              self.height), 
             color=Diagram.model.diagram_bgcolour)
         
-        map_name_lbl = mm.image.TextLabelImage(self.name, self.fixed_legend_text_size, font_colour="red")
-        new_diagram_img.paste(im=map_name_lbl.img, box=(new_diagram_img.width // 2, new_diagram_img.height - map_name_lbl.height ))
+        # new_diagram_img.paste(im=map_name_lbl.img, box=(new_diagram_img.width // 2, new_diagram_img.height - map_name_lbl.height ))
         # paste each new graphic element image to main image
         alpha = 255
         for memregion in image_list:
@@ -224,11 +224,10 @@ class MemoryMapDiagram:
             self.final_image_reduced = original_img
 
         else:
-            # calculate the new reduced diagram image height plus some padding
             new_cropped_height = (
                 sum(img.height for img in region_subset_list)
                 + (len(region_subset_list) * self.voidregion.img.height)
-                + 20
+                + 20 
             )
 
             # now create the new image alternating the region subsets and void regions
@@ -237,8 +236,6 @@ class MemoryMapDiagram:
                 (self.width, new_cropped_height), 
                 color=Diagram.model.diagram_bgcolour)
             
-            map_name_lbl = mm.image.TextLabelImage(self.name, self.fixed_legend_text_size, font_colour="red")
-            new_cropped_image.paste(im=map_name_lbl.img, box=(new_cropped_image.width // 2, new_cropped_height - map_name_lbl.height ))
         
             y_pos = 0
             for region_subset in region_subset_list:
@@ -299,6 +296,12 @@ class Diagram:
             full_diagram_img.paste(
                 mmd.final_image_full, 
                 (idx * mmd.width, 0))
+            # add the name label
+            full_diagram_img = full_diagram_img.transpose(PIL.Image.FLIP_TOP_BOTTOM)
+            full_diagram_img.paste(
+                mmd.name_lbl.img, 
+                ((idx * mmd.width) + (mmd.final_image_full.width // 2), full_diagram_img.height - mmd.name_lbl.img.height))
+            full_diagram_img = full_diagram_img.transpose(PIL.Image.FLIP_TOP_BOTTOM)
             
         # Top address text for the whole diagram
         top_addr = Diagram.model.diagram_height
@@ -342,10 +345,14 @@ class Diagram:
         for idx, mmd in enumerate(self.mmd_list):
             # draw maps upside-down so that their bottom edges line up together (image origin is top-left)
             mmd.final_image_reduced = mmd.final_image_reduced.transpose(PIL.Image.FLIP_TOP_BOTTOM)
+            # add the mem map diagram image
             reduced_diagram_img.paste(
                 mmd.final_image_reduced, 
                 ( (idx * mmd.width), 0))
-            # mapn_ame_lbl = mm.image.TextLabelImage(mmd., mmd.fixed_legend_text_size)
+            # add the name label
+            reduced_diagram_img.paste(
+                mmd.name_lbl.img, 
+                ((idx * mmd.width) + (mmd.final_image_reduced.width // 2), reduced_diagram_img.height - mmd.name_lbl.img.height))
 
         top_addr = Diagram.model.diagram_height
         top_addr_lbl = mm.image.TextLabelImage(hex(top_addr), mmd.fixed_legend_text_size)
