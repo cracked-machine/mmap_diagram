@@ -18,12 +18,14 @@ def setup():
 
 
 def test_no_args():
+    """This test has no output"""
     with unittest.mock.patch("sys.argv", ["mm.diagram", ""]):
         with pytest.raises(SystemExit):
             mm.diagram.Diagram()
 
 
 def test_arg_tuple():
+    """Note: output for these test will default to  ./out"""
     with unittest.mock.patch("sys.argv", ["mm.diagram", "0x10"]):
         with pytest.raises(SystemExit):
             mm.diagram.Diagram()
@@ -35,20 +37,28 @@ def test_arg_tuple():
     with unittest.mock.patch("sys.argv", ["mm.diagram", "a", "0x10", "0x10"]):
         mm.diagram.Diagram()
 
+    name = "My Memeory Map"
+    with unittest.mock.patch("sys.argv", ["mm.diagram", "b", "0x10", "0x10", "-n", name]):
+        mm.diagram.Diagram()
+        assert name in mm.diagram.Diagram.model.memory_maps
+
 
 def test_invalid_region_data_format1():
+    """Note: output for these test will default to  ./out"""
     with unittest.mock.patch("sys.argv", ["mm.diagram", "a", "10", "0x10"]):
         with pytest.raises(pydantic.ValidationError):
             mm.diagram.Diagram()
 
 
 def test_invalid_region_data_format2():
+    """Note: output for these test will default to  ./out"""
     with unittest.mock.patch("sys.argv", ["mm.diagram", "a", "10", "0x10"]):
         with pytest.raises(pydantic.ValidationError):
             mm.diagram.Diagram()
 
 
 def test_invalid_region_data_formatBoth():
+    """Note: output for these test will default to  ./out"""
     with unittest.mock.patch("sys.argv", ["mm.diagram", "a", "10", "10"]):
         with pytest.raises(pydantic.ValidationError):
             mm.diagram.Diagram()
@@ -62,7 +72,7 @@ def test_invalid_out_arg():
 
 
 def test_invalid_duplicate_name_arg():
-    """there can only be one."""
+    
     with unittest.mock.patch("sys.argv", ["mm.diagram", "a", "0x10", "0x10", "a", "0x10", "0x10"]):
         d = mm.diagram.Diagram()
         # the second memregion would have been skipped so we should only have one mem region
@@ -70,6 +80,7 @@ def test_invalid_duplicate_name_arg():
         assert len(d.model.memory_maps[memmap_name].memory_regions) == 1
 
 def test_scale_arg():
+    """Note: output for these test will default to  ./out"""
     with unittest.mock.patch(
         "sys.argv", 
         ["mm.diagram", 

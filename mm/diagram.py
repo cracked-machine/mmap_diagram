@@ -231,7 +231,6 @@ class MemoryMapDiagram:
                 + 20
             )
 
-
             # now create the new image alternating the region subsets and void regions
             new_cropped_image = PIL.Image.new(
                 "RGBA", 
@@ -254,29 +253,6 @@ class MemoryMapDiagram:
                 )
 
                 y_pos = y_pos + self.voidregion.img.height
-
-            # # Diagram End Address Text
-            # new_cropped_image.paste(
-            #     self.top_addr_lbl.img,
-            #     (5, new_cropped_image.height - self.top_addr_lbl.height - 10),
-            # )
-
-            # # Diagram End Dash Line
-            # line_canvas = PIL.ImageDraw.Draw(new_cropped_image)
-            # for x in range(
-            #     self.top_addr_lbl.width + 10, 
-            #     self._legend_width, 
-            #     MemoryMapDiagram.DashedLine.gap):
-            #     line_canvas.line(
-            #         (
-            #             x,
-            #             new_cropped_image.height - self.top_addr_lbl.height - 5,
-            #             x + MemoryMapDiagram.DashedLine.len,
-            #             new_cropped_image.height - self.top_addr_lbl.height - 5,
-            #         ),
-            #         fill="black",
-            #         width=MemoryMapDiagram.DashedLine.width,
-            #     )
 
             self.final_image_reduced = new_cropped_image
 
@@ -478,7 +454,12 @@ class Diagram:
             default=hex(1000),
             type=str,
         )
-
+        parser.add_argument(
+            "-n",
+            "--name",
+            help="Provide a name for the memory map. Ignored when JSON file is provided.",
+            type=str,
+        )
         parser.add_argument(
             "-f",
             "--file",
@@ -519,15 +500,15 @@ class Diagram:
             with pathlib.Path(Diagram.pargs.file).resolve().open("r") as fp:
                 inputdict = json.load(fp)
         else:
-                
+            mmname = Diagram.pargs.name if Diagram.pargs.name else "Untitled"
             # command line parameters only support one memory map per diagram
             inputdict = {
                 "$schema": "../../mm/schema.json",
-                "diagram_name": "testd",
+                "diagram_name": "Diagram",
                 "diagram_height": int(Diagram.pargs.limit,16) * Diagram.pargs.scale,
                 "diagram_width": 400 * Diagram.pargs.scale,
                 "memory_maps": { 
-                    "singlemm": { 
+                    mmname : { 
                         "map_height": int(Diagram.pargs.limit,16) * Diagram.pargs.scale,
                         "map_width": 400 * Diagram.pargs.scale,
                         "memory_regions": { } # regions added below
@@ -538,11 +519,11 @@ class Diagram:
             # start adding mem regions from the command line arg
             for datatuple in Diagram._batched(Diagram.pargs.regions, 3):
                 # prevent overwriting duplicates
-                if datatuple[0] in inputdict['memory_maps']['singlemm']['memory_regions']:
+                if datatuple[0] in inputdict['memory_maps'][mmname]['memory_regions']:
                     logging.warning(f"{str(datatuple[0])} already exists. Skipping {str(datatuple)}.")
                     continue
 
-                inputdict['memory_maps']['singlemm']['memory_regions'][datatuple[0]] = {
+                inputdict['memory_maps'][mmname]['memory_regions'][datatuple[0]] = {
                         "memory_region_origin": datatuple[1],
                         "memory_region_size": datatuple[2]
                     }
