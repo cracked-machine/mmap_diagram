@@ -70,12 +70,16 @@ class MemoryMapDiagram:
 
         self.name_lbl = mm.image.MapNameImage(self.name, 
                                               img_width=self.width, 
-                                              font_size=self.default_region_text_size)
+                                              font_size=self.default_region_text_size,
+                                              fill_colour=Diagram.model.title_fill_colour,
+                                              line_colour=Diagram.model.title_line_colour)
         """Title graphic for this memory map"""
         
         self.voidregion = mm.image.VoidRegionImage(
             img_width=(self.width - self._legend_width - (self.width//5)), 
-            font_size=self.default_region_text_size)
+            font_size=self.default_region_text_size,
+            fill_colour=Diagram.model.void_fill_colour,
+            line_colour=Diagram.model.void_line_colour)
         """The reusable object used to represent the void regions in the memory map"""       
 
         self.image_list = self._create_image_list(memory_map_metadata)
@@ -98,6 +102,8 @@ class MemoryMapDiagram:
         # assign the draw indent by ascending origin
         image_list.sort(key=lambda x: x.origin_as_int, reverse=False)
         region_indent = 0
+        if Diagram.model.indent_scheme == "inline":
+            pass
         if Diagram.model.indent_scheme == "alternate":
             prev_indent = False
             for image in image_list:
@@ -126,7 +132,7 @@ class MemoryMapDiagram:
             "RGBA", 
             (self.width, 
              self.height), 
-            color="lemonchiffon")
+            color=Diagram.model.diagram_bgcolour)
         
         # paste each new graphic element image to main image
         alpha = 255
@@ -248,7 +254,7 @@ class MemoryMapDiagram:
             new_cropped_image = PIL.Image.new(
                 "RGBA", 
                 (self.width, new_cropped_height), 
-                color="yellow")
+                color=Diagram.model.diagram_bgcolour)
                  
             y_pos = 0
             
@@ -376,7 +382,7 @@ class Diagram:
                 alpha=255)
             
             border_canvas = PIL.ImageDraw.ImageDraw(reduced_diagram_img)
-            border_canvas.line(xy=(mmd.final_image_reduced.width, 0, mmd.final_image_reduced.width, mmd.final_image_reduced.height), fill="grey")            
+            border_canvas.line(xy=(mmd.final_image_reduced.width - 1, 0, mmd.final_image_reduced.width - 1, mmd.final_image_reduced.height), fill="grey", width=2)            
 
         top_addr = Diagram.model.diagram_height
         top_addr_lbl = mm.image.TextLabelImage(hex(top_addr), mmd.fixed_legend_text_size)

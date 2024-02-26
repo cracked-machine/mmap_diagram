@@ -19,6 +19,7 @@ class ConfigParent(pydantic.BaseModel):
 class IndentScheme(str, enum.Enum):
     linear = 'linear'
     alternate = 'alternate'
+    inline = 'inline'
 
 # data model
 class MemoryRegion(ConfigParent):
@@ -108,8 +109,24 @@ class Diagram(ConfigParent):
     ]
     diagram_bgcolour: Annotated[
         str,
-        pydantic.Field("oldlace", description="The background colour used for the diagram")
+        pydantic.Field("white", description="The background colour used for the diagram")
     ] 
+    void_fill_colour: Annotated[
+        str,
+        pydantic.Field("oldlace", description="Fill colour for the void region blocks")
+    ]
+    void_line_colour: Annotated[
+        str,
+        pydantic.Field("grey", description="Line colour for the void region blocks")
+    ]
+    title_fill_colour: Annotated[
+        str,
+        pydantic.Field("oldlace", description="Fill colour for the memory region title blocks")
+    ]
+    title_line_colour: Annotated[
+        str,
+        pydantic.Field("grey", description="Line colour for the emory region title blocks")
+    ]
     memory_maps: Annotated[
         dict[str, MemoryMap],
         pydantic.Field(..., description="The diagram frame. Can contain many memory maps.")

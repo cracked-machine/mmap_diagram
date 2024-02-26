@@ -76,21 +76,21 @@ class Image():
 @typeguard.typechecked
 class MapNameImage(Image):
 
-    def __init__(self, name: str, img_width: int, font_size: int):
+    def __init__(self, name: str, img_width: int, font_size: int, fill_colour:str, line_colour: str):
 
         super().__init__(name)
         
-        self._draw(img_width, font_size)
+        self._draw(img_width, font_size, fill_colour, line_colour)
 
-    def _draw(self, img_width: int, font_size: int):
+    def _draw(self, img_width: int, font_size: int, fill_colour:str, line_colour: str):
         """Create the image for the region rectangle and its inset name label"""
 
         txt_lbl =  TextLabelImage(text=self.name, font_size=font_size)
 
         generic_img = DashedRectangle(img_width, 
                                       txt_lbl.img.height + 10, 
-                                      fill="silver", 
-                                      line="black", 
+                                      fill=fill_colour, 
+                                      line=line_colour, 
                                       dash=(8,0,8,0), 
                                       stroke=2).img
 
@@ -222,18 +222,24 @@ class MemoryRegionImage(Image):
 @typeguard.typechecked
 class VoidRegionImage(Image):
 
-    def __init__(self, img_width: int, font_size: int):
+    def __init__(self, img_width: int, font_size: int, fill_colour:str, line_colour: str):
         super().__init__(name="~ SKIPPED ~")
         
         self.size_as_hex: str = hex(40)
         self.size_as_int: int = int(self.size_as_hex,16)
-        self._draw(img_width, font_size)
+        
+        self._draw(img_width, font_size, fill_colour, line_colour)
 
-    def _draw(self, img_width: int, font_size: int):
+    def _draw(self, img_width: int, font_size: int, fill_colour:str, line_colour: str):
 
         logging.info(self)
 
-        self.img = DashedRectangle(img_width, self.size_as_int, dash=(8,0,8,0), stroke=2, line="grey").img
+        self.img = DashedRectangle(img_width, 
+                                   self.size_as_int, 
+                                   dash=(8,0,8,0), 
+                                   stroke=2, 
+                                   fill=fill_colour, 
+                                   line=line_colour).img
 
         # draw name text
         txt_img = TextLabelImage(text=self.name, font_size=font_size, font_colour="grey").img

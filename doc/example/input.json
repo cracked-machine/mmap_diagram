@@ -3,7 +3,11 @@
   "diagram_height": 1000,
   "diagram_width": 400,
   "diagram_legend_width": 30,
-  "diagram_bgcolour": "oldlace",
+  "diagram_bgcolour": "white",
+  "void_fill_colour": "oldlace",
+  "void_line_colour": "grey",
+  "title_fill_colour": "oldlace",
+  "title_line_colour": "grey",
   "memory_maps": {
     "eMMC": {
       "memory_regions": {

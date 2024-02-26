@@ -3,7 +3,8 @@
     "IndentScheme": {
       "enum": [
         "linear",
-        "alternate"
+        "alternate",
+        "inline"
       ],
       "title": "IndentScheme",
       "type": "string"
@@ -112,9 +113,33 @@
       "type": "integer"
     },
     "diagram_bgcolour": {
-      "default": "oldlace",
+      "default": "white",
       "description": "The background colour used for the diagram",
       "title": "Diagram Bgcolour",
+      "type": "string"
+    },
+    "void_fill_colour": {
+      "default": "oldlace",
+      "description": "Fill colour for the void region blocks",
+      "title": "Void Fill Colour",
+      "type": "string"
+    },
+    "void_line_colour": {
+      "default": "grey",
+      "description": "Line colour for the void region blocks",
+      "title": "Void Line Colour",
+      "type": "string"
+    },
+    "title_fill_colour": {
+      "default": "oldlace",
+      "description": "Fill colour for the memory region title blocks",
+      "title": "Title Fill Colour",
+      "type": "string"
+    },
+    "title_line_colour": {
+      "default": "grey",
+      "description": "Line colour for the emory region title blocks",
+      "title": "Title Line Colour",
       "type": "string"
     },
     "memory_maps": {
