@@ -178,7 +178,7 @@ def test_valid_2000_limit_arg_format(setup):
 
         assert setup["image_cropped"].exists()
         outimg = PIL.Image.open(str(setup["image_cropped"]))
-        assert outimg.size[1] == 134
+        assert outimg.size[1] == 124
 
 def test_input_file():
 

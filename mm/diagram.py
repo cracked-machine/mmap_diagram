@@ -69,8 +69,9 @@ class MemoryMapDiagram:
         """width of the area used for text annotations/legend"""
 
         self.name_lbl = mm.image.MapNameImage(self.name, 
-                                              img_width=(self.width - self._legend_width - (self.width//5)), 
+                                              img_width=self.width, 
                                               font_size=self.default_region_text_size)
+        """Title graphic for this memory map"""
         
         self.voidregion = mm.image.VoidRegionImage(
             img_width=(self.width - self._legend_width - (self.width//5)), 
@@ -121,14 +122,12 @@ class MemoryMapDiagram:
     def _draw(self, 
               image_list: List[mm.image.MemoryRegionImage]):
         
-        # map_name_lbl = mm.image.TextLabelImage(self.name, self.fixed_legend_text_size, font_colour="red")
         new_diagram_img = PIL.Image.new(
             "RGBA", 
             (self.width, 
              self.height), 
             color="lemonchiffon")
         
-        # new_diagram_img.paste(im=map_name_lbl.img, box=(new_diagram_img.width // 2, new_diagram_img.height - map_name_lbl.height ))
         # paste each new graphic element image to main image
         alpha = 255
         for memregion in image_list:
@@ -211,14 +210,19 @@ class MemoryMapDiagram:
         region_subset_list: List[PIL.Image.Image] = []
         img_addr_idx = 0
 
-        for memregion in memregion_list:
+        for  memregion in memregion_list:
             region_end_addr = memregion.origin_as_int + memregion.size_as_int
             if memregion.freespace_as_int > self.voidthreshold:
 
+                # try and grab some extra space below the region subset
+                # but only if were not at the very bottom of the diagram
+                if img_addr_idx - 10 > 0:
+                    img_addr_idx = img_addr_idx - 10
+                    
                 # dont forget the image is upside down at this stage, so upper and lower are reversed.
                 (left, upper, right, lower) = (
                     0,
-                    img_addr_idx - 10,
+                    img_addr_idx,
                     original_img.width,
                     region_end_addr + 10,
                 )
@@ -244,12 +248,12 @@ class MemoryMapDiagram:
             new_cropped_image = PIL.Image.new(
                 "RGBA", 
                 (self.width, new_cropped_height), 
-                color=Diagram.model.diagram_bgcolour)
-            
-        
+                color="yellow")
+                 
             y_pos = 0
+            
             for region_subset in region_subset_list:
-                
+
                 new_cropped_image.paste(region_subset, (0, y_pos))
                 
                 y_pos = y_pos + region_subset.height
@@ -260,6 +264,8 @@ class MemoryMapDiagram:
                 )
 
                 y_pos = y_pos + self.voidregion.img.height
+
+
 
             self.final_image_reduced = new_cropped_image
 
@@ -341,12 +347,14 @@ class Diagram:
         if self.mmd_list[0].final_image_reduced.height > Diagram.model.diagram_height:
             logging.warning(f"The largest reduced memory map exceeds the overal diagram height. Clamping to {Diagram.model.diagram_height}")
             self.mmd_list[0].final_image_reduced.height = Diagram.model.diagram_height
- 
+    
+        # calc the tallest title graphic
         max_name_lbl_height = 0
         for mmd in self.mmd_list:
             if mmd.name_lbl.img.height > max_name_lbl_height:
                 max_name_lbl_height = mmd.name_lbl.img.height
 
+        # This is the overal diagrm image that we will paste the individual memory map diagram images onto
         reduced_diagram_img = PIL.Image.new(
             "RGBA", 
             (Diagram.model.diagram_width, max_reduced_diagram_height + max_name_lbl_height), 
@@ -355,6 +363,7 @@ class Diagram:
         for idx, mmd in enumerate(self.mmd_list):
             # draw maps upside-down so that their bottom edges line up together (image origin is top-left)
             mmd.final_image_reduced = mmd.final_image_reduced.transpose(PIL.Image.FLIP_TOP_BOTTOM)
+
             # add the mem map diagram image
             reduced_diagram_img.paste(
                 mmd.final_image_reduced, 
@@ -365,6 +374,9 @@ class Diagram:
                 reduced_diagram_img,
                 ( (idx * mmd.width), reduced_diagram_img.height - mmd.name_lbl.img.height),
                 alpha=255)
+            
+            border_canvas = PIL.ImageDraw.ImageDraw(reduced_diagram_img)
+            border_canvas.line(xy=(mmd.final_image_reduced.width, 0, mmd.final_image_reduced.width, mmd.final_image_reduced.height), fill="grey")            
 
         top_addr = Diagram.model.diagram_height
         top_addr_lbl = mm.image.TextLabelImage(hex(top_addr), mmd.fixed_legend_text_size)
