@@ -113,7 +113,7 @@ class Diagram(ConfigParent):
     ] 
     void_fill_colour: Annotated[
         str,
-        pydantic.Field("oldlace", description="Fill colour for the void region blocks")
+        pydantic.Field("lightgrey", description="Fill colour for the void region blocks")
     ]
     void_line_colour: Annotated[
         str,
@@ -121,7 +121,7 @@ class Diagram(ConfigParent):
     ]
     title_fill_colour: Annotated[
         str,
-        pydantic.Field("oldlace", description="Fill colour for the memory region title blocks")
+        pydantic.Field("blanchedalmond", description="Fill colour for the memory region title blocks")
     ]
     title_line_colour: Annotated[
         str,

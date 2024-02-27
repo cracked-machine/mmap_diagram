@@ -119,7 +119,7 @@
       "type": "string"
     },
     "void_fill_colour": {
-      "default": "oldlace",
+      "default": "lightgrey",
       "description": "Fill colour for the void region blocks",
       "title": "Void Fill Colour",
       "type": "string"
@@ -131,7 +131,7 @@
       "type": "string"
     },
     "title_fill_colour": {
-      "default": "oldlace",
+      "default": "blanchedalmond",
       "description": "Fill colour for the memory region title blocks",
       "title": "Title Fill Colour",
       "type": "string"

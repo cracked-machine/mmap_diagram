@@ -12,6 +12,7 @@ import mm.metamodel
 class Image():
 
     _colours: Dict = PIL.ImageColor.colormap.copy()
+    _colours_list: List = {}
     """Copy of the PIL colour string map"""
 
     @classmethod
@@ -31,7 +32,8 @@ class Image():
         self.line = "black"
         """The border colour to use for the region"""
 
-        self.fill = self._pick_available_colour()
+        self.fill = self._pick_random_colour()
+        # self.fill = self._pick_available_colour()
         """random colour for region block"""
 
     def _draw(self, **kwargs):
@@ -53,25 +55,14 @@ class Image():
         
         return PIL.Image.alpha_composite(dest, mask_layer)
     
-    def _pick_available_colour(self) -> str:
-        """Pick a random colour from the  remove the picked colour from the list so it can't be picked again"""
-        try:
-            logging.debug(f"{self.name}:")
-            # make sure we don't pick a colour that is too bright.
-            # A0A0A0 was arbitrarily decided to be "too bright" :)
-            chosen_colour_name, chosen_colour_code = random.choice(list(Image._colours.items()))
-            while int(chosen_colour_code[1:], 16) > int("A0A0A0", 16):
-                logging.debug(f"\tRejected {chosen_colour_name}({chosen_colour_code})")
-                # del Image._colours[chosen_colour_name]
-                chosen_colour_name, chosen_colour_code = random.choice(list(Image._colours.items()))
+   
+    def _pick_random_colour(self):
 
-            # del Image._colours[chosen_colour_name]
-            logging.debug(f"\tSelected {chosen_colour_name}({chosen_colour_code})")
-        except (IndexError, KeyError):
-            logging.critical("Ran out of colours!")
-            raise SystemExit()
-        logging.debug(f"\t### {len(Image._colours)} colours left ###")
-        return chosen_colour_name
+        r =random.randint(0, int("FF", 16))
+        g =random.randint(0, int("FF", 16))
+        b =random.randint(0, int("FF", 16))
+        a =random.randint(0, int("FF", 16))
+        return (r, g, b, a)
 
 @typeguard.typechecked
 class MapNameImage(Image):
@@ -214,8 +205,10 @@ class MemoryRegionImage(Image):
             
 
         # draw name text
-        txt_lbl =  TextLabelImage(text=self.name, font_size=font_size)
-        region_img = txt_lbl.overlay(region_img, ((img_width - txt_lbl.img.width) // 2, 2), 192 )
+        txt_lbl =  TextLabelImage(text=self.name, font_size=font_size, fill_colour="white", padding_width=10)
+
+        region_img = txt_lbl.overlay(region_img, ((img_width - txt_lbl.img.width) // 2, 2), 128 )
+
 
         self.img = region_img
 
@@ -223,7 +216,7 @@ class MemoryRegionImage(Image):
 class VoidRegionImage(Image):
 
     def __init__(self, img_width: int, font_size: int, fill_colour:str, line_colour: str):
-        super().__init__(name="~ SKIPPED ~")
+        super().__init__(name="SKIPPED")
         
         self.size_as_hex: str = hex(40)
         self.size_as_int: int = int(self.size_as_hex,16)
@@ -242,7 +235,7 @@ class VoidRegionImage(Image):
                                    line=line_colour).img
 
         # draw name text
-        txt_img = TextLabelImage(text=self.name, font_size=font_size, font_colour="grey").img
+        txt_img = TextLabelImage(text=self.name, font_size=font_size, font_colour="grey", fill_colour=fill_colour).img
         self.img.paste(
             txt_img,
             ((img_width - txt_img.width) // 2, (self.size_as_int - txt_img.height) // 2),
@@ -251,7 +244,11 @@ class VoidRegionImage(Image):
 
 @typeguard.typechecked
 class TextLabelImage(Image):
-    def __init__(self, text: str, font_size: int, font_colour: str = "black"):
+    def __init__(self, text: str, 
+                 font_size: int, 
+                 font_colour: str = "black", 
+                 fill_colour: Tuple[int, int, int, int] | str = "white",
+                 padding_width: int = 0):
         super().__init__(name=text)
 
         self.font = PIL.ImageFont.load_default(font_size)
@@ -266,12 +263,13 @@ class TextLabelImage(Image):
         self.height = bottom
         """The label height"""
 
-        self.bgcolour = "oldlace"
+        self.bgcolour = fill_colour
         """The background colour to use for the region text label"""
 
         self.fgcolour = font_colour
         """The foreground colour to use for the region text label"""
 
+        self.padding_width = padding_width
         self._draw()
 
     def _draw(self):
@@ -279,14 +277,14 @@ class TextLabelImage(Image):
         # make the image bigger than the actual text bbox so there is plenty of space for the text
         self.img = PIL.Image.new(
             "RGBA", 
-            (self.width, (self.height)), 
+            (self.width + self.padding_width, (self.height)), 
             color=self.bgcolour)
         
         canvas = PIL.ImageDraw.Draw(self.img)
         # center the text in the oversized image, bias the y-pos by 1/5
         canvas.text(
             # xy=(self.width / 2, (self.height / 2 - (self.height / 5))),
-            xy=(0, -1),
+            xy=((self.img.width - self.width) // 2, -1),
             text=self.name,
             fill=self.fgcolour,
             font=self.font,
@@ -320,11 +318,12 @@ class DashedRectangle(Image):
             self, 
             w: int, 
             h: int, 
-            dash: Tuple[int, int, int, int] = (0,0,0,0),
-            fill: str = "white", 
+            dash: Tuple[int, int, int, int],
+            fill: Tuple[int, int, int, int] | str, 
             line: str = "black", 
             stroke: float = 1):
-        """dash is 4-tuple of top, right, bottom, left edges, set to 0 or 1 to disable"""
+        """dash is 4-tuple of top, right, bottom, left edges, set to 0 or 1 to disable.
+        Fill is an RGBA tuple or colour string"""
 
         top_dash = dash[0] if dash[0] > 1 else 1
         

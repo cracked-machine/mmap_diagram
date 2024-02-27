@@ -4,9 +4,9 @@
   "diagram_width": 400,
   "diagram_legend_width": 30,
   "diagram_bgcolour": "white",
-  "void_fill_colour": "oldlace",
+  "void_fill_colour": "lightgrey",
   "void_line_colour": "grey",
-  "title_fill_colour": "oldlace",
+  "title_fill_colour": "blanchedalmond",
   "title_line_colour": "grey",
   "memory_maps": {
     "eMMC": {
