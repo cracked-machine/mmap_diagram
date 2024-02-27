@@ -169,9 +169,9 @@ class MemoryMapDiagram:
                 line_canvas.line(
                     (
                         x,
-                        region_end_addr - MemoryMapDiagram.DashedLine.width,
+                        region_end_addr - MemoryMapDiagram.DashedLine.width - 1,
                         x + MemoryMapDiagram.DashedLine.len,
-                        region_end_addr - MemoryMapDiagram.DashedLine.width,
+                        region_end_addr - MemoryMapDiagram.DashedLine.width - 1,
                     ),
                     fill="black",
                     width=MemoryMapDiagram.DashedLine.width,
@@ -191,9 +191,9 @@ class MemoryMapDiagram:
                 line_canvas.line(
                     (
                         x,
-                        int(memregion.origin_as_hex, 16) - MemoryMapDiagram.DashedLine.width,
+                        int(memregion.origin_as_hex, 16) - MemoryMapDiagram.DashedLine.width + 2,
                         x + MemoryMapDiagram.DashedLine.len,
-                        int(memregion.origin_as_hex,16) - MemoryMapDiagram.DashedLine.width,
+                        int(memregion.origin_as_hex,16) - MemoryMapDiagram.DashedLine.width + 2,
                     ),
                     fill="black",
                     width=1,
