@@ -3,26 +3,12 @@ import mm.diagram
 import pathlib
 import pytest
 import PIL.Image
-from tests.common_fixtures import input
+from tests.common_fixtures import input, file_setup
 import json
 
-@pytest.fixture
-def setup(request):
 
-    report = pathlib.Path(f"doc/example/{__name__}{request.param['file_prefix']}.md")
-    report.unlink(missing_ok=True)
-
-    image_full = pathlib.Path(f"doc/example/{__name__}{request.param['file_prefix']}_full.png")
-    image_full.unlink(missing_ok=True)
-
-    image_cropped = pathlib.Path(f"doc/example/{__name__}{request.param['file_prefix']}_cropped.png")
-    image_cropped.unlink(missing_ok=True)
-
-    return {"report": report, "image_full": image_full, "image_cropped": image_cropped}
-
-
-@pytest.mark.parametrize("setup", [{"file_prefix": "_normal"}], indirect=True)
-def test_generate_doc_example_normal(setup):
+@pytest.mark.parametrize("file_setup", [{"file_path": "doc/example/test_generate_doc_example_normal"}], indirect=True)
+def test_generate_doc_example_normal(file_setup):
     """ """
 
     diagram_height = 1000
@@ -33,7 +19,7 @@ def test_generate_doc_example_normal(setup):
             "kernel", "0x10", "0x30",
             "rootfs", "0x50", "0x30",
             "dtb", "0x190", "0x30",
-            "-o", str(setup["report"]),
+            "-o", str(file_setup["report"]),
             "-l", hex(diagram_height),
             "-v", hex(200),
         ],
@@ -59,20 +45,20 @@ def test_generate_doc_example_normal(setup):
                 assert region_image.size_as_hex == "0x30"
                 assert region_image.freespace_as_hex == "0x228"
 
-        assert setup["report"].exists()
+        assert file_setup["report"].exists()
 
-        assert setup["image_full"].exists()
-        found_size = PIL.Image.open(str(setup["image_full"])).size
+        assert file_setup["image_full"].exists()
+        found_size = PIL.Image.open(str(file_setup["image_full"])).size
         assert found_size == (400, diagram_height)
 
         # reduced void threshold, so empty section between rootfs and dtb should be voided, making the file smaller
-        assert setup["image_cropped"].exists()
-        found_size = PIL.Image.open(str(setup["image_cropped"])).size
+        assert file_setup["image_cropped"].exists()
+        found_size = PIL.Image.open(str(file_setup["image_cropped"])).size
         assert found_size == (400, 328)
 
 
-@pytest.mark.parametrize("setup", [{"file_prefix": "_collisions"}], indirect=True)
-def test_generate_doc_example_collisions(setup):
+@pytest.mark.parametrize("file_setup", [{"file_path": "doc/example/test_generate_doc_example_collisions"}], indirect=True)
+def test_generate_doc_example_collisions(file_setup):
     """ """
     diagram_height = hex(1000)
     with unittest.mock.patch(
@@ -82,7 +68,7 @@ def test_generate_doc_example_collisions(setup):
             "kernel", "0x10", "0x60",
             "rootfs", "0x50", "0x50",
             "dtb", "0x90", "0x30",
-            "-o", str(setup["report"]),
+            "-o", str(file_setup["report"]),
             "-l", diagram_height,
             "-v", hex(200),
         ],
@@ -105,13 +91,13 @@ def test_generate_doc_example_collisions(setup):
                 assert region_image.size_as_hex == "0x30"
                 assert region_image.freespace_as_hex == "0x328"
 
-        assert setup["report"].exists()
+        assert file_setup["report"].exists()
 
-        assert setup["image_full"].exists()
-        assert setup["image_cropped"].exists()
+        assert file_setup["image_full"].exists()
+        assert file_setup["image_cropped"].exists()
 
-@pytest.mark.parametrize("setup", [{"file_prefix": "_two_maps"}], indirect=True)
-def test_generate_doc_example_two_maps(input, setup):
+@pytest.mark.parametrize("file_setup", [{"file_path": "doc/example/test_generate_doc_example_two_maps"}], indirect=True)
+def test_generate_doc_example_two_maps(input, file_setup):
     """ """
 
     input['memory_maps']['eMMC']['memory_regions']['Blob4'] = {
@@ -135,7 +121,7 @@ def test_generate_doc_example_two_maps(input, setup):
             [
                 "mm.diagram",
                 "-f", str(input_file),
-                "-o", str(setup["report"]),
+                "-o", str(file_setup["report"]),
                 "-l", hex(diagram_height),
                 "-v", hex(200),
             ],
@@ -145,13 +131,13 @@ def test_generate_doc_example_two_maps(input, setup):
 
         mm.diagram.Diagram()
 
-        assert setup["report"].exists()
+        assert file_setup["report"].exists()
 
-        assert setup["image_full"].exists()
-        assert setup["image_cropped"].exists()
+        assert file_setup["image_full"].exists()
+        assert file_setup["image_cropped"].exists()
 
-@pytest.mark.parametrize("setup", [{"file_prefix": "_three_maps"}], indirect=True)
-def test_generate_doc_example_three_maps(input, setup):
+@pytest.mark.parametrize("file_setup", [{"file_path": "doc/example/test_generate_doc_example_three_maps"}], indirect=True)
+def test_generate_doc_example_three_maps(input, file_setup):
     """ """
     input["memory_maps"]['flash'] = {
         "map_height": 1000,
@@ -184,7 +170,7 @@ def test_generate_doc_example_three_maps(input, setup):
             [
                 "mm.diagram",
                 "-f", str(input_file),
-                "-o", str(setup["report"]),
+                "-o", str(file_setup["report"]),
                 "-l", hex(diagram_height),
                 "-v", hex(200),
             ],
@@ -192,7 +178,7 @@ def test_generate_doc_example_three_maps(input, setup):
 
         mm.diagram.Diagram()
 
-        assert setup["report"].exists()
+        assert file_setup["report"].exists()
 
-        assert setup["image_full"].exists()
-        assert setup["image_cropped"].exists()
+        assert file_setup["image_full"].exists()
+        assert file_setup["image_cropped"].exists()

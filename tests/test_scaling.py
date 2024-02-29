@@ -4,17 +4,7 @@ import mm.image
 import PIL.Image
 import pathlib
 import pytest
-
-
-@pytest.fixture
-def setup():
-    report = pathlib.Path(f"/tmp/pytest/{__name__}.md")
-    image_full = pathlib.Path(f"/tmp/pytest/{__name__}_full.png")
-    image_cropped = pathlib.Path(f"/tmp/pytest/{__name__}_cropped.png")
-    report.unlink(missing_ok=True)
-    image_full.unlink(missing_ok=True)
-    image_cropped.unlink(missing_ok=True)
-    return {"report": report, "image_full": image_full, "image_cropped": image_cropped}
+from tests.common_fixtures import input, file_setup
 
 
 def assert_expected_scale(
@@ -27,8 +17,8 @@ def assert_expected_scale(
     assert Diagram.model.diagram_width == width * scale
     assert outimg.size == (Diagram.model.diagram_width, cropped_height)
 
-
-def test_scaling_x1(setup):
+@pytest.mark.parametrize("file_setup", [{"file_path": "out/tmp/test_scaling_x1"}], indirect=True)
+def test_scaling_x1(file_setup):
     """ """
     default_diagram_width = 400
     requested_diagram_height = 2000
@@ -49,7 +39,7 @@ def test_scaling_x1(setup):
             "0x90",
             "0x30",
             "-o",
-            str(setup["report"]),
+            str(file_setup["report"]),
             "-l",
             hex(requested_diagram_height),
         ],
@@ -65,7 +55,7 @@ def test_scaling_x1(setup):
         # cropped height should just be x1 scale on full image, i.e. not cropped at all
         assert_expected_scale(
             d,
-            img_path=setup["image_full"],
+            img_path=file_setup["image_full"],
             width=default_diagram_width,
             height=requested_diagram_height,
             cropped_height=requested_diagram_height,
@@ -75,15 +65,15 @@ def test_scaling_x1(setup):
         # cropped height should disregard scaling on cropped image
         assert_expected_scale(
             d,
-            img_path=setup["image_cropped"],
+            img_path=file_setup["image_cropped"],
             width=default_diagram_width,
             height=requested_diagram_height,
             cropped_height=expected_cropped_height,
             scale=requested_scale,
         )
 
-
-def test_scaling_x2(setup):
+@pytest.mark.parametrize("file_setup", [{"file_path": "out/tmp/test_scaling_x2"}], indirect=True)
+def test_scaling_x2(file_setup):
     """ """
     default_diagram_width = 400
     requested_diagram_height = 1000
@@ -104,7 +94,7 @@ def test_scaling_x2(setup):
             "0x90",
             "0x30",
             "-o",
-            str(setup["report"]),
+            str(file_setup["report"]),
             "-l",
             hex(requested_diagram_height),
             "-s",
@@ -117,21 +107,21 @@ def test_scaling_x2(setup):
         # assumes default haven't changed
         assert Diagram.pargs.voidthreshold == hex(1000)
 
-        assert setup["image_full"].exists()
-        outimg = PIL.Image.open(str(setup["image_full"]))
+        assert file_setup["image_full"].exists()
+        outimg = PIL.Image.open(str(file_setup["image_full"]))
         assert Diagram.model.diagram_height == requested_diagram_height * requested_scale
         assert Diagram.model.diagram_width == default_diagram_width * requested_scale
         assert outimg.size == (Diagram.model.diagram_width, Diagram.model.diagram_height)
 
-        assert setup["image_cropped"].exists()
-        outimg = PIL.Image.open(str(setup["image_cropped"]))
+        assert file_setup["image_cropped"].exists()
+        outimg = PIL.Image.open(str(file_setup["image_cropped"]))
         assert Diagram.model.diagram_height == requested_diagram_height * requested_scale
         assert Diagram.model.diagram_width == default_diagram_width * requested_scale
         assert outimg.size == (Diagram.model.diagram_width, expected_cropped_height)
 
         # # cropped height should just be x2 scale on full image, i.e. not cropped at all
         # assert_expected_scale(d,
-        #                       img_path=setup['image_full'],
+        #                       img_path=file_setup['image_full'],
         #                       width=default_diagram_width,
         #                       height=requested_diagram_height,
         #                       cropped_height=requested_diagram_height * requested_scale,
@@ -139,7 +129,7 @@ def test_scaling_x2(setup):
 
         # # cropped height should disregard scaling on cropped image
         # assert_expected_scale(d,
-        #                       img_path=setup['image_cropped'],
+        #                       img_path=file_setup['image_cropped'],
         #                       width=default_diagram_width,
         #                       height=requested_diagram_height,
         #                       cropped_height=expected_cropped_height,

@@ -1,5 +1,6 @@
 import pytest
 from typing import Dict
+import pathlib
 
 @pytest.fixture
 def input() -> Dict:
@@ -43,3 +44,19 @@ def input() -> Dict:
     }
         
     return valid
+
+@pytest.fixture
+def file_setup(request):
+
+    report = pathlib.Path(f"{request.param['file_path']}.md")
+    report.unlink(missing_ok=True)
+
+    image_full = pathlib.Path(f"{request.param['file_path']}_full.png")
+    image_full.unlink(missing_ok=True)
+
+    image_cropped = pathlib.Path(f"{request.param['file_path']}_cropped.png")
+    image_cropped.unlink(missing_ok=True)
+
+    return {"report": report, "image_full": image_full, "image_cropped": image_cropped}
+
+
