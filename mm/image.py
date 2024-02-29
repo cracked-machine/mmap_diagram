@@ -11,18 +11,7 @@ import mm.metamodel
 @typeguard.typechecked
 class Image():
 
-    _colours: Dict = PIL.ImageColor.colormap.copy()
-    _colours_list: List = {}
-    """Copy of the PIL colour string map"""
-
-    @classmethod
-    def init(cls):
-        # remove any duplicate colour values from the dict
-        temp = {val: key for key, val in Image._colours.items()}
-        Image._colours = {val: key for key, val in temp.items()}       
-
     def __init__(self, name: str):
-        Image.init()
 
         self.img: PIL.Image.Image
 
