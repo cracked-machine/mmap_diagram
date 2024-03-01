@@ -166,7 +166,7 @@ class MemoryMapDiagram:
                     # add origin address text
                     map_img_redux = self._add_label(map_img_redux, (region.img.width + 5, region.origin_as_int - last_void_pos), 1, region.origin_as_hex, 10)
                     next_void_pos = (region.origin_as_int - last_void_pos) + region.size_as_int + 10
-                    
+
                 if isinstance(region, mm.image.VoidRegionImage):
                     # add void region
                     map_img_redux.paste(region.img, (0, next_void_pos))

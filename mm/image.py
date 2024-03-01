@@ -5,6 +5,7 @@ import PIL.ImageDraw
 import PIL.ImageColor
 import PIL.ImageFont
 from typing import List, Dict, Tuple
+import typing
 import logging
 import mm.metamodel
 
@@ -14,7 +15,7 @@ class Image():
     def __init__(self, name: str):
 
         self.img: PIL.Image.Image
-
+    
         self.name: str = name
         """region name"""
 
@@ -25,14 +26,28 @@ class Image():
         # self.fill = self._pick_available_colour()
         """random colour for region block"""
 
+        self.abs_pos_x: int = None
+        self.abs_pos_y: int = None
+        self.abs_mid_pos_x: int = None
+        self.abs_mid_pos_y: int = None
+
     def _draw(self, **kwargs):
         raise NotImplementedError
 
-    def overlay(self, dest: PIL.Image.Image, pos: Tuple[int,int] = (0,0), alpha: int = 255) -> PIL.Image.Image:
+    def overlay(self, dest: PIL.Image.Image, xy: Tuple[int,int] = (0,0), alpha: int = 255) -> PIL.Image.Image:
         """Overlay this image onto the dest image. Return the composite image"""        
 
+        # retain the absolute positional data relative to the map
+        self.abs_pos_x = xy[0]
+        self.abs_pos_y = xy[1]
+        if not self.img:
+            logging.warn("Cannot access image properties yet, it is still unitialised")
+        else:
+            self.abs_mid_pos_x = self.abs_pos_x + (self.img.width // 2)
+            self.abs_mid_pos_y = self.abs_pos_y + (self.img.height // 2)
+
         mask_layer = PIL.Image.new('RGBA', dest.size, (0,0,0,0))
-        mask_layer.paste(self.img, pos)
+        mask_layer.paste(self.img, xy)
 
         # from PIL.Image import Transform
         # mask_layer = mask_layer.transform(dest.size, Transform.AFFINE, (1, 0.5, -100, 1, 1, -100))
@@ -90,17 +105,19 @@ class MemoryRegionImage(Image):
         super().__init__(name)
 
         self.img = None
+        """Pillow image object, initialised by _draw function"""
+
         self.metadata: mm.metamodel.MemoryRegion = metadata
         """instance of the pydantic metamodel class for this specific memory region"""
 
         self.draw_indent = 0
         """Index counter for incrementally shrinking the drawing indent"""
+        
         self.fill = None
         self._reserve_random_colour()
+        
         self.img_width = img_width
-        self.font_size = font_size
-
-        # self._draw()
+        self.font_size = font_size     
 
     @property
     def origin_as_hex(self):
@@ -201,11 +218,9 @@ class MemoryRegionImage(Image):
     
     def _draw(self):
         """Create the image for the region rectangle and its inset name label"""
+
         self.fill = MemoryRegionImage._colour_mappings[self.name]
         logging.info(self)
-        if not self.size_as_hex:
-            logging.warning("Zero size region will not be added.")
-            return None
 
         if self.freespace_as_int < 0:
             region_img = DashedRectangle(
@@ -213,13 +228,11 @@ class MemoryRegionImage(Image):
         else:
             region_img = DashedRectangle(
                 self.img_width, int(self.size_as_hex,16), fill=self.fill, line=self.line, dash=(0,0,0,0), stroke=2).img
-            
 
         # draw name text
         txt_lbl =  TextLabelImage(text=self.name, font_size=self.font_size, fill_colour="white", padding_width=10)
 
         region_img = txt_lbl.overlay(region_img, ((self.img_width - txt_lbl.img.width) // 2, 2), 128 )
-
 
         self.img = region_img
 
@@ -227,7 +240,7 @@ class MemoryRegionImage(Image):
 class VoidRegionImage(Image):
 
     def __init__(self, img_width: int, font_size: int, fill_colour:str, line_colour: str):
-        super().__init__(name="SKIPPED")
+        super().__init__("SKIPPED")
         
         self.size_as_hex: str = hex(40)
         self.size_as_int: int = int(self.size_as_hex,16)
@@ -260,13 +273,16 @@ class TextLabelImage(Image):
                  font_colour: str = "black", 
                  fill_colour: Tuple[int, int, int, int] | str = "white",
                  padding_width: int = 0):
-        super().__init__(name=text)
+        
+
+        super().__init__(text)
 
         self.font = PIL.ImageFont.load_default(font_size)
         """The font used to display the text"""
 
         left, top, right, bottom = self.font.getbbox(self.name)
         """The dimensions required for the text"""
+
 
         self.width = right
         """The label width"""
