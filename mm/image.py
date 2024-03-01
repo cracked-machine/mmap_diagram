@@ -12,10 +12,11 @@ import mm.metamodel
 @typeguard.typechecked
 class Image():
 
-    def __init__(self, name: str):
+    def __init__(self, name: str, parent: str | None):
 
         self.img: PIL.Image.Image
-    
+
+        self.parent: str = parent
         self.name: str = name
         """region name"""
 
@@ -73,14 +74,14 @@ class MapNameImage(Image):
 
     def __init__(self, name: str, img_width: int, font_size: int, fill_colour:str, line_colour: str):
 
-        super().__init__(name)
+        super().__init__(name, None)
         
         self._draw(img_width, font_size, fill_colour, line_colour)
 
     def _draw(self, img_width: int, font_size: int, fill_colour:str, line_colour: str):
         """Create the image for the region rectangle and its inset name label"""
 
-        txt_lbl =  TextLabelImage(text=self.name, font_size=font_size)
+        txt_lbl =  TextLabelImage(self.name, text=self.name, font_size=font_size)
 
         generic_img = DashedRectangle(img_width, 
                                       txt_lbl.img.height + 10, 
@@ -100,9 +101,9 @@ class MapNameImage(Image):
 class MemoryRegionImage(Image):
     _colour_mappings = {}
 
-    def __init__(self, name: str, metadata: mm.metamodel.MemoryRegion, img_width: int, font_size: int):
+    def __init__(self, name: str, mmap_parent: str, metadata: mm.metamodel.MemoryRegion, img_width: int, font_size: int):
 
-        super().__init__(name)
+        super().__init__(name, mmap_parent)
 
         self.img = None
         """Pillow image object, initialised by _draw function"""
@@ -230,7 +231,7 @@ class MemoryRegionImage(Image):
                 self.img_width, int(self.size_as_hex,16), fill=self.fill, line=self.line, dash=(0,0,0,0), stroke=2).img
 
         # draw name text
-        txt_lbl =  TextLabelImage(text=self.name, font_size=self.font_size, fill_colour="white", padding_width=10)
+        txt_lbl =  TextLabelImage(self.name, text=self.name, font_size=self.font_size, fill_colour="white", padding_width=10)
 
         region_img = txt_lbl.overlay(region_img, ((self.img_width - txt_lbl.img.width) // 2, 2), 128 )
 
@@ -239,8 +240,8 @@ class MemoryRegionImage(Image):
 @typeguard.typechecked
 class VoidRegionImage(Image):
 
-    def __init__(self, img_width: int, font_size: int, fill_colour:str, line_colour: str):
-        super().__init__("SKIPPED")
+    def __init__(self, mmap_parent: str, img_width: int, font_size: int, fill_colour:str, line_colour: str):
+        super().__init__("SKIPPED", mmap_parent)
         
         self.size_as_hex: str = hex(40)
         self.size_as_int: int = int(self.size_as_hex,16)
@@ -259,7 +260,7 @@ class VoidRegionImage(Image):
                                    line=line_colour).img
 
         # draw name text
-        txt_img = TextLabelImage(text=self.name, font_size=font_size, font_colour="grey", fill_colour=fill_colour).img
+        txt_img = TextLabelImage(self.name, text=self.name, font_size=font_size, font_colour="grey", fill_colour=fill_colour).img
         self.img.paste(
             txt_img,
             ((img_width - txt_img.width) // 2, (self.size_as_int - txt_img.height) // 2),
@@ -268,14 +269,16 @@ class VoidRegionImage(Image):
 
 @typeguard.typechecked
 class TextLabelImage(Image):
-    def __init__(self, text: str, 
+    def __init__(self, 
+                 parent: str,
+                 text: str, 
                  font_size: int, 
                  font_colour: str = "black", 
                  fill_colour: Tuple[int, int, int, int] | str = "white",
                  padding_width: int = 0):
         
 
-        super().__init__(text)
+        super().__init__(text, parent)
 
         self.font = PIL.ImageFont.load_default(font_size)
         """The font used to display the text"""

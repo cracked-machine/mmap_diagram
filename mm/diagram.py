@@ -72,6 +72,7 @@ class MemoryMapDiagram:
         """Title graphic for this memory map"""
         
         self.voidregion = mm.image.VoidRegionImage(
+            self.name,
             img_width=(self.width - self._legend_width - (self.width//5)), 
             font_size=self.default_region_text_size,
             fill_colour=Diagram.model.void_fill_colour,
@@ -89,6 +90,7 @@ class MemoryMapDiagram:
         for region_name, region in memory_map_metadata.get(mmap_name).memory_regions.items():
             new_mr_image = mm.image.MemoryRegionImage(
                 region_name,
+                self.name,
                 region,
                 img_width=(self.width - self._legend_width - (self.width//5)),
                 font_size=self.default_region_text_size
@@ -123,7 +125,7 @@ class MemoryMapDiagram:
     
 
     def _add_label(self, dest: PIL.Image, pos: Tuple[int, int], len: int, text: str, font_size: int):
-        label = mm.image.TextLabelImage(text, font_size)
+        label = mm.image.TextLabelImage(self.name, text, font_size)
         dest = label.overlay(dest, pos)
         return dest
 
