@@ -242,10 +242,12 @@ class Diagram:
                 ( (mmd_idx * mmd.width), final_diagram_img.height - max_name_lbl_height),
                 alpha=255)    
 
-            link_overlay_canvas = PIL.ImageDraw.Draw(final_diagram_img)
-
-
         # overlay links on top of everything else
+        link_arrow_size = 3
+        link_thickness = 3
+    
+        link_overlay_canvas = PIL.ImageDraw.Draw(final_diagram_img)
+
         for source_mmd_idx, mmd in enumerate(self.mmd_list):    
             for region_image in mmd.image_list:
                 source_region_mid_pos_x = region_image.abs_mid_pos_x
@@ -272,24 +274,22 @@ class Diagram:
                                                 target_region.abs_mid_pos_y
                                             )
                                         ], 
-                                        fill="red", 
-                                        width=5
+                                        fill=(255, 0, 0), 
+                                        width=link_thickness
                                     )        
                                     link_overlay_canvas.ellipse(
                                         [
-                                            (target_mmd_idx * mmd.width) + target_region.abs_mid_pos_x, 
-                                            target_region.abs_mid_pos_y,
-                                            (target_mmd_idx * mmd.width) + target_region.abs_mid_pos_x + 10, 
-                                            target_region.abs_mid_pos_y + 10
+                                            (target_mmd_idx * mmd.width) + target_region.abs_mid_pos_x - (link_arrow_size), 
+                                            target_region.abs_mid_pos_y - (link_arrow_size),
+                                            (target_mmd_idx * mmd.width) + target_region.abs_mid_pos_x + link_arrow_size, 
+                                            target_region.abs_mid_pos_y + link_arrow_size
                                         ],
-                                        fill="red",
+                                        fill=(255, 0, 0),
                                         outline="red",
-                                        width=10
+                                        width=link_arrow_size
                                     )
-                                                                
-                                    
-                                    pass
-                    
+
+        # finalise diagram                                                 
         final_diagram_img = final_diagram_img.transpose(PIL.Image.FLIP_TOP_BOTTOM)
         img_file_path = pathlib.Path(Diagram.pargs.out).stem + "_redux.png"
         final_diagram_img.save(pathlib.Path(Diagram.pargs.out).parent / img_file_path)
