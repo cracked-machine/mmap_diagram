@@ -217,6 +217,7 @@ class Diagram:
         self._create_markdown(self.mmd_list)        
 
     def draw_diagram_img_redux(self):
+        """add each memory map to the complete diagram image"""
         # self.mmd_list.sort(key=lambda x: x.final_map_img_redux.height, reverse=True)
 
         max_diagram_height = max(self.mmd_list, key=lambda mmd: mmd.final_map_img_redux.height).final_map_img_redux.height
@@ -227,17 +228,67 @@ class Diagram:
             (Diagram.model.diagram_width, max_diagram_height + max_name_lbl_height + 10), 
             color=Diagram.model.diagram_bgcolour)       
         
-        for idx, mmd in enumerate(self.mmd_list):
+        # add region and labels first
+        for mmd_idx, mmd in enumerate(self.mmd_list):
+            
             # add the mem map diagram image
-             
             final_diagram_img.paste(
                 mmd.final_map_img_redux.transpose(PIL.Image.FLIP_TOP_BOTTOM), 
-                ( (idx * mmd.width), 0))
+                ( (mmd_idx * mmd.width), 0))
             
+            # add the mem map name label at the complete diagram level so they line up at y = 0
             final_diagram_img = mmd.name_lbl.overlay(
                 final_diagram_img,
-                ( (idx * mmd.width), final_diagram_img.height - max_name_lbl_height),
-                alpha=255)            
+                ( (mmd_idx * mmd.width), final_diagram_img.height - max_name_lbl_height),
+                alpha=255)    
+
+            link_overlay_canvas = PIL.ImageDraw.Draw(final_diagram_img)
+
+
+        # overlay links on top of everything else
+        for source_mmd_idx, mmd in enumerate(self.mmd_list):    
+            for region_image in mmd.image_list:
+                source_region_mid_pos_x = region_image.abs_mid_pos_x
+                source_region_mid_pos_y = region_image.abs_mid_pos_y
+                for link in region_image.metadata.memory_region_links:
+                    mmd_parent_name = link[0]
+                    region_child_name = link[1]
+                    # search for the matching parent/child memmap/memregion
+                    for target_mmd_idx, mmd in enumerate(self.mmd_list):
+                        if mmd.name == mmd_parent_name:
+                            for target_region in mmd.image_list:
+                                if target_region.name == region_child_name:
+
+                                    link_overlay_canvas.line(
+                                        [
+                                            # line start
+                                            (
+                                                (source_mmd_idx * mmd.width) + source_region_mid_pos_x, 
+                                                source_region_mid_pos_y
+                                            ),
+                                            # line end
+                                            (
+                                                (target_mmd_idx * mmd.width) + target_region.abs_mid_pos_x, 
+                                                target_region.abs_mid_pos_y
+                                            )
+                                        ], 
+                                        fill="red", 
+                                        width=5
+                                    )        
+                                    link_overlay_canvas.ellipse(
+                                        [
+                                            (target_mmd_idx * mmd.width) + target_region.abs_mid_pos_x, 
+                                            target_region.abs_mid_pos_y,
+                                            (target_mmd_idx * mmd.width) + target_region.abs_mid_pos_x + 10, 
+                                            target_region.abs_mid_pos_y + 10
+                                        ],
+                                        fill="red",
+                                        outline="red",
+                                        width=10
+                                    )
+                                                                
+                                    
+                                    pass
                     
         final_diagram_img = final_diagram_img.transpose(PIL.Image.FLIP_TOP_BOTTOM)
         img_file_path = pathlib.Path(Diagram.pargs.out).stem + "_redux.png"
