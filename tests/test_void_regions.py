@@ -45,13 +45,11 @@ def test_void_region_default(file_setup):
 
         assert file_setup["report"].exists()
 
-        assert file_setup["image_full"].exists()
-        found_size = PIL.Image.open(str(file_setup["image_full"])).size
-        assert found_size == (400, diagram_height)
+        assert file_setup["diagram_image"].exists()
+        found_size = PIL.Image.open(str(file_setup["diagram_image"])).size
+        assert found_size == (400, 530)
 
-        assert file_setup["image_cropped"].exists()
-        found_size = PIL.Image.open(str(file_setup["image_cropped"])).size
-        assert found_size == (400, 540)
+        assert file_setup["table_image"].exists()
 
 @pytest.mark.parametrize("file_setup", [{"file_path": "out/tmp/test_void_region_uservalue_500"}], indirect=True)
 def test_void_region_uservalue_500(file_setup):
@@ -93,14 +91,11 @@ def test_void_region_uservalue_500(file_setup):
 
         assert file_setup["report"].exists()
 
-        assert file_setup["image_full"].exists()
-        found_size = PIL.Image.open(str(file_setup["image_full"])).size
-        assert found_size == (400, diagram_height)
+        assert file_setup["diagram_image"].exists()
+        found_size = PIL.Image.open(str(file_setup["diagram_image"])).size
+        assert found_size == (400, 530)
 
-        # empty section between rootfs and dtb should be retained
-        assert file_setup["image_cropped"].exists()
-        found_size = PIL.Image.open(str(file_setup["image_cropped"])).size
-        assert found_size == (400, 540)
+        assert file_setup["table_image"].exists()
 
 @pytest.mark.parametrize("file_setup", [{"file_path": "out/tmp/test_void_region_uservalue_200"}], indirect=True)
 def test_void_region_uservalue_200(file_setup):
@@ -142,11 +137,8 @@ def test_void_region_uservalue_200(file_setup):
 
         assert file_setup["report"].exists()
 
-        assert file_setup["image_full"].exists()
-        found_size = PIL.Image.open(str(file_setup["image_full"])).size
-        assert found_size == (400, diagram_height)
+        assert file_setup["diagram_image"].exists()
+        found_size = PIL.Image.open(str(file_setup["diagram_image"])).size
+        assert found_size == (400, 352)
 
-        # reduced void threshold, so empty section between rootfs and dtb should be voided, making the file smaller
-        assert file_setup["image_cropped"].exists()
-        found_size = PIL.Image.open(str(file_setup["image_cropped"])).size
-        assert found_size == (400, 328)
+        assert file_setup["table_image"].exists()

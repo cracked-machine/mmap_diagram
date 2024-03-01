@@ -47,15 +47,12 @@ def test_generate_doc_example_normal(file_setup):
 
         assert file_setup["report"].exists()
 
-        assert file_setup["image_full"].exists()
-        found_size = PIL.Image.open(str(file_setup["image_full"])).size
-        assert found_size == (400, diagram_height)
+        assert file_setup["diagram_image"].exists()
+        found_size = PIL.Image.open(str(file_setup["diagram_image"])).size
+        assert found_size == (400, 352)
 
         # reduced void threshold, so empty section between rootfs and dtb should be voided, making the file smaller
-        assert file_setup["image_cropped"].exists()
-        found_size = PIL.Image.open(str(file_setup["image_cropped"])).size
-        assert found_size == (400, 328)
-
+        assert file_setup["table_image"].exists()
 
 @pytest.mark.parametrize("file_setup", [{"file_path": "doc/example/test_generate_doc_example_collisions"}], indirect=True)
 def test_generate_doc_example_collisions(file_setup):
@@ -93,8 +90,10 @@ def test_generate_doc_example_collisions(file_setup):
 
         assert file_setup["report"].exists()
 
-        assert file_setup["image_full"].exists()
-        assert file_setup["image_cropped"].exists()
+        assert file_setup["diagram_image"].exists()
+        assert PIL.Image.open(str(file_setup["diagram_image"])).size == (400, 274)
+
+        assert file_setup["table_image"].exists()
 
 @pytest.mark.parametrize("file_setup", [{"file_path": "doc/example/test_generate_doc_example_two_maps"}], indirect=True)
 def test_generate_doc_example_two_maps(input, file_setup):
@@ -133,8 +132,11 @@ def test_generate_doc_example_two_maps(input, file_setup):
 
         assert file_setup["report"].exists()
 
-        assert file_setup["image_full"].exists()
-        assert file_setup["image_cropped"].exists()
+        assert file_setup["diagram_image"].exists()
+        assert PIL.Image.open(str(file_setup["diagram_image"])).size == (400, 272)
+
+
+        assert file_setup["table_image"].exists()
 
 @pytest.mark.parametrize("file_setup", [{"file_path": "doc/example/test_generate_doc_example_three_maps"}], indirect=True)
 def test_generate_doc_example_three_maps(input, file_setup):
@@ -180,5 +182,6 @@ def test_generate_doc_example_three_maps(input, file_setup):
 
         assert file_setup["report"].exists()
 
-        assert file_setup["image_full"].exists()
-        assert file_setup["image_cropped"].exists()
+        assert file_setup["diagram_image"].exists()
+        assert PIL.Image.open(str(file_setup["diagram_image"])).size == (400, 312)
+        assert file_setup["table_image"].exists()

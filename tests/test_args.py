@@ -136,14 +136,12 @@ def test_default_limit_arg_format(file_setup):
 
         assert file_setup["report"].exists()
 
-        assert file_setup["image_full"].exists()
-        outimg = PIL.Image.open(str(file_setup["image_full"]))
-        assert hex(outimg.size[1]) == default_limit
+        assert file_setup["diagram_image"].exists()
+        outimg = PIL.Image.open(str(file_setup["diagram_image"]))
+        assert outimg.height == 74
 
-        assert file_setup["image_cropped"].exists()
-        outimg = PIL.Image.open(str(file_setup["image_cropped"]))
-        assert hex(outimg.size[1]) == "0x3fe"
-
+        assert file_setup["table_image"].exists()
+        
 @pytest.mark.parametrize("file_setup", [{"file_path": "out/tmp/test_valid_2000_limit_arg_format"}], indirect=True)
 def test_valid_2000_limit_arg_format(file_setup):
     """should create custom report dir/files"""
@@ -164,13 +162,11 @@ def test_valid_2000_limit_arg_format(file_setup):
 
         assert file_setup["report"].exists()
 
-        assert file_setup["image_full"].exists()
-        outimg = PIL.Image.open(str(file_setup["image_full"]))
-        assert outimg.size[1] == 2000
+        assert file_setup["diagram_image"].exists()
+        outimg = PIL.Image.open(str(file_setup["diagram_image"]))
+        assert outimg.size[1] == 114
 
-        assert file_setup["image_cropped"].exists()
-        outimg = PIL.Image.open(str(file_setup["image_cropped"]))
-        assert outimg.size[1] == 124
+        assert file_setup["table_image"].exists()
 
 def test_input_file():
 

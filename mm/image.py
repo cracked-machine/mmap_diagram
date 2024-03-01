@@ -83,18 +83,24 @@ class MapNameImage(Image):
 
 @typeguard.typechecked
 class MemoryRegionImage(Image):
+    _colour_mappings = {}
 
     def __init__(self, name: str, metadata: mm.metamodel.MemoryRegion, img_width: int, font_size: int):
 
         super().__init__(name)
 
+        self.img = None
         self.metadata: mm.metamodel.MemoryRegion = metadata
         """instance of the pydantic metamodel class for this specific memory region"""
 
         self.draw_indent = 0
         """Index counter for incrementally shrinking the drawing indent"""
-        
-        self._draw(img_width, font_size)
+        self.fill = None
+        self._reserve_random_colour()
+        self.img_width = img_width
+        self.font_size = font_size
+
+        # self._draw()
 
     @property
     def origin_as_hex(self):
@@ -177,9 +183,25 @@ class MemoryRegionImage(Image):
                 "+" + str(None),
             ]
 
-    def _draw(self, img_width: int, font_size: int):
-        """Create the image for the region rectangle and its inset name label"""
+    def _reserve_random_colour(self):
+        r =random.randint(0, int("FF", 16))
+        g =random.randint(0, int("FF", 16))
+        b =random.randint(0, int("FF", 16))
+        a =random.randint(0, int("FF", 16))
 
+        # TODO use parent name to add scope
+        if not self.name in MemoryRegionImage._colour_mappings:
+            MemoryRegionImage._colour_mappings[self.name] = (r, g, b, a)
+
+        for link in self.metadata.memory_region_links:
+            if not link[1] in MemoryRegionImage._colour_mappings:
+                MemoryRegionImage._colour_mappings[link[1]] = (r, g, b, a)
+
+        return (r, g, b, a)
+    
+    def _draw(self):
+        """Create the image for the region rectangle and its inset name label"""
+        self.fill = MemoryRegionImage._colour_mappings[self.name]
         logging.info(self)
         if not self.size_as_hex:
             logging.warning("Zero size region will not be added.")
@@ -187,16 +209,16 @@ class MemoryRegionImage(Image):
 
         if self.freespace_as_int < 0:
             region_img = DashedRectangle(
-                img_width, int(self.size_as_hex,16), fill=self.fill, line=self.line, dash=(0,0,8,0), stroke=2).img
+                self.img_width, int(self.size_as_hex,16), fill=self.fill, line=self.line, dash=(0,0,8,0), stroke=2).img
         else:
             region_img = DashedRectangle(
-                img_width, int(self.size_as_hex,16), fill=self.fill, line=self.line, dash=(0,0,0,0), stroke=2).img
+                self.img_width, int(self.size_as_hex,16), fill=self.fill, line=self.line, dash=(0,0,0,0), stroke=2).img
             
 
         # draw name text
-        txt_lbl =  TextLabelImage(text=self.name, font_size=font_size, fill_colour="white", padding_width=10)
+        txt_lbl =  TextLabelImage(text=self.name, font_size=self.font_size, fill_colour="white", padding_width=10)
 
-        region_img = txt_lbl.overlay(region_img, ((img_width - txt_lbl.img.width) // 2, 2), 128 )
+        region_img = txt_lbl.overlay(region_img, ((self.img_width - txt_lbl.img.width) // 2, 2), 128 )
 
 
         self.img = region_img

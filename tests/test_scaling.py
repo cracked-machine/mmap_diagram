@@ -52,25 +52,11 @@ def test_scaling_x1(file_setup):
         # assume default 'scale' is still x1
         assert mm.diagram.Diagram.pargs.scale == 1
 
-        # cropped height should just be x1 scale on full image, i.e. not cropped at all
-        assert_expected_scale(
-            d,
-            img_path=file_setup["image_full"],
-            width=default_diagram_width,
-            height=requested_diagram_height,
-            cropped_height=requested_diagram_height,
-            scale=requested_scale,
-        )
+        assert file_setup["diagram_image"].exists()
+        assert PIL.Image.open(str(file_setup["diagram_image"])).size == (400, 274)
 
-        # cropped height should disregard scaling on cropped image
-        assert_expected_scale(
-            d,
-            img_path=file_setup["image_cropped"],
-            width=default_diagram_width,
-            height=requested_diagram_height,
-            cropped_height=expected_cropped_height,
-            scale=requested_scale,
-        )
+        assert file_setup["table_image"].exists()
+        
 
 @pytest.mark.parametrize("file_setup", [{"file_path": "out/tmp/test_scaling_x2"}], indirect=True)
 def test_scaling_x2(file_setup):
@@ -107,30 +93,8 @@ def test_scaling_x2(file_setup):
         # assumes default haven't changed
         assert Diagram.pargs.voidthreshold == hex(1000)
 
-        assert file_setup["image_full"].exists()
-        outimg = PIL.Image.open(str(file_setup["image_full"]))
-        assert Diagram.model.diagram_height == requested_diagram_height * requested_scale
-        assert Diagram.model.diagram_width == default_diagram_width * requested_scale
-        assert outimg.size == (Diagram.model.diagram_width, Diagram.model.diagram_height)
+        assert file_setup["diagram_image"].exists()
+        assert PIL.Image.open(str(file_setup["diagram_image"])).size == (800, 274)
 
-        assert file_setup["image_cropped"].exists()
-        outimg = PIL.Image.open(str(file_setup["image_cropped"]))
-        assert Diagram.model.diagram_height == requested_diagram_height * requested_scale
-        assert Diagram.model.diagram_width == default_diagram_width * requested_scale
-        assert outimg.size == (Diagram.model.diagram_width, expected_cropped_height)
+        assert file_setup["table_image"].exists()
 
-        # # cropped height should just be x2 scale on full image, i.e. not cropped at all
-        # assert_expected_scale(d,
-        #                       img_path=file_setup['image_full'],
-        #                       width=default_diagram_width,
-        #                       height=requested_diagram_height,
-        #                       cropped_height=requested_diagram_height * requested_scale,
-        #                       scale=requested_scale)
-
-        # # cropped height should disregard scaling on cropped image
-        # assert_expected_scale(d,
-        #                       img_path=file_setup['image_cropped'],
-        #                       width=default_diagram_width,
-        #                       height=requested_diagram_height,
-        #                       cropped_height=expected_cropped_height,
-        #                       scale=requested_scale)

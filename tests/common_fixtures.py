@@ -51,12 +51,12 @@ def file_setup(request):
     report = pathlib.Path(f"{request.param['file_path']}.md")
     report.unlink(missing_ok=True)
 
-    image_full = pathlib.Path(f"{request.param['file_path']}_full.png")
-    image_full.unlink(missing_ok=True)
+    diagram_image = pathlib.Path(f"{request.param['file_path']}_redux.png")
+    diagram_image.unlink(missing_ok=True)
 
-    image_cropped = pathlib.Path(f"{request.param['file_path']}_cropped.png")
-    image_cropped.unlink(missing_ok=True)
+    table_image = pathlib.Path(f"{request.param['file_path']}_table.png")
+    table_image.unlink(missing_ok=True)
 
-    return {"report": report, "image_full": image_full, "image_cropped": image_cropped}
+    return {"report": report, "diagram_image": diagram_image, "table_image": table_image}
 
 
