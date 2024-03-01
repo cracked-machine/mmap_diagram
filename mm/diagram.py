@@ -116,8 +116,8 @@ class MemoryMapDiagram:
                 if image.collisions:
                     image.draw_indent = region_indent
                     region_indent += 5
-        self._redux(image_list)   
-
+        
+        self._create_mmap(image_list)   
 
         return image_list
     
@@ -127,7 +127,10 @@ class MemoryMapDiagram:
         dest = label.overlay(dest, pos)
         return dest
 
-    def _redux(self, memregion_list: List[mm.image.MemoryRegionImage]):
+    def _create_mmap(self, memregion_list: List[mm.image.MemoryRegionImage]):
+        """Create a dict of region groups, interleaved with void regions. 
+        Then draw the regions onto a larger memory map image. """
+
         redux_subgroup_idx = 0
         from collections import defaultdict
         redux_subgroup = defaultdict(list)
@@ -152,19 +155,24 @@ class MemoryMapDiagram:
         next_void_pos = 0
         last_void_pos = 0 
         for x in range(0, len(redux_subgroup)):
+
             region: mm.image.MemoryRegionImage
             for region in redux_subgroup[x]:
+
                 if isinstance(region, mm.image.MemoryRegionImage):
                     region._draw()
+                    # add memory region
                     map_img_redux = region.overlay(map_img_redux, (0, region.origin_as_int - last_void_pos), 128)
-                    # map_img_redux.paste(region.img, (0, region.origin_as_int - last_void_pos))
+                    # add origin address text
                     map_img_redux = self._add_label(map_img_redux, (region.img.width + 5, region.origin_as_int - last_void_pos), 1, region.origin_as_hex, 10)
                     next_void_pos = (region.origin_as_int - last_void_pos) + region.size_as_int + 10
+                    
                 if isinstance(region, mm.image.VoidRegionImage):
+                    # add void region
                     map_img_redux.paste(region.img, (0, next_void_pos))
                     last_void_pos = next_void_pos + region.img.height
 
-        
+        # remove any white space at the top of the diagram
         map_img_redux = map_img_redux.crop(
             (
                 0,                                                  # left
@@ -173,7 +181,8 @@ class MemoryMapDiagram:
                 last_void_pos if last_void_pos else next_void_pos   # lower
             )
         )
-         
+        
+        # flip back up the right way
         self.final_map_img_redux = map_img_redux.transpose(PIL.Image.FLIP_TOP_BOTTOM)           
 
 class Diagram:
