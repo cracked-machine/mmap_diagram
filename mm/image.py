@@ -434,13 +434,16 @@ class ArrowBlock(Image):
         
 
         if self.degs < 100 and self.degs > 80:      # 90 degs
-            x = src.x - self.img.width // 2
+            x = src.x - (self.img.width // 2) + int(arrow_body_width / 2)  - 1
         elif self.degs < -80 and self.degs > -100:   # -90 degs
-            x = src.x - self.img.width // 2
+            x = src.x - (self.img.width // 2) - int(arrow_body_width / 2)  + 1
         elif self.degs < 90 and self.degs > -90:      # -45 degs
-            x = src.x  
+            x = src.x 
         else:                                       # -135, 135, 180 degs
-            x = src.x - self.img.width
+            if self.degs > 0:
+                x = src.x - self.img.width + int(arrow_body_width / 2) - 1
+            else:
+                x = src.x - self.img.width
         
         if self.degs < 10 and self.degs > -10:      # 0 degs
             y = src.y - self.img.height // 2
@@ -448,8 +451,8 @@ class ArrowBlock(Image):
             y = src.y - self.img.height // 2
         elif self.degs > 0:                         # 45 degs
             y = src.y 
-        else:
-            y = src.y - self.img.height             # -45, -90, -135 deg 
+        else:                                        # -45, -90, -135 deg 
+            y = src.y - self.img.height + int(arrow_body_width / 2) - 1
 
         self.pos = Point(
             x=x,
