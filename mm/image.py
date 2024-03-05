@@ -383,7 +383,8 @@ class ArrowBlock(Image):
         fill: fill colour        
         """
 
-        l = int(math.hypot((dst.x - src.x), (dst.y - src.y)))
+        self.l = int(math.hypot((dst.x - src.x), (dst.y - src.y)))
+        
         h = head_width
         max_arrow_head_width = h
 
@@ -401,19 +402,19 @@ class ArrowBlock(Image):
         self.midypos = arrow_body_width
 
         # image needs enough height to rotate the arrow without clipping at top and bottom...
-        self.img = PIL.Image.new("RGBA", (l, l))        
+        self.img = PIL.Image.new("RGBA", (self.l, self.l))        
         # and establish relative midpoint for y axis so that arrow is drawn in the center of the image
-        yzero = (l / 2)  - (h / 2)
+        yzero = (self.l / 2)  - (h / 2)
 
         canvas = PIL.ImageDraw.Draw(self.img)
         canvas.polygon(
             [
                 (0, yzero + (max_arrow_head_width / 2) - (arrow_body_width / 2)), 
-                (l//body_len_denom, yzero + (max_arrow_head_width / 2) - (arrow_body_width / 2)), 
-                (l//body_len_denom, yzero), 
-                (l, yzero + (max_arrow_head_width / 2)),  # tip of arrow head
-                (l//body_len_denom, yzero + h), 
-                (l//body_len_denom, yzero + (max_arrow_head_width / 2) + (arrow_body_width / 2)), 
+                (self.l//body_len_denom, yzero + (max_arrow_head_width / 2) - (arrow_body_width / 2)), 
+                (self.l//body_len_denom, yzero), 
+                (self.l, yzero + (max_arrow_head_width / 2)),  # tip of arrow head
+                (self.l//body_len_denom, yzero + h), 
+                (self.l//body_len_denom, yzero + (max_arrow_head_width / 2) + (arrow_body_width / 2)), 
                 (0, yzero + (max_arrow_head_width / 2) + (arrow_body_width / 2))
             ], 
             fill=fill, 

@@ -26,9 +26,13 @@ def test_arrow_0():
     c.ellipse([(dst.x - 5, dst.y - 5), (dst.x + 5, dst.y + 5)], fill="black")
     c.line([(src.x, src.y),(dst.x, dst.y)], fill="black", width=2)    
     c.text((10,10), text=str(a.degs), fill="black")
-    
-    coords = (a.pos.x, a.pos.y)
-    bg = a.overlay(bg, coords, 128)    
+
+    expected_coords = (50,40)
+    actual_coords = (a.pos.x, a.pos.y)
+    assert expected_coords == actual_coords
+    assert a.l == 50
+
+    bg = a.overlay(bg, actual_coords, 128)    
     
     bg.save("out/tmp/arrow_0.png")
 
@@ -52,15 +56,19 @@ def test_arrow_pos45():
     c.line([(src.x, src.y),(dst.x, dst.y)], fill="black", width=2)    
     c.text((10,10), text=str(a.degs), fill="black")
     
-    coords = (a.pos.x, a.pos.y)
-    bg = a.overlay(bg, coords, 128)    
+    expected_coords = (50,50)
+    actual_coords = (a.pos.x, a.pos.y)
+    assert expected_coords == actual_coords
+    assert a.l == 70
+
+    bg = a.overlay(bg, actual_coords, 128)    
     
     bg.save("out/tmp/arrow_pos45.png")
 
 
 def test_arrow_pos90():
 
-    src = mm.image.Point(50, 50)
+    src = mm.image.Point(50, 40)
     dst = mm.image.Point(50, 100)
 
     a = mm.image.ArrowBlock(
@@ -78,13 +86,18 @@ def test_arrow_pos90():
     c.line([(src.x, src.y),(dst.x, dst.y)], fill="black", width=2)
     c.text((10,10), text=str(a.degs), fill="black")
 
-    coords = (a.pos.x, a.pos.y)
-    bg = a.overlay(bg, coords, 128)    
+    
+    expected_coords = (40,40)
+    actual_coords = (a.pos.x, a.pos.y)
+    assert expected_coords == actual_coords
+    assert a.l == 60
+
+    bg = a.overlay(bg, actual_coords, 128)    
     bg.save("out/tmp/arrow_pos90.png")
 
 def test_arrow_pos135():
 
-    src = mm.image.Point(100, 50)
+    src = mm.image.Point(100, 40)
     dst = mm.image.Point(50, 100)
 
     a = mm.image.ArrowBlock(
@@ -102,14 +115,18 @@ def test_arrow_pos135():
     c.line([(src.x, src.y),(dst.x, dst.y)], fill="black", width=2)
     c.text((10,10), text=str(a.degs), fill="black")
 
-    coords = (a.pos.x, a.pos.y)
-    bg = a.overlay(bg, coords, 128)    
+    expected_coords = (49,40)
+    actual_coords = (a.pos.x, a.pos.y)
+    assert expected_coords == actual_coords
+    assert a.l == 78
+
+    bg = a.overlay(bg, actual_coords, 128)    
     bg.save("out/tmp/arrow_pos135.png")
 
 def test_arrow_pos180():
  
     src = mm.image.Point(100, 50)
-    dst = mm.image.Point(50, 50)    
+    dst = mm.image.Point(22, 50)    
     a = mm.image.ArrowBlock(
         src=src,
         dst=dst,
@@ -125,8 +142,12 @@ def test_arrow_pos180():
     c.line([(src.x, src.y),(dst.x, dst.y)], fill="black", width=2)
     c.text((10,10), text=str(a.degs), fill="black")
 
-    coords = (a.pos.x, a.pos.y)
-    bg = a.overlay(bg, coords, 128)    
+    expected_coords = (22,40)
+    actual_coords = (a.pos.x, a.pos.y)
+    assert expected_coords == actual_coords
+    assert a.l == 78
+
+    bg = a.overlay(bg, actual_coords, 128)    
     bg.save("out/tmp/arrow_pos180.png")
 
 def test_arrow_neg135():
@@ -149,8 +170,12 @@ def test_arrow_neg135():
     c.line([(src.x, src.y),(dst.x, dst.y)], fill="black", width=2)
     c.text((10,10), text=str(a.degs), fill="black")
 
-    coords = (a.pos.x, a.pos.y)
-    bg = a.overlay(bg, coords, 128)    
+    expected_coords = (49,49)
+    actual_coords = (a.pos.x, a.pos.y)
+    assert expected_coords == actual_coords
+    assert a.l == 70
+
+    bg = a.overlay(bg, actual_coords, 128)    
     bg.save("out/tmp/arrow_neg135.png")
 
 def test_arrow_neg90():
@@ -173,8 +198,12 @@ def test_arrow_neg90():
     c.line([(src.x, src.y),(dst.x, dst.y)], fill="black", width=2)
     c.text((10,10), text=str(a.degs), fill="black")
 
-    coords = (a.pos.x, a.pos.y)
-    bg = a.overlay(bg, coords, 128)    
+    expected_coords = (40,50)
+    actual_coords = (a.pos.x, a.pos.y)
+    assert expected_coords == actual_coords
+    assert a.l == 50
+
+    bg = a.overlay(bg, actual_coords, 128)    
     bg.save("out/tmp/arrow_neg90.png")
 
 def test_arrow_neg45():
@@ -197,6 +226,10 @@ def test_arrow_neg45():
     c.line([(src.x, src.y),(dst.x, dst.y)], fill="black", width=2)
     c.text((10,10), text=str(a.degs), fill="black")
 
-    coords = (a.pos.x, a.pos.y)
-    bg = a.overlay(bg, coords, 128)    
+    expected_coords = (50,49)
+    actual_coords = (a.pos.x, a.pos.y)
+    assert expected_coords == actual_coords
+    assert a.l == 70
+
+    bg = a.overlay(bg, actual_coords, 128)    
     bg.save("out/tmp/arrow_neg45.png")
