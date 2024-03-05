@@ -150,29 +150,42 @@ class Diagram(ConfigParent):
         
 
         # get all region_link properties from the data
-        for mmap in v.values():
+        for mmap_name, mmap in v.items():
             for region in mmap.memory_regions.items():
                 found_memory_regions.append(region)
                 
                 for regionlink in region[1].memory_region_links:
-                    found_region_links.append({"link": regionlink, "region_size": region[1].memory_region_size})
+                    found_region_links.append(
+                        {
+                            "source_map_name": mmap_name, 
+                            "source_region_name": region[0], 
+                            "target_link": regionlink, 
+                            "target_region_size": region[1].memory_region_size
+                        }
+                    )
                     
 
         # check found links ref existing memmaps and memregions
         for regionlink in found_region_links:
 
-            region_link_parent_memmap = regionlink['link'][0]
+            region_link_parent_memmap = regionlink['target_link'][0]
             assert any(
                 (mm_name == region_link_parent_memmap) for mm_name in v.keys()),\
-                f"Parent MemoryMap '{region_link_parent_memmap}' in {regionlink['link']} is a dangling reference!"
+                f"Parent MemoryMap '{region_link_parent_memmap}' in {regionlink['target_link']} is a dangling reference!"
             
+            region_link_child_memregion = regionlink['target_link'][1]     
+            assert any((mr[0] == region_link_child_memregion for mr in found_memory_regions)),\
+                f"Child MemoryRegion '{region_link_child_memregion}' in {regionlink['target_link']} is a dangling reference!"
+
             # also check the from/to memoryregions are the same size
-            region_link_child_memregion = regionlink['link'][1]     
-            assert any(
-                (mr[0] == region_link_child_memregion and
-                mr[1].memory_region_size == regionlink['region_size']) 
-                for mr in found_memory_regions),\
-                f"Child MemoryRegion '{region_link_child_memregion}' in {regionlink['link']} is a dangling reference!"
+            for mr in found_memory_regions:
+                if mr[0] == region_link_child_memregion:
+                    assert mr[1].memory_region_size == regionlink['target_region_size'],\
+                    f"Size mismatch from link {regionlink['source_map_name']}.{regionlink['source_region_name']} to {region_link_parent_memmap}.{region_link_child_memregion}"
+
+
+            # assert any((mr[1].memory_region_size == regionlink['target_region_size'] for mr in found_memory_regions)),\
+            #     f"Size mismatch between {region_link_parent_memmap}.{mr.name} and {region_link_parent_memmap}.{ regionlink['target_region_size']}"
 
         return v
 

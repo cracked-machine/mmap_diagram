@@ -375,7 +375,8 @@ class ArrowBlock(Image):
                  tail_len: int = 75, 
                  tail_width: int = 50, 
                  line: str = "black", 
-                 fill: str = "white"):
+                 fill: str = "white",
+                 show_outline: bool = False):
         """
         src: coords for start of arrow
         dst: coords for end of arrow
@@ -434,11 +435,12 @@ class ArrowBlock(Image):
         self.img = self.img.transpose(PIL.Image.FLIP_TOP_BOTTOM)  
         
         self.trim()
-        canvas = PIL.ImageDraw.Draw(self.img)
-        canvas.rectangle(
-            (0, 0, self.img.width, self.img.height), 
-            outline="black", width=3)
-        
+        if show_outline:
+            canvas = PIL.ImageDraw.Draw(self.img)
+            canvas.rectangle(
+                (0, 0, self.img.width, self.img.height), 
+                outline="black", width=3)
+            
 
         if self.degs < 100 and self.degs > 80:      # 90 degs
             x = src.x - (self.img.width // 2) + 1

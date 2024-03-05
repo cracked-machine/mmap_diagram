@@ -196,7 +196,7 @@ class Diagram:
        command line 'region' argument"""
 
     def __init__(self):
-        # self.arrow_img = mm.image.ArrowBlock(fill="red")
+        
 
         self.mmd_list: List[MemoryMapDiagram] = []
         """ instances of the memory map diagram"""
@@ -260,34 +260,34 @@ class Diagram:
                         if mmd.name == mmd_parent_name:
                             for target_region in mmd.image_list:
                                 if target_region.name == region_child_name:
+                                    
+                                    # determine which side of the region block we are drawing to/from
+                                    if source_mmd_idx < target_mmd_idx:
+                                        source_justify = region_image.img.width // 2
+                                    else:
+                                        source_justify = -(region_image.img.width // 2)
 
-                                    link_overlay_canvas.line(
-                                        [
-                                            # line start
-                                            (
-                                                (source_mmd_idx * mmd.width) + source_region_mid_pos_x, 
-                                                source_region_mid_pos_y
-                                            ),
-                                            # line end
-                                            (
-                                                (target_mmd_idx * mmd.width) + target_region.abs_mid_pos_x, 
-                                                target_region.abs_mid_pos_y
-                                            )
-                                        ], 
-                                        fill=(255, 0, 0), 
-                                        width=link_thickness
-                                    )        
-                                    link_overlay_canvas.ellipse(
-                                        [
-                                            (target_mmd_idx * mmd.width) + target_region.abs_mid_pos_x - (link_arrow_size), 
-                                            target_region.abs_mid_pos_y - (link_arrow_size),
-                                            (target_mmd_idx * mmd.width) + target_region.abs_mid_pos_x + link_arrow_size, 
-                                            target_region.abs_mid_pos_y + link_arrow_size
-                                        ],
-                                        fill=(255, 0, 0),
-                                        outline="red",
-                                        width=link_arrow_size
+                                    if target_mmd_idx < source_mmd_idx:
+                                        target_justify = target_region.img.width // 2
+                                    else:
+                                        target_justify = -(target_region.img.width // 2)                                
+                                    
+                                    arrow = mm.image.ArrowBlock(
+                                        src=mm.image.Point(
+                                            (source_mmd_idx * mmd.width) + source_region_mid_pos_x + source_justify,
+                                            source_region_mid_pos_y - 1
+                                        ),
+                                        dst=mm.image.Point(
+                                            (target_mmd_idx * mmd.width) + target_region.abs_mid_pos_x + target_justify, 
+                                            target_region.abs_mid_pos_y - 1
+                                        ),
+                                        head_width=30,
+                                        tail_len=90,
+                                        tail_width=25,
+                                        fill="yellow"
                                     )
+                                    final_diagram_img = arrow.overlay(final_diagram_img, (arrow.pos.x, arrow.pos.y), 64)
+     
 
         # finalise diagram                                                 
         final_diagram_img = final_diagram_img.transpose(PIL.Image.FLIP_TOP_BOTTOM)

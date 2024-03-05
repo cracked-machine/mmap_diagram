@@ -4,7 +4,8 @@ import mm.image
 import pytest
 import unittest
 import random
-# Note: these are unit tests that require visual inspection of the images produced in out/tmp/arrowX.png
+
+# Note: these are unit tests that require visual inspection of the images produced in out/tmp/arrow_X.png
 # The arrow block graphic should line up with the expected line+dot vector
 
 p_tail_width = 25
@@ -21,7 +22,8 @@ def test_arrow_0():
         head_width = p_head_width, 
         tail_len=75, 
         tail_width=p_tail_width,
-        fill="red")
+        fill="red",
+        show_outline=True)
         
     bg = PIL.Image.new("RGBA", (150, 150), color="white")
     
@@ -49,7 +51,8 @@ def test_arrow_pos45():
         head_width = p_head_width, 
         tail_len=75, 
         tail_width=p_tail_width,
-        fill="red")
+        fill="red",
+        show_outline=True)
         
     bg = PIL.Image.new("RGBA", (150, 150), color="white")
     
@@ -79,7 +82,8 @@ def test_arrow_pos90():
         head_width = p_head_width, 
         tail_len=75, 
         tail_width=p_tail_width,
-        fill="red")
+        fill="red",
+        show_outline=True)
         
     bg = PIL.Image.new("RGBA", (150, 150), color="white")
 
@@ -108,7 +112,8 @@ def test_arrow_pos135():
         head_width = p_head_width, 
         tail_len=75, 
         tail_width=p_tail_width,
-        fill="red")
+        fill="red",
+        show_outline=True)
         
     bg = PIL.Image.new("RGBA", (150, 150), color="white")
     
@@ -136,7 +141,8 @@ def test_arrow_pos180():
         head_width = p_head_width, 
         tail_len=75, 
         tail_width=p_tail_width,
-        fill="red")
+        fill="red",
+        show_outline=True)
         
     bg = PIL.Image.new("RGBA", (150, 150), color="white")
 
@@ -164,7 +170,8 @@ def test_arrow_neg135():
         head_width = p_head_width, 
         tail_len=75, 
         tail_width=p_tail_width,
-        fill="red")
+        fill="red",
+        show_outline=True)
         
     bg = PIL.Image.new("RGBA", (150, 150), color="white")
 
@@ -192,7 +199,8 @@ def test_arrow_neg90():
         head_width = p_head_width, 
         tail_len=75, 
         tail_width=p_tail_width,
-        fill="red")
+        fill="red",
+        show_outline=True)
         
     bg = PIL.Image.new("RGBA", (150, 150), color="white")
     
@@ -221,7 +229,8 @@ def test_arrow_neg45():
         head_width = p_head_width, 
         tail_len=75, 
         tail_width=p_tail_width,
-        fill="red")
+        fill="red",
+        show_outline=True)
         
     bg = PIL.Image.new("RGBA", (150, 150), color="white")
 

@@ -140,23 +140,49 @@ def test_generate_doc_example_two_maps(input, file_setup):
 
 @pytest.mark.parametrize("file_setup", [{"file_path": "doc/example/test_generate_doc_example_three_maps"}], indirect=True)
 def test_generate_doc_example_three_maps(input, file_setup):
+    
     """ """
+    input["memory_maps"]['eMMC']['memory_regions']['Blob1'] = {
+        "memory_region_origin": hex(0),
+        "memory_region_size": hex(32),
+        "memory_region_links": [
+            ["DRAM", "Blob2"],
+            ["DRAM", "Blob3"]
+        ]
+    }
+
+    input["memory_maps"]['DRAM']['memory_regions']['Blob2'] = {
+        "memory_region_origin": hex(0),
+        "memory_region_size": hex(32),
+    }
+    input["memory_maps"]['DRAM']['memory_regions']['Blob3'] = {
+        "memory_region_origin": hex(80),
+        "memory_region_size": hex(32),
+    }    
+    input["memory_maps"]['DRAM']['memory_regions']['Blob4'] = {
+        "memory_region_origin": hex(40),
+        "memory_region_size": hex(32),
+    }
+    input["memory_maps"]['DRAM']['memory_regions']['Blob5'] = {
+        "memory_region_origin": hex(120),
+        "memory_region_size": hex(32),
+    }
     input["memory_maps"]['flash'] = {
         "map_height": 1000,
         "map_width": 400,                
         "memory_regions": 
         {
-            "Blob4": {
-            "memory_region_origin": hex(10),
-            "memory_region_size": hex(60)
-            },
-            "Blob5": {
-            "memory_region_origin": hex(50),
-            "memory_region_size": hex(100)
-            },
             "Blob6": {
-            "memory_region_origin": hex(80),
-            "memory_region_size": hex(150)
+                "memory_region_origin": hex(10),
+                "memory_region_size": hex(60)
+            },
+            "Blob7": {
+                "memory_region_origin": hex(80),
+                "memory_region_size": hex(32),
+                "memory_region_links": [
+                    ["DRAM", "Blob4"],
+                    ["DRAM", "Blob5"]
+                ]
             }
         }        
     }
@@ -183,5 +209,5 @@ def test_generate_doc_example_three_maps(input, file_setup):
         assert file_setup["report"].exists()
 
         assert file_setup["diagram_image"].exists()
-        assert PIL.Image.open(str(file_setup["diagram_image"])).size == (400, 312)
+        assert PIL.Image.open(str(file_setup["diagram_image"])).size == (400, 234)
         assert file_setup["table_image"].exists()

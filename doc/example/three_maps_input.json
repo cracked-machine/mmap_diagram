@@ -9,8 +9,8 @@
       "map_width": 400,
       "memory_regions": {
         "Blob1": {
-          "memory_region_origin": "0x10",
-          "memory_region_size": "0x10",
+          "memory_region_origin": "0x0",
+          "memory_region_size": "0x20",
           "memory_region_links": [
             [
               "DRAM",
@@ -29,12 +29,20 @@
       "map_width": 400,
       "memory_regions": {
         "Blob2": {
-          "memory_region_origin": "0x10",
-          "memory_region_size": "0x10"
+          "memory_region_origin": "0x0",
+          "memory_region_size": "0x20"
         },
         "Blob3": {
           "memory_region_origin": "0x50",
-          "memory_region_size": "0x10"
+          "memory_region_size": "0x20"
+        },
+        "Blob4": {
+          "memory_region_origin": "0x28",
+          "memory_region_size": "0x20"
+        },
+        "Blob5": {
+          "memory_region_origin": "0x78",
+          "memory_region_size": "0x20"
         }
       }
     },
@@ -42,17 +50,23 @@
       "map_height": 1000,
       "map_width": 400,
       "memory_regions": {
-        "Blob4": {
+        "Blob6": {
           "memory_region_origin": "0xa",
           "memory_region_size": "0x3c"
         },
-        "Blob5": {
-          "memory_region_origin": "0x32",
-          "memory_region_size": "0x64"
-        },
-        "Blob6": {
+        "Blob7": {
           "memory_region_origin": "0x50",
-          "memory_region_size": "0x96"
+          "memory_region_size": "0x20",
+          "memory_region_links": [
+            [
+              "DRAM",
+              "Blob4"
+            ],
+            [
+              "DRAM",
+              "Blob5"
+            ]
+          ]
         }
       }
     }
