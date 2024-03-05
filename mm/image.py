@@ -4,10 +4,19 @@ import PIL.Image
 import PIL.ImageDraw
 import PIL.ImageColor
 import PIL.ImageFont
+import PIL.ImageChops
 from typing import List, Dict, Tuple
 import typing
 import logging
 import mm.metamodel
+import math
+import dataclasses
+
+
+@dataclasses.dataclass
+class Point:
+    x: int
+    y: int
 
 @typeguard.typechecked
 class Image():
@@ -35,17 +44,20 @@ class Image():
     def _draw(self, **kwargs):
         raise NotImplementedError
 
-    def overlay(self, dest: PIL.Image.Image, xy: Tuple[int,int] = (0,0), alpha: int = 255) -> PIL.Image.Image:
-        """Overlay this image onto the dest image. Return the composite image"""        
-
+    def __init_abs_pos_data(self, xy: Tuple[int,int]):
         # retain the absolute positional data relative to the map
         self.abs_pos_x = xy[0]
         self.abs_pos_y = xy[1]
+
         if not self.img:
             logging.warn("Cannot access image properties yet, it is still unitialised")
         else:
             self.abs_mid_pos_x = self.abs_pos_x + (self.img.width // 2)
             self.abs_mid_pos_y = self.abs_pos_y + (self.img.height // 2)
+
+    def overlay(self, dest: PIL.Image.Image, xy: Tuple[int,int] = (0,0), alpha: int = 255) -> PIL.Image.Image:
+        """Overlay this image onto the dest image. Return the composite image"""        
+        self.__init_abs_pos_data(xy)
 
         mask_layer = PIL.Image.new('RGBA', dest.size, (0,0,0,0))
         mask_layer.paste(self.img, xy)
@@ -59,7 +71,16 @@ class Image():
         mask_layer.paste(alpha_layer, mask_layer)
         
         return PIL.Image.alpha_composite(dest, mask_layer)
-    
+
+    def trim(self):
+        bg = PIL.Image.new(self.img.mode, self.img.size, self.img.getpixel((0,0)))
+        diff = PIL.ImageChops.difference(self.img, bg)
+        diff = PIL.ImageChops.add(diff, diff, 2.0, -100)
+        bbox = diff.getbbox()
+        if bbox:
+            self.img = self.img.crop(bbox) 
+        else:
+            logging.warning("Error trimming image")
    
     def _pick_random_colour(self):
 
@@ -68,6 +89,26 @@ class Image():
         b =random.randint(0, int("FF", 16))
         a =random.randint(0, int("FF", 16))
         return (r, g, b, a)
+
+@typeguard.typechecked
+class LinkArrow(Image):
+    def __init__(self, name: str, source: Tuple[int, int], dest: Tuple[int, int], line: str = "black", width: float = 1):
+        
+        self.img: PIL.Image.Image = None
+
+        self.name: str = name
+        self.line = line
+        self.width = width
+
+        self.abs_pos_x: int = None
+        self.abs_pos_y: int = None
+        self.abs_mid_pos_x: int = None
+        self.abs_mid_pos_y: int = None
+
+    # def _draw(self):
+    #     link_overlay_img = PIL.Image.new()
+    #     link_overlay_canvas = PIL.ImageDraw.Draw(self.img)
+    #     pass
 
 @typeguard.typechecked
 class MapNameImage(Image):
@@ -323,24 +364,99 @@ class TextLabelImage(Image):
         # the final diagram image will be flipped so start with the text upside down        
         self.img = self.img.transpose(PIL.Image.FLIP_TOP_BOTTOM)
 
+
+
 @typeguard.typechecked
 class ArrowBlock(Image):
-    def __init__(self, size: int = 20, line: str = "black", fill: str = "white"):
+    def __init__(self, 
+                 src: Point,
+                 dst: Point,
+                 head_width: int = 20,
+                 tail_len: int = 75, 
+                 tail_width: int = 50, 
+                 line: str = "black", 
+                 fill: str = "white"):
+        """
+        size: The bounding box dimensions of the arrow, two-tuple for length and height
+        tail_len: The percentage of arrow body within the overall arrow width, clamped between 10% and 90%
+        line: line colour
+        fill: fill colour        
+        """
 
-        # draw an arrow in the unit square (4px by 4px)
-        w = 4 * size
-        h = 4 * size
+        l = int(math.hypot((dst.x - src.x), (dst.y - src.y)))
+        h = head_width
+        max_arrow_head_width = h
 
-        self.img = PIL.Image.new("RGBA", (w + 1, h + 1))        
-        arrow_draw = PIL.ImageDraw.Draw(self.img)
-        arrow_draw.polygon(
+        # convert percentages to fraction denominator
+        if tail_len <= 10: tail_len = 10
+        if tail_len > 90: tail_len = 90
+        body_len_dec = (tail_len / 100)
+        body_len_denom = 1 / body_len_dec
+
+        if tail_width <= 10: tail_width = 10
+        if tail_width > 90: tail_width = 90
+        body_width_dec = (tail_width / 100)
+        arrow_body_width = max_arrow_head_width * body_width_dec      
+
+        self.midypos = arrow_body_width
+
+        # image needs enough height to rotate the arrow without clipping at top and bottom...
+        self.img = PIL.Image.new("RGBA", (l, l))        
+        # and establish relative midpoint for y axis so that arrow is drawn in the center of the image
+        yzero = (l / 2)  - (h / 2)
+
+        canvas = PIL.ImageDraw.Draw(self.img)
+        canvas.polygon(
             [
-                (0, h//4), (w//2, h//4), (w//2, 0), (w, h//2),
-                (w//2, h), (w//2, h//2 + h//4), (0, h//2 + h//4)
+                (0, yzero + (max_arrow_head_width / 2) - (arrow_body_width / 2)), 
+                (l//body_len_denom, yzero + (max_arrow_head_width / 2) - (arrow_body_width / 2)), 
+                (l//body_len_denom, yzero), 
+                (l, yzero + (max_arrow_head_width / 2)),  # tip of arrow head
+                (l//body_len_denom, yzero + h), 
+                (l//body_len_denom, yzero + (max_arrow_head_width / 2) + (arrow_body_width / 2)), 
+                (0, yzero + (max_arrow_head_width / 2) + (arrow_body_width / 2))
             ], 
             fill=fill, 
             outline=line, 
             width=2)
+        
+        # calc the hypot angle from the opp and adj vectors
+        self.degs = math.degrees(math.atan2(dst.y - src.y, dst.x - src.x))        
+        self.img = self.img.rotate(self.degs)
+        self.img = self.img.transpose(PIL.Image.FLIP_TOP_BOTTOM)  
+        
+        self.trim()
+        canvas = PIL.ImageDraw.Draw(self.img)
+        canvas.rectangle(
+            (0, 0, self.img.width, self.img.height), 
+            outline="black", width=3)
+        
+
+        if self.degs < 100 and self.degs > 80:      # 90 degs
+            x = src.x - self.img.width // 2
+        elif self.degs < -80 and self.degs > -100:   # -90 degs
+            x = src.x - self.img.width // 2
+        elif self.degs < 90 and self.degs > -90:      # -45 degs
+            x = src.x  
+        else:                                       # -135, 135, 180 degs
+            x = src.x - self.img.width
+        
+        if self.degs < 10 and self.degs > -10:      # 0 degs
+            y = src.y - self.img.height // 2
+        elif self.degs < 190 and self.degs > 170:   # 180 degs
+            y = src.y - self.img.height // 2
+        elif self.degs > 0:                         # 45 degs
+            y = src.y 
+        else:
+            y = src.y - self.img.height             # -45, -90, -135 deg 
+
+        self.pos = Point(
+            x=x,
+            y=y
+        )
+
+        
+
 
 @typeguard.typechecked
 class DashedRectangle(Image):
