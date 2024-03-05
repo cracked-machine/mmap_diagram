@@ -377,14 +377,21 @@ class ArrowBlock(Image):
                  line: str = "black", 
                  fill: str = "white"):
         """
-        size: The bounding box dimensions of the arrow, two-tuple for length and height
-        tail_len: The percentage of arrow body within the overall arrow width, clamped between 10% and 90%
+        src: coords for start of arrow
+        dst: coords for end of arrow
+        head_width: width of the arrow head in pixels
+        tail_len: The arrow tail length precentage out of the arrow length total (determined by dst - src). Clamped between 10% and 90%
+        tail_width: The arrow tail width precentage out of the arrow head width. Clamped between 10% and 90%
         line: line colour
         fill: fill colour        
         """
 
         self.l = int(math.hypot((dst.x - src.x), (dst.y - src.y)))
         
+        # even numbers are impossible to center...
+        if not head_width % 2:
+            head_width = head_width - 1
+
         h = head_width
         max_arrow_head_width = h
 
@@ -434,25 +441,25 @@ class ArrowBlock(Image):
         
 
         if self.degs < 100 and self.degs > 80:      # 90 degs
-            x = src.x - (self.img.width // 2) + int(arrow_body_width / 2)  - 1
+            x = src.x - (self.img.width // 2) + 1
         elif self.degs < -80 and self.degs > -100:   # -90 degs
-            x = src.x - (self.img.width // 2) - int(arrow_body_width / 2)  + 1
+            x = src.x - (self.img.width // 2)
         elif self.degs < 90 and self.degs > -90:      # -45 degs
-            x = src.x 
+            x = src.x + 1
         else:                                       # -135, 135, 180 degs
             if self.degs > 0:
-                x = src.x - self.img.width + int(arrow_body_width / 2) - 1
+                x = src.x - self.img.width
             else:
                 x = src.x - self.img.width
         
         if self.degs < 10 and self.degs > -10:      # 0 degs
-            y = src.y - self.img.height // 2
+            y = src.y - (self.img.height // 2) + 1
         elif self.degs < 190 and self.degs > 170:   # 180 degs
             y = src.y - self.img.height // 2
         elif self.degs > 0:                         # 45 degs
-            y = src.y 
+            y = src.y + 1
         else:                                        # -45, -90, -135 deg 
-            y = src.y - self.img.height + int(arrow_body_width / 2) - 1
+            y = src.y - self.img.height 
 
         self.pos = Point(
             x=x,
