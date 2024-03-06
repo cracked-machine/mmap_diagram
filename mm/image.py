@@ -199,9 +199,34 @@ class MemoryRegionImage(Image):
         for k, v in d.items(): d[k] = hex(v)
         return d
 
+    def splitdata(self, 
+                  data: Dict | List, 
+                  newline: str = "\n", 
+                  pre: str = "", 
+                  mid: str = "", 
+                  post: str = "") -> str:
+        """
+        Split collections into string with items delimited with newline character(s). Supports both dictionaries and lists
+        
+        data: The collection to split
+        newline: The newline char(s) to add between the items in the new string
+        pre: optional text to add at the start of each newline
+        mid: optional text to add between the key/value. Only used with dictionaries.
+        pre: optional text to add at the end of each newline
+        """
+        if not isinstance(data, Dict) and not isinstance(data, List):
+            logging.warning(f"Could not split {type(data)} into string.")
+            return f"<<unknown type: {type(data)}>>"
+        if isinstance(data, dict):
+            return str(newline).join( ( f"{str(pre)} {str(k)} {str(mid)} {str(v)} {str(post)}" for k, v in data.items() ) )
+        if isinstance(data, list):
+            return str(newline).join( (str(pre) + str(item) + str(post) for item in data) )
+        
     def __str__(self):
         return (
             "|"
+            + str(self.parent)
+            + "|"
             + "<span style='color:"
             + str(self.fill)
             + "'>"
@@ -213,7 +238,9 @@ class MemoryRegionImage(Image):
             + "|"
             + str(self.freespace_as_hex)
             + "|"
-            + str(self.collisions_as_hex)
+            + str(self.splitdata(self.collisions_as_hex, newline="<BR>", mid="@"))
+            + "|"
+            + str(self.splitdata(self.metadata.links, newline="<BR>"))
             + "|"
         )
 
@@ -221,19 +248,23 @@ class MemoryRegionImage(Image):
         """Get selected instance attributes"""
         if self.collisions:
             return [
+                str(self.parent),
                 str(self.name),
                 str(self.origin_as_hex),
                 str(self.size_as_hex),
                 str(self.freespace_as_hex),
-                "-" + str(self.collisions_as_hex),
+                "-" + str(self.splitdata(self.collisions_as_hex, mid="@")),
+                str(self.splitdata(self.metadata.links))
             ]
         else:
             return [
+                str(self.parent),
                 str(self.name),
                 str(self.origin_as_hex),
                 str(self.size_as_hex),
                 str(self.freespace_as_hex),
                 "+" + str(None),
+                str(self.splitdata(self.metadata.links))
             ]
     
     def _draw(self):
@@ -579,8 +610,14 @@ class Table:
         row_max_hei = [0] * len(table)
         col_max_wid = [0] * len(max(table, key=len))
         for i in range(len(table)):
-            for j in range(len(table[i])):
-                left, top, right, bottom = font.getbbox(table[i][j])
+            for j in range(len(table[i])):           
+                # calculate multiline text correctly
+                left, top, right, bottom = PIL.ImageDraw.Draw(PIL.Image.new("RGBA", (0,0))).multiline_textbbox(
+                    (0,0),
+                    text=table[i][j],
+                    font=font
+                )
+
                 col_max_wid[j] = max(right - left, col_max_wid[j])
                 row_max_hei[i] = max(bottom - top, row_max_hei[i])
         tab_width = sum(col_max_wid) + len(col_max_wid) * 2 * cell_pad[0]
@@ -649,8 +686,10 @@ class Table:
                 if stock:
                     if table[i][j].startswith("+"):
                         color = _color["red"]
+                        table[i][j] = table[i][j][1:]
                     elif table[i][j].startswith("-"):
                         color = _color["green"]
+                        table[i][j] = table[i][j][1:]
                 _left = left
                 if (align and align[j] == "c") or (header and i == 0):
                     _left += (col_max_wid[j] - font.getlength(table[i][j])) // 2
