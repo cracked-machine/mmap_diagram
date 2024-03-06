@@ -293,7 +293,7 @@ class Diagram:
                                         tail_width=20,
                                         fill="yellow"
                                     )
-                                    final_diagram_img = arrow.overlay(final_diagram_img, mm.image.Point(arrow.pos.x, arrow.pos.y), 64)
+                                    final_diagram_img = arrow.overlay(final_diagram_img, mm.image.Point(arrow.pos.x, arrow.pos.y), Diagram.model.link_alpha)
      
 
         # finalise diagram                                                 

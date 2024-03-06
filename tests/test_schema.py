@@ -86,6 +86,25 @@ def test_schema_region_alpha_limits(input):
     with pytest.raises(pydantic.ValidationError): 
         mm.metamodel.Diagram(**test_data)
 
+def test_schema_link_alpha_limits(input):
+    test_data = input
+    
+    # default test_data contains non-empty string - should pass
+    mm.metamodel.Diagram(**test_data)
+
+    # invalidate test_data - should fail
+    test_data['link_alpha'] = ""
+    with pytest.raises(pydantic.ValidationError): 
+        mm.metamodel.Diagram(**test_data)
+
+    test_data['link_alpha'] = 256
+    with pytest.raises(pydantic.ValidationError): 
+        mm.metamodel.Diagram(**test_data)
+
+    test_data['link_alpha'] = -1
+    with pytest.raises(pydantic.ValidationError): 
+        mm.metamodel.Diagram(**test_data)
+
 def test_schema_hexstr_memregion_origin(input):
     test_data = input
     

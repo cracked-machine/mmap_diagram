@@ -49,5 +49,6 @@
     }
   },
   "indent_scheme": "alternate",
-  "region_alpha": 192
+  "region_alpha": 192,
+  "link_alpha": 96
 }

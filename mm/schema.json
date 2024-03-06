@@ -180,6 +180,14 @@
       "exclusiveMinimum": -1,
       "title": "Region Alpha",
       "type": "integer"
+    },
+    "link_alpha": {
+      "default": 96,
+      "description": "Transparency value for all link arrow images.",
+      "exclusiveMaximum": 256,
+      "exclusiveMinimum": -1,
+      "title": "Link Alpha",
+      "type": "integer"
     }
   },
   "required": [

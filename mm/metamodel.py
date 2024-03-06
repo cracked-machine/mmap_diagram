@@ -140,6 +140,10 @@ class Diagram(ConfigParent):
         int,
         pydantic.Field(192, description="Transparency value for all region block images.", gt=-1, lt=256)
     ]
+    link_alpha: Annotated[
+        int,
+        pydantic.Field(96, description="Transparency value for all link arrow images.", gt=-1, lt=256)
+    ]
 
     @pydantic.field_validator("name")
     @classmethod
