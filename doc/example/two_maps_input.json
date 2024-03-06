@@ -5,8 +5,6 @@
   "diagram_width": 400,
   "memory_maps": {
     "eMMC": {
-      "map_height": 1000,
-      "map_width": 400,
       "memory_regions": {
         "Blob1": {
           "memory_region_origin": "0x10",
@@ -29,8 +27,6 @@
       }
     },
     "DRAM": {
-      "map_height": 1000,
-      "map_width": 400,
       "memory_regions": {
         "Blob2": {
           "memory_region_origin": "0x10",

@@ -11,8 +11,6 @@ def input() -> Dict:
         "diagram_width": 400,
         "memory_maps": {
             "eMMC": {
-                "map_height": 1000,
-                "map_width": 400,
                 "memory_regions": 
                 {
                     "Blob1": {
@@ -26,8 +24,6 @@ def input() -> Dict:
                 }
             },
             "DRAM": {
-                "map_height": 1000,
-                "map_width": 400,                
                 "memory_regions": 
                 {
                     "Blob2": {

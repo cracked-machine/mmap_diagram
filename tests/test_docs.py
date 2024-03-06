@@ -167,9 +167,7 @@ def test_generate_doc_example_three_maps(input, file_setup):
         "memory_region_origin": hex(120),
         "memory_region_size": hex(32),
     }
-    input["memory_maps"]['flash'] = {
-        "map_height": 1000,
-        "map_width": 400,                
+    input["memory_maps"]['flash'] = {           
         "memory_regions": 
         {
             "Blob6": {

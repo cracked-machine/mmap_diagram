@@ -41,14 +41,28 @@
     "MemoryRegion": {
       "properties": {
         "memory_region_origin": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            }
+          ],
           "description": "Origin address of the MemoryMap. In hex format string.",
-          "title": "Memory Region Origin",
-          "type": "integer"
+          "title": "Memory Region Origin"
         },
         "memory_region_size": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            }
+          ],
           "description": "Size (in bytes) of the MemoryMap. In hex format string.",
-          "title": "Memory Region Size",
-          "type": "integer"
+          "title": "Memory Region Size"
         },
         "memory_region_links": {
           "default": [],

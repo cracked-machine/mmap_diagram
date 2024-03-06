@@ -25,11 +25,11 @@ class IndentScheme(str, enum.Enum):
 class MemoryRegion(ConfigParent):
 
     memory_region_origin: Annotated[
-        int,
+        int | str,
         pydantic.Field(..., description="Origin address of the MemoryMap. In hex format string."),
     ]
     memory_region_size: Annotated[
-        int,
+        int | str,
         pydantic.Field(..., description="Size (in bytes) of the MemoryMap. In hex format string."),
     ]
     memory_region_links: list[tuple[str,str]] = pydantic.Field(
@@ -81,11 +81,11 @@ class MemoryMap(ConfigParent):
     ]
     map_height: Annotated[
         int,
-        pydantic.Field(0, description="Internal Use. This will be automically adjusted depending on the diagram size and number of memory maps.")
+        pydantic.Field(0, description="Internal Use. This will be automically adjusted depending on the diagram size and number of memory maps.", exclude=True)
     ]
     map_width: Annotated[
         int,
-        pydantic.Field(0, description="Internal Use. This will be automically adjusted depending on the diagram size and number of memory maps.")
+        pydantic.Field(0, description="Internal Use. This will be automically adjusted depending on the diagram size and number of memory maps.", exclude=True)
     ]
 
 class Diagram(ConfigParent):

@@ -27,9 +27,7 @@
           "freespace": 968,
           "collisions": {}
         }
-      },
-      "map_height": 1000,
-      "map_width": 200
+      }
     },
     "DRAM": {
       "memory_regions": {
@@ -47,9 +45,7 @@
           "freespace": 904,
           "collisions": {}
         }
-      },
-      "map_height": 1000,
-      "map_width": 200
+      }
     }
   },
   "indent_scheme": "alternate"
