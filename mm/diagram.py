@@ -124,9 +124,9 @@ class MemoryMapDiagram:
         return image_list
     
 
-    def _add_label(self, dest: PIL.Image, pos: Tuple[int, int], len: int, text: str, font_size: int):
+    def _add_label(self, dest: PIL.Image, xy: mm.image.Point, len: int, text: str, font_size: int):
         label = mm.image.TextLabelImage(self.name, text, font_size)
-        dest = label.overlay(dest, pos)
+        dest = label.overlay(dest, xy)
         return dest
 
     def _create_mmap(self, memregion_list: List[mm.image.MemoryRegionImage]):
@@ -164,9 +164,19 @@ class MemoryMapDiagram:
                 if isinstance(region, mm.image.MemoryRegionImage):
                     region._draw()
                     # add memory region
-                    map_img_redux = region.overlay(map_img_redux, (0, region.origin_as_int - last_void_pos), 128)
+                    map_img_redux = region.overlay(
+                        dest=map_img_redux, 
+                        xy=mm.image.Point(0, region.origin_as_int - last_void_pos), 
+                        alpha=128)
+                    
                     # add origin address text
-                    map_img_redux = self._add_label(map_img_redux, (region.img.width + 5, region.origin_as_int - last_void_pos), 1, region.origin_as_hex, 10)
+                    map_img_redux = self._add_label(
+                        dest=map_img_redux, 
+                        xy=mm.image.Point(region.img.width + 5, region.origin_as_int - last_void_pos), 
+                        len=1, 
+                        text=region.origin_as_hex, 
+                        font_size=10)
+                    
                     next_void_pos = (region.origin_as_int - last_void_pos) + region.size_as_int + 10
 
                 if isinstance(region, mm.image.VoidRegionImage):
@@ -239,19 +249,14 @@ class Diagram:
             # add the mem map name label at the complete diagram level so they line up at y = 0
             final_diagram_img = mmd.name_lbl.overlay(
                 final_diagram_img,
-                ( (mmd_idx * mmd.width), final_diagram_img.height - max_name_lbl_height),
+                mm.image.Point( (mmd_idx * mmd.width), final_diagram_img.height - max_name_lbl_height),
                 alpha=255)    
 
         # overlay links on top of everything else
-        link_arrow_size = 3
-        link_thickness = 3
-    
-        link_overlay_canvas = PIL.ImageDraw.Draw(final_diagram_img)
-
         for source_mmd_idx, mmd in enumerate(self.mmd_list):    
             for region_image in mmd.image_list:
-                source_region_mid_pos_x = region_image.abs_mid_pos_x
-                source_region_mid_pos_y = region_image.abs_mid_pos_y
+                source_region_mid_pos_x = region_image.abs_mid_pos.x
+                source_region_mid_pos_y = region_image.abs_mid_pos.y
                 for link in region_image.metadata.memory_region_links:
                     mmd_parent_name = link[0]
                     region_child_name = link[1]
@@ -278,15 +283,15 @@ class Diagram:
                                             source_region_mid_pos_y - 1
                                         ),
                                         dst=mm.image.Point(
-                                            (target_mmd_idx * mmd.width) + target_region.abs_mid_pos_x + target_justify, 
-                                            target_region.abs_mid_pos_y - 1
+                                            (target_mmd_idx * mmd.width) + target_region.abs_mid_pos.x + target_justify, 
+                                            target_region.abs_mid_pos.y - 1
                                         ),
                                         head_width=30,
                                         tail_len=90,
                                         tail_width=25,
                                         fill="yellow"
                                     )
-                                    final_diagram_img = arrow.overlay(final_diagram_img, (arrow.pos.x, arrow.pos.y), 64)
+                                    final_diagram_img = arrow.overlay(final_diagram_img, mm.image.Point(arrow.pos.x, arrow.pos.y), 64)
      
 
         # finalise diagram                                                 
@@ -308,7 +313,7 @@ class Diagram:
         # sort by ascending origin value starting from the table bottom
         table_data.sort(key=lambda x: int(x[1],16), reverse=True)
 
-        table: PIL.Image.Image = mm.image.Table().draw_table(
+        table_img = mm.image.Table().get_table_img(
             table=table_data,
             header=["Name", "Origin", "Size", "Free Space", "Collisions"],
             font=PIL.ImageFont.load_default(table_text_size),
@@ -317,7 +322,7 @@ class Diagram:
         )
 
         tableimg_file_path = pathlib.Path(Diagram.pargs.out).stem + "_table.png"
-        table.save(pathlib.Path(Diagram.pargs.out).parent / tableimg_file_path)
+        table_img.save(pathlib.Path(Diagram.pargs.out).parent / tableimg_file_path)
 
     def _create_markdown(self,  mmd_list: List[MemoryMapDiagram]):
         """Create markdown doc containing the diagram image """

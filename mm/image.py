@@ -15,9 +15,14 @@ import dataclasses
 
 @dataclasses.dataclass
 class Point:
-    x: int
-    y: int
-
+    x: float
+    y: float
+    # convenience functions for PIL
+    def ftuple(self) -> Tuple[float,float]:
+        return (self.x, self.y)
+    def ituple(self) -> Tuple[float,float]:
+        return (int(self.x), int(self.y))
+    
 @typeguard.typechecked
 class Image():
 
@@ -33,37 +38,30 @@ class Image():
         """The border colour to use for the region"""
 
         self.fill = self._pick_random_colour()
-        # self.fill = self._pick_available_colour()
         """random colour for region block"""
 
-        self.abs_pos_x: int = None
-        self.abs_pos_y: int = None
-        self.abs_mid_pos_x: int = None
-        self.abs_mid_pos_y: int = None
+        self.abs_pos = Point(0,0)
+        self.abs_mid_pos = Point(0,0)
 
     def _draw(self, **kwargs):
         raise NotImplementedError
 
-    def __init_abs_pos_data(self, xy: Tuple[int,int]):
+    def __init_abs_pos_data(self, xy: Point):
         # retain the absolute positional data relative to the map
-        self.abs_pos_x = xy[0]
-        self.abs_pos_y = xy[1]
+        self.abs_pos = xy
 
         if not self.img:
             logging.warn("Cannot access image properties yet, it is still unitialised")
         else:
-            self.abs_mid_pos_x = self.abs_pos_x + (self.img.width // 2)
-            self.abs_mid_pos_y = self.abs_pos_y + (self.img.height // 2)
+            self.abs_mid_pos.x = self.abs_pos.x + (self.img.width // 2)
+            self.abs_mid_pos.y = self.abs_pos.y + (self.img.height // 2)
 
-    def overlay(self, dest: PIL.Image.Image, xy: Tuple[int,int] = (0,0), alpha: int = 255) -> PIL.Image.Image:
+    def overlay(self, dest: PIL.Image.Image, xy: Point = Point(0,0), alpha: int = 255) -> PIL.Image.Image:
         """Overlay this image onto the dest image. Return the composite image"""        
         self.__init_abs_pos_data(xy)
 
         mask_layer = PIL.Image.new('RGBA', dest.size, (0,0,0,0))
-        mask_layer.paste(self.img, xy)
-
-        # from PIL.Image import Transform
-        # mask_layer = mask_layer.transform(dest.size, Transform.AFFINE, (1, 0.5, -100, 1, 1, -100))
+        mask_layer.paste(self.img, xy.ituple())
         
         alpha_layer = mask_layer.copy()
         alpha_layer.putalpha(alpha)
@@ -91,26 +89,6 @@ class Image():
         return (r, g, b, a)
 
 @typeguard.typechecked
-class LinkArrow(Image):
-    def __init__(self, name: str, source: Tuple[int, int], dest: Tuple[int, int], line: str = "black", width: float = 1):
-        
-        self.img: PIL.Image.Image = None
-
-        self.name: str = name
-        self.line = line
-        self.width = width
-
-        self.abs_pos_x: int = None
-        self.abs_pos_y: int = None
-        self.abs_mid_pos_x: int = None
-        self.abs_mid_pos_y: int = None
-
-    # def _draw(self):
-    #     link_overlay_img = PIL.Image.new()
-    #     link_overlay_canvas = PIL.ImageDraw.Draw(self.img)
-    #     pass
-
-@typeguard.typechecked
 class MapNameImage(Image):
 
     def __init__(self, name: str, img_width: int, font_size: int, fill_colour:str, line_colour: str):
@@ -134,7 +112,8 @@ class MapNameImage(Image):
 
         # draw name text
         generic_img = txt_lbl.overlay(generic_img, 
-                                      ((img_width - txt_lbl.img.width) // 2, 5), 192)
+                                      mm.image.Point((img_width - txt_lbl.img.width) // 2, 5), 
+                                      alpha=192)
 
         self.img = generic_img
 
@@ -274,7 +253,7 @@ class MemoryRegionImage(Image):
         # draw name text
         txt_lbl =  TextLabelImage(self.name, text=self.name, font_size=self.font_size, fill_colour="white", padding_width=10)
 
-        region_img = txt_lbl.overlay(region_img, ((self.img_width - txt_lbl.img.width) // 2, 2), 128 )
+        region_img = txt_lbl.overlay(region_img, mm.image.Point((self.img_width - txt_lbl.img.width) // 2, 2), alpha=128 )
 
         self.img = region_img
 
@@ -327,7 +306,6 @@ class TextLabelImage(Image):
         left, top, right, bottom = self.font.getbbox(self.name)
         """The dimensions required for the text"""
 
-
         self.width = right
         """The label width"""
 
@@ -354,7 +332,6 @@ class TextLabelImage(Image):
         canvas = PIL.ImageDraw.Draw(self.img)
         # center the text in the oversized image, bias the y-pos by 1/5
         canvas.text(
-            # xy=(self.width / 2, (self.height / 2 - (self.height / 5))),
             xy=((self.img.width - self.width) // 2, -1),
             text=self.name,
             fill=self.fgcolour,
@@ -363,8 +340,6 @@ class TextLabelImage(Image):
 
         # the final diagram image will be flipped so start with the text upside down        
         self.img = self.img.transpose(PIL.Image.FLIP_TOP_BOTTOM)
-
-
 
 @typeguard.typechecked
 class ArrowBlock(Image):
@@ -386,6 +361,8 @@ class ArrowBlock(Image):
         line: line colour
         fill: fill colour        
         """
+        # We need the functions from the base class
+        super().__init__("Arrow", None)
 
         self.l = int(math.hypot((dst.x - src.x), (dst.y - src.y)))
         
@@ -561,7 +538,7 @@ class Table:
         else:
             return Position(args[0], args[1], args[2], args[3])
 
-    def draw_table(
+    def get_table_img(
         self,
         table,
         header=[],
@@ -571,7 +548,7 @@ class Table:
         align=None,
         colors={},
         stock=False,
-    ) -> PIL.Image:
+    ) -> PIL.Image.Image:
         """
         Draw a table using only Pillow
         table:    a 2d list, must be str
