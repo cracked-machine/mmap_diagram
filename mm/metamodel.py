@@ -6,6 +6,7 @@ from typing import Tuple, Literal
 from typing_extensions import Annotated
 import logging
 import enum
+import decimal
 
 class ConfigParent(pydantic.BaseModel):
     model_config = pydantic.ConfigDict(
@@ -134,6 +135,10 @@ class Diagram(ConfigParent):
     indent_scheme: Annotated[
         IndentScheme,
         pydantic.Field(IndentScheme.alternate, description="Drawing indent for Memory Regions")
+    ]
+    region_alpha: Annotated[
+        int,
+        pydantic.Field(192, description="Transparency value for all region block images.", gt=-1, lt=256)
     ]
 
     @pydantic.field_validator("name")

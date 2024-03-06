@@ -48,5 +48,6 @@
       }
     }
   },
-  "indent_scheme": "alternate"
+  "indent_scheme": "alternate",
+  "region_alpha": 192
 }

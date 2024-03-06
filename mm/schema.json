@@ -172,6 +172,14 @@
       ],
       "default": "alternate",
       "description": "Drawing indent for Memory Regions"
+    },
+    "region_alpha": {
+      "default": 192,
+      "description": "Transparency value for all region block images.",
+      "exclusiveMaximum": 256,
+      "exclusiveMinimum": -1,
+      "title": "Region Alpha",
+      "type": "integer"
     }
   },
   "required": [

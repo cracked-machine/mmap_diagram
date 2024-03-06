@@ -25,28 +25,38 @@ class Point:
     
 @typeguard.typechecked
 class Image():
+    """Base wrapper class for a PIL.Image.Image object"""
 
     def __init__(self, name: str, parent: str | None):
 
         self.img: PIL.Image.Image
+        """The image wrapped by this class"""
 
         self.parent: str = parent
+        """Identifying name of the the parent, if any"""
+
         self.name: str = name
-        """region name"""
+        """Identifying name of the image block"""
 
         self.line = "black"
         """The border colour to use for the region"""
 
         self.fill = self._pick_random_colour()
-        """random colour for region block"""
+        """Random colour for region block"""
 
         self.abs_pos = Point(0,0)
+        """Absolute 'left-corner' position of this image within the parent memory map image"""
+
         self.abs_mid_pos = Point(0,0)
+        """Absolute mid position of this image within the parent memory map image"""
 
     def _draw(self, **kwargs):
         raise NotImplementedError
 
-    def __init_abs_pos_data(self, xy: Point):
+    def __init_abs_pos_data(self, xy: Point) -> None:
+        """This function sets the absolute position of the image block relative to the memory map.
+        This can be used to locate the image position when constructing the overall diagram later on"""
+
         # retain the absolute positional data relative to the map
         self.abs_pos = xy
 
@@ -57,7 +67,8 @@ class Image():
             self.abs_mid_pos.y = self.abs_pos.y + (self.img.height // 2)
 
     def overlay(self, dest: PIL.Image.Image, xy: Point = Point(0,0), alpha: int = 255) -> PIL.Image.Image:
-        """Overlay this image onto the dest image. Return the composite image"""        
+        """Overlay this image onto the dest image. Return the composite image"""    
+
         self.__init_abs_pos_data(xy)
 
         mask_layer = PIL.Image.new('RGBA', dest.size, (0,0,0,0))
@@ -70,7 +81,9 @@ class Image():
         
         return PIL.Image.alpha_composite(dest, mask_layer)
 
-    def trim(self):
+    def trim(self) -> None:
+        """Detect and remove whitespace from self.img"""
+
         bg = PIL.Image.new(self.img.mode, self.img.size, self.img.getpixel((0,0)))
         diff = PIL.ImageChops.difference(self.img, bg)
         diff = PIL.ImageChops.add(diff, diff, 2.0, -100)
@@ -80,16 +93,19 @@ class Image():
         else:
             logging.warning("Error trimming image")
    
-    def _pick_random_colour(self):
-
-        r =random.randint(0, int("FF", 16))
-        g =random.randint(0, int("FF", 16))
-        b =random.randint(0, int("FF", 16))
-        a =random.randint(0, int("FF", 16))
+    def _pick_random_colour(self) -> Tuple[int, int, int, int]:
+        """Pick random RGBA colour band values"""
+        min_band = int("00", 16)
+        max_band = int("44", 16)
+        r =random.randint(min_band, max_band)
+        g =random.randint(min_band, max_band)
+        b =random.randint(min_band, max_band)
+        a =255
         return (r, g, b, a)
 
 @typeguard.typechecked
 class MapNameImage(Image):
+    """Wrapper class for PIL.Image.Image object. Represents a MemoryMap sub diagram."""
 
     def __init__(self, name: str, img_width: int, font_size: int, fill_colour:str, line_colour: str):
 
@@ -97,7 +113,7 @@ class MapNameImage(Image):
         
         self._draw(img_width, font_size, fill_colour, line_colour)
 
-    def _draw(self, img_width: int, font_size: int, fill_colour:str, line_colour: str):
+    def _draw(self, img_width: int, font_size: int, fill_colour:str, line_colour: str) -> None:
         """Create the image for the region rectangle and its inset name label"""
 
         txt_lbl =  TextLabelImage(self.name, text=self.name, font_size=font_size)
@@ -119,7 +135,7 @@ class MapNameImage(Image):
 
 @typeguard.typechecked
 class MemoryRegionImage(Image):
-    _colour_mappings = {}
+    """Wrapper class for PIL.Image.Image object. Represents a MemoryRegion block."""
 
     def __init__(self, name: str, mmap_parent: str, metadata: mm.metamodel.MemoryRegion, img_width: int, font_size: int):
 
@@ -134,8 +150,7 @@ class MemoryRegionImage(Image):
         self.draw_indent = 0
         """Index counter for incrementally shrinking the drawing indent"""
         
-        self.fill = None
-        self._reserve_random_colour()
+        self.fill = self._pick_random_colour()
         
         self.img_width = img_width
         self.font_size = font_size     
@@ -220,27 +235,10 @@ class MemoryRegionImage(Image):
                 str(self.freespace_as_hex),
                 "+" + str(None),
             ]
-
-    def _reserve_random_colour(self):
-        r =random.randint(0, int("FF", 16))
-        g =random.randint(0, int("FF", 16))
-        b =random.randint(0, int("FF", 16))
-        a =random.randint(0, int("FF", 16))
-
-        # TODO use parent name to add scope
-        if not self.name in MemoryRegionImage._colour_mappings:
-            MemoryRegionImage._colour_mappings[self.name] = (r, g, b, a)
-
-        for link in self.metadata.links:
-            if not link[1] in MemoryRegionImage._colour_mappings:
-                MemoryRegionImage._colour_mappings[link[1]] = (r, g, b, a)
-
-        return (r, g, b, a)
     
     def _draw(self):
         """Create the image for the region rectangle and its inset name label"""
 
-        self.fill = MemoryRegionImage._colour_mappings[self.name]
         logging.info(self)
 
         if self.freespace_as_int < 0:
@@ -251,7 +249,7 @@ class MemoryRegionImage(Image):
                 self.img_width, int(self.size_as_hex,16), fill=self.fill, line=self.line, dash=(0,0,0,0), stroke=2).img
 
         # draw name text
-        txt_lbl =  TextLabelImage(self.name, text=self.name, font_size=self.font_size, fill_colour="white", padding_width=10)
+        txt_lbl =  TextLabelImage(self.name, text=f"{self.name}", font_size=self.font_size, fill_colour="white", padding_width=10)
 
         region_img = txt_lbl.overlay(region_img, mm.image.Point((self.img_width - txt_lbl.img.width) // 2, 2), alpha=128 )
 

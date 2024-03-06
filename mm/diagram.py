@@ -40,6 +40,8 @@ class MemoryMapDiagram:
 
     def __init__(self, memory_map_metadata: Dict[str, mm.metamodel.MemoryMap]):
 
+        assert len(memory_map_metadata) == 1, "MemoryMapDiagram should omly be initialised with a single mm.metamodel.MemoryMap."
+
         self.name = next(iter(memory_map_metadata))
 
         self.default_region_text_size: int = 12
@@ -54,7 +56,6 @@ class MemoryMapDiagram:
         self.final_map_img_redux: PIL.Image.Image = None
         """Final image for this Memory Map"""
 
-        assert len(memory_map_metadata) == 1, "MemoryMapDiagram should omly be initialised with a single mm.metamodel.MemoryMap."
         
         self.width = next(iter(memory_map_metadata.values())).width
         self.height = next(iter(memory_map_metadata.values())).height
@@ -167,7 +168,7 @@ class MemoryMapDiagram:
                     map_img_redux = region.overlay(
                         dest=map_img_redux, 
                         xy=mm.image.Point(0, region.origin_as_int - last_void_pos), 
-                        alpha=128)
+                        alpha=int(Diagram.model.region_alpha))
                     
                     # add origin address text
                     map_img_redux = self._add_label(
