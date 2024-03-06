@@ -1,7 +1,7 @@
 {
   "name": "TestDiagram",
   "height": 1000,
-  "width": 400,
+  "width": 1000,
   "legend_width": 30,
   "bgcolour": "white",
   "void_fill_colour": "lightgrey",

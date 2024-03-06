@@ -287,9 +287,9 @@ class Diagram:
                                             (target_mmd_idx * mmd.width) + target_region.abs_mid_pos.x + target_justify, 
                                             target_region.abs_mid_pos.y
                                         ),
-                                        head_width=30,
+                                        head_width=25,
                                         tail_len=75,
-                                        tail_width=15,
+                                        tail_width=20,
                                         fill="yellow"
                                     )
                                     final_diagram_img = arrow.overlay(final_diagram_img, mm.image.Point(arrow.pos.x, arrow.pos.y), 64)

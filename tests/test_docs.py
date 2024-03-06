@@ -133,7 +133,7 @@ def test_generate_doc_example_two_maps(input, file_setup):
         assert file_setup["report"].exists()
 
         assert file_setup["diagram_image"].exists()
-        assert PIL.Image.open(str(file_setup["diagram_image"])).size == (400, 272)
+        assert PIL.Image.open(str(file_setup["diagram_image"])).size == (1000, 272)
 
 
         assert file_setup["table_image"].exists()
@@ -207,5 +207,5 @@ def test_generate_doc_example_three_maps(input, file_setup):
         assert file_setup["report"].exists()
 
         assert file_setup["diagram_image"].exists()
-        assert PIL.Image.open(str(file_setup["diagram_image"])).size == (400, 234)
+        assert PIL.Image.open(str(file_setup["diagram_image"])).size == (1000, 234)
         assert file_setup["table_image"].exists()

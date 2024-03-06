@@ -8,7 +8,7 @@ def input() -> Dict:
         "$schema": "/home/chris/projects/python/mmdiagram/mm/schema.json",
         "name": "TestDiagram",
         "height": 1000,
-        "width": 400,
+        "width": 1000,
         "memory_maps": {
             "eMMC": {
                 "memory_regions": 
