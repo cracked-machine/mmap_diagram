@@ -418,27 +418,29 @@ class ArrowBlock(Image):
                 (0, 0, self.img.width, self.img.height), 
                 outline="black", width=3)
             
-
-        if self.degs < 100 and self.degs > 80:      # 90 degs
+        # final position adjustments
+        if self.degs < 10 and self.degs > -10:      # 0 degs
+            x = src.x
+        elif self.degs < 100 and self.degs > 80:      # 90 degs
             x = src.x - (self.img.width // 2) + 1
         elif self.degs < -80 and self.degs > -100:   # -90 degs
             x = src.x - (self.img.width // 2)
         elif self.degs < 90 and self.degs > -90:      # -45 degs
-            x = src.x + 1
+            x = src.x - 1
         else:                                       # -135, 135, 180 degs
             if self.degs > 0:
-                x = src.x - self.img.width
+                x = src.x - self.img.width + 2
             else:
-                x = src.x - self.img.width
+                x = src.x - self.img.width + 2
         
         if self.degs < 10 and self.degs > -10:      # 0 degs
             y = src.y - (self.img.height // 2) + 1
         elif self.degs < 190 and self.degs > 170:   # 180 degs
             y = src.y - self.img.height // 2
         elif self.degs > 0:                         # 45 degs
-            y = src.y + 1
+            y = src.y - 1
         else:                                        # -45, -90, -135 deg 
-            y = src.y - self.img.height 
+            y = src.y - self.img.height + 2
 
         self.pos = Point(
             x=x,

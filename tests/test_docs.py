@@ -178,7 +178,7 @@ def test_generate_doc_example_three_maps(input, file_setup):
                 "origin": hex(80),
                 "size": hex(32),
                 "links": [
-                    ["DRAM", "Blob4"],
+                    ["DRAM", "Blob3"],
                     ["DRAM", "Blob5"]
                 ]
             }

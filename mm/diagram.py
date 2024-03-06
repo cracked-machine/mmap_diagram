@@ -265,30 +265,31 @@ class Diagram:
                         if mmd.name == mmd_parent_name:
                             for target_region in mmd.image_list:
                                 if target_region.name == region_child_name:
-                                    
+                                    padding = 5
                                     # determine which side of the region block we are drawing to/from
                                     if source_mmd_idx < target_mmd_idx:
-                                        source_justify = region_image.img.width // 2
+                                        source_justify = (region_image.img.width // 2) + padding
                                     else:
-                                        source_justify = -(region_image.img.width // 2)
+                                        source_justify = -(region_image.img.width // 2) - padding
 
                                     if target_mmd_idx < source_mmd_idx:
-                                        target_justify = target_region.img.width // 2
+                                        target_justify = (target_region.img.width // 2) + padding
                                     else:
-                                        target_justify = -(target_region.img.width // 2)                                
-                                    
+                                        target_justify = -(target_region.img.width // 2) - padding                       
+
+                                               
                                     arrow = mm.image.ArrowBlock(
                                         src=mm.image.Point(
                                             (source_mmd_idx * mmd.width) + source_region_mid_pos_x + source_justify,
-                                            source_region_mid_pos_y - 1
+                                            source_region_mid_pos_y
                                         ),
                                         dst=mm.image.Point(
                                             (target_mmd_idx * mmd.width) + target_region.abs_mid_pos.x + target_justify, 
-                                            target_region.abs_mid_pos.y - 1
+                                            target_region.abs_mid_pos.y
                                         ),
                                         head_width=30,
-                                        tail_len=90,
-                                        tail_width=25,
+                                        tail_len=75,
+                                        tail_width=15,
                                         fill="yellow"
                                     )
                                     final_diagram_img = arrow.overlay(final_diagram_img, mm.image.Point(arrow.pos.x, arrow.pos.y), 64)

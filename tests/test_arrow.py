@@ -36,7 +36,7 @@ def test_arrow_0():
     bg = a.overlay(bg, actual_coords, 128)    
     bg.save("out/tmp/arrow_0.png")
 
-    expected_coords = mm.image.Point(51,31)
+    expected_coords = mm.image.Point(50,31)
     assert expected_coords == actual_coords
     assert a.l == 50
 
@@ -66,7 +66,7 @@ def test_arrow_pos45():
     bg = a.overlay(bg, actual_coords, 128)    
     bg.save("out/tmp/arrow_pos45.png")
 
-    expected_coords = mm.image.Point(51,51)
+    expected_coords = mm.image.Point(49,49)
     assert expected_coords == actual_coords
     assert a.l == 70
 
@@ -96,7 +96,7 @@ def test_arrow_pos90():
     bg = a.overlay(bg, actual_coords, 128)    
     bg.save("out/tmp/arrow_pos90.png")
     
-    expected_coords = mm.image.Point(31,41)
+    expected_coords = mm.image.Point(31,39)
     assert expected_coords == actual_coords
     assert a.l == 60
 
@@ -126,7 +126,7 @@ def test_arrow_pos135():
     bg = a.overlay(bg, actual_coords, 128)    
     bg.save("out/tmp/arrow_pos135.png")
 
-    expected_coords = mm.image.Point(45, 51)
+    expected_coords = mm.image.Point(47, 49)
     assert expected_coords == actual_coords
     assert a.l == 70
 
@@ -155,7 +155,7 @@ def test_arrow_pos180():
     bg = a.overlay(bg, actual_coords, 128)    
     bg.save("out/tmp/arrow_pos180.png")
 
-    expected_coords = mm.image.Point(20,30)
+    expected_coords = mm.image.Point(22,30)
     assert expected_coords == actual_coords
     assert a.l == 80
 
@@ -184,7 +184,7 @@ def test_arrow_neg135():
     bg = a.overlay(bg, actual_coords, 128)    
     bg.save("out/tmp/arrow_neg135.png")
 
-    expected_coords = mm.image.Point(45, 45)
+    expected_coords = mm.image.Point(47, 47)
     assert expected_coords == actual_coords
     assert a.l == 70
 
@@ -213,7 +213,7 @@ def test_arrow_neg90():
     bg = a.overlay(bg, actual_coords, 128)    
     bg.save("out/tmp/arrow_neg90.png")
 
-    expected_coords = mm.image.Point(30,50)
+    expected_coords = mm.image.Point(30,52)
     assert expected_coords == actual_coords
     assert a.l == 50
 
@@ -243,7 +243,7 @@ def test_arrow_neg45():
     bg = a.overlay(bg, actual_coords, 128)    
     bg.save("out/tmp/arrow_neg45.png")
 
-    expected_coords = mm.image.Point(51,45)
+    expected_coords = mm.image.Point(49,47)
     assert expected_coords == actual_coords
     assert a.l == 70
 
