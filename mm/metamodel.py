@@ -202,10 +202,6 @@ class Diagram(ConfigParent):
                     assert mr[1].size == regionlink['target_region_size'],\
                     f"Size mismatch from link {regionlink['source_map_name']}.{regionlink['source_region_name']} to {region_link_parent_memmap}.{region_link_child_memregion}"
 
-
-            # assert any((mr[1].size == regionlink['target_region_size'] for mr in found_memory_regions)),\
-            #     f"Size mismatch between {region_link_parent_memmap}.{mr.name} and {region_link_parent_memmap}.{ regionlink['target_region_size']}"
-
         return v
 
     @pydantic.model_validator(mode="after")
@@ -215,14 +211,10 @@ class Diagram(ConfigParent):
         for memory_map in self.memory_maps.values():
             memory_map.height = self.height
         
-        # command line input (only one memory map possible)
-        if len(self.memory_maps) == 1:
-            pass
-        else:
-            new_memory_map_width = self.width // len(self.memory_maps) 
-            new_memory_map_width - 10 # allow for some extra space
-            for memory_map in self.memory_maps.values():
-                memory_map.width = new_memory_map_width
+        new_memory_map_width = self.width // len(self.memory_maps) 
+        new_memory_map_width - 10 # allow for some extra space
+        for memory_map in self.memory_maps.values():
+            memory_map.width = new_memory_map_width
 
         return self
 
