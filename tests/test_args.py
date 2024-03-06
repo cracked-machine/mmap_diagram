@@ -5,17 +5,7 @@ import pathlib
 import PIL.Image
 import argparse
 import pydantic
-
-@pytest.fixture
-def setup():
-    report = pathlib.Path(f"/tmp/pytest/{__name__}.md")
-    image_full = pathlib.Path(f"/tmp/pytest/{__name__}_full.png")
-    image_cropped = pathlib.Path(f"/tmp/pytest/{__name__}_cropped.png")
-    report.unlink(missing_ok=True)
-    image_full.unlink(missing_ok=True)
-    image_cropped.unlink(missing_ok=True)
-    return {"report": report, "image_full": image_full, "image_cropped": image_cropped}
-
+from tests.common_fixtures import input, file_setup
 
 def test_no_args():
     """This test has no output"""
@@ -115,8 +105,9 @@ def test_voidthresh_arg():
          "-v", "0x3e8"]):
         
         mm.diagram.Diagram()
-        
-def test_invalid_2000_limit_arg_format(setup):
+
+@pytest.mark.parametrize("file_setup", [{"file_path": "out/tmp/test_invalid_2000_limit_arg_format"}], indirect=True)
+def test_invalid_2000_limit_arg_format(file_setup):
     with unittest.mock.patch(
         "sys.argv", 
         ["mm.diagram", 
@@ -126,14 +117,15 @@ def test_invalid_2000_limit_arg_format(setup):
         with pytest.raises(SystemExit):
             mm.diagram.Diagram()
 
-def test_default_limit_arg_format(setup):
+@pytest.mark.parametrize("file_setup", [{"file_path": "out/tmp/test_default_limit_arg_format"}], indirect=True)
+def test_default_limit_arg_format(file_setup):
     """should create custom report dir/files"""
 
     with unittest.mock.patch(
         "sys.argv", 
         ["mm.diagram", 
          "a", "0x10", "0x10", 
-         "-o", str(setup["report"])]):
+         "-o", str(file_setup["report"])]):
 
         mm.diagram.Diagram()
         default_limit = mm.diagram.Diagram.pargs.limit
@@ -142,25 +134,23 @@ def test_default_limit_arg_format(setup):
         assert mm.diagram.Diagram.pargs.voidthreshold == hex(1000)
         assert not mm.diagram.Diagram.pargs.voidthreshold == 1000
 
-        assert setup["report"].exists()
+        assert file_setup["report"].exists()
 
-        assert setup["image_full"].exists()
-        outimg = PIL.Image.open(str(setup["image_full"]))
-        assert hex(outimg.size[1]) == default_limit
+        assert file_setup["diagram_image"].exists()
+        outimg = PIL.Image.open(str(file_setup["diagram_image"]))
+        assert outimg.height == 74
 
-        assert setup["image_cropped"].exists()
-        outimg = PIL.Image.open(str(setup["image_cropped"]))
-        assert hex(outimg.size[1]) == "0x3fe"
-
-
-def test_valid_2000_limit_arg_format(setup):
+        assert file_setup["table_image"].exists()
+        
+@pytest.mark.parametrize("file_setup", [{"file_path": "out/tmp/test_valid_2000_limit_arg_format"}], indirect=True)
+def test_valid_2000_limit_arg_format(file_setup):
     """should create custom report dir/files"""
 
     with unittest.mock.patch(
         "sys.argv", 
         ["mm.diagram", 
          "a", "0x10", "0x10", 
-         "-o", str(setup["report"]), 
+         "-o", str(file_setup["report"]), 
          "-l", hex(2000)]
     ):
 
@@ -170,15 +160,13 @@ def test_valid_2000_limit_arg_format(setup):
         assert mm.diagram.Diagram.pargs.limit == hex(2000)
         assert not mm.diagram.Diagram.pargs.limit == 2000
 
-        assert setup["report"].exists()
+        assert file_setup["report"].exists()
 
-        assert setup["image_full"].exists()
-        outimg = PIL.Image.open(str(setup["image_full"]))
-        assert outimg.size[1] == 2000
+        assert file_setup["diagram_image"].exists()
+        outimg = PIL.Image.open(str(file_setup["diagram_image"]))
+        assert outimg.size[1] == 114
 
-        assert setup["image_cropped"].exists()
-        outimg = PIL.Image.open(str(setup["image_cropped"]))
-        assert outimg.size[1] == 124
+        assert file_setup["table_image"].exists()
 
 def test_input_file():
 

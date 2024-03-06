@@ -4,49 +4,76 @@ import PIL.Image
 import PIL.ImageDraw
 import PIL.ImageColor
 import PIL.ImageFont
+import PIL.ImageChops
 from typing import List, Dict, Tuple
+import typing
 import logging
 import mm.metamodel
+import math
+import dataclasses
 
+
+
+@dataclasses.dataclass
+class Point:
+    x: float
+    y: float
+    # convenience functions for PIL
+    def ftuple(self) -> Tuple[float,float]:
+        return (self.x, self.y)
+    def ituple(self) -> Tuple[float,float]:
+        return (int(self.x), int(self.y))
+    
 @typeguard.typechecked
 class Image():
+    """Base wrapper class for a PIL.Image.Image object"""
 
-    _colours: Dict = PIL.ImageColor.colormap.copy()
-    _colours_list: List = {}
-    """Copy of the PIL colour string map"""
-
-    @classmethod
-    def init(cls):
-        # remove any duplicate colour values from the dict
-        temp = {val: key for key, val in Image._colours.items()}
-        Image._colours = {val: key for key, val in temp.items()}       
-
-    def __init__(self, name: str):
-        Image.init()
+    def __init__(self, name: str, parent: str | None):
 
         self.img: PIL.Image.Image
+        """The image wrapped by this class"""
+
+        self.parent: str = parent
+        """Identifying name of the the parent, if any"""
 
         self.name: str = name
-        """region name"""
+        """Identifying name of the image block"""
 
         self.line = "black"
         """The border colour to use for the region"""
 
         self.fill = self._pick_random_colour()
-        # self.fill = self._pick_available_colour()
-        """random colour for region block"""
+        """Random colour for region block"""
+
+        self.abs_pos = Point(0,0)
+        """Absolute 'left-corner' position of this image within the parent memory map image"""
+
+        self.abs_mid_pos = Point(0,0)
+        """Absolute mid position of this image within the parent memory map image"""
 
     def _draw(self, **kwargs):
         raise NotImplementedError
 
-    def overlay(self, dest: PIL.Image.Image, pos: Tuple[int,int] = (0,0), alpha: int = 255) -> PIL.Image.Image:
-        """Overlay this image onto the dest image. Return the composite image"""        
+    def __init_abs_pos_data(self, xy: Point) -> None:
+        """This function sets the absolute position of the image block relative to the memory map.
+        This can be used to locate the image position when constructing the overall diagram later on"""
+
+        # retain the absolute positional data relative to the map
+        self.abs_pos = xy
+
+        if not self.img:
+            logging.warn("Cannot access image properties yet, it is still unitialised")
+        else:
+            self.abs_mid_pos.x = self.abs_pos.x + (self.img.width // 2)
+            self.abs_mid_pos.y = self.abs_pos.y + (self.img.height // 2)
+
+    def overlay(self, dest: PIL.Image.Image, xy: Point = Point(0,0), alpha: int = 255) -> PIL.Image.Image:
+        """Overlay this image onto the dest image. Return the composite image"""    
+
+        self.__init_abs_pos_data(xy)
 
         mask_layer = PIL.Image.new('RGBA', dest.size, (0,0,0,0))
-        mask_layer.paste(self.img, pos)
-
-        # from PIL.Image import Transform
-        # mask_layer = mask_layer.transform(dest.size, Transform.AFFINE, (1, 0.5, -100, 1, 1, -100))
+        mask_layer.paste(self.img, xy.ituple())
         
         alpha_layer = mask_layer.copy()
         alpha_layer.putalpha(alpha)
@@ -54,29 +81,42 @@ class Image():
         mask_layer.paste(alpha_layer, mask_layer)
         
         return PIL.Image.alpha_composite(dest, mask_layer)
-    
-   
-    def _pick_random_colour(self):
 
-        r =random.randint(0, int("FF", 16))
-        g =random.randint(0, int("FF", 16))
-        b =random.randint(0, int("FF", 16))
-        a =random.randint(0, int("FF", 16))
-        return (r, g, b, a)
+    def trim(self) -> None:
+        """Detect and remove whitespace from self.img"""
+
+        bg = PIL.Image.new(self.img.mode, self.img.size, self.img.getpixel((0,0)))
+        diff = PIL.ImageChops.difference(self.img, bg)
+        diff = PIL.ImageChops.add(diff, diff, 2.0, -100)
+        bbox = diff.getbbox()
+        if bbox:
+            self.img = self.img.crop(bbox) 
+        else:
+            logging.warning("Error trimming image")
+   
+    def _pick_random_colour(self) -> Tuple[int, int, int]:
+        """Pick random RGBA colour band values"""
+        min_band = int("00", 16)
+        max_band = int("44", 16)
+        r =random.randint(min_band, max_band)
+        g =random.randint(min_band, max_band)
+        b =random.randint(min_band, max_band)
+        return (r, g, b)
 
 @typeguard.typechecked
 class MapNameImage(Image):
+    """Wrapper class for PIL.Image.Image object. Represents a MemoryMap sub diagram."""
 
-    def __init__(self, name: str, img_width: int, font_size: int, fill_colour:str, line_colour: str):
+    def __init__(self, name: str, img_width: int, font_size: int, fill_colour: mm.metamodel.ColourType, line_colour: mm.metamodel.ColourType):
 
-        super().__init__(name)
+        super().__init__(name, None)
         
         self._draw(img_width, font_size, fill_colour, line_colour)
 
-    def _draw(self, img_width: int, font_size: int, fill_colour:str, line_colour: str):
+    def _draw(self, img_width: int, font_size: int, fill_colour: mm.metamodel.ColourType, line_colour: mm.metamodel.ColourType) -> None:
         """Create the image for the region rectangle and its inset name label"""
 
-        txt_lbl =  TextLabelImage(text=self.name, font_size=font_size)
+        txt_lbl =  TextLabelImage(self.name, text=self.name, font_size=font_size)
 
         generic_img = DashedRectangle(img_width, 
                                       txt_lbl.img.height + 10, 
@@ -88,16 +128,21 @@ class MapNameImage(Image):
 
         # draw name text
         generic_img = txt_lbl.overlay(generic_img, 
-                                      ((img_width - txt_lbl.img.width) // 2, 5), 192)
+                                      mm.image.Point((img_width - txt_lbl.img.width) // 2, 5), 
+                                      alpha=192)
 
         self.img = generic_img
 
 @typeguard.typechecked
 class MemoryRegionImage(Image):
+    """Wrapper class for PIL.Image.Image object. Represents a MemoryRegion block."""
 
-    def __init__(self, name: str, metadata: mm.metamodel.MemoryRegion, img_width: int, font_size: int):
+    def __init__(self, name: str, mmap_parent: str, metadata: mm.metamodel.MemoryRegion, img_width: int, font_size: int):
 
-        super().__init__(name)
+        super().__init__(name, mmap_parent)
+
+        self.img = None
+        """Pillow image object, initialised by _draw function"""
 
         self.metadata: mm.metamodel.MemoryRegion = metadata
         """instance of the pydantic metamodel class for this specific memory region"""
@@ -105,17 +150,20 @@ class MemoryRegionImage(Image):
         self.draw_indent = 0
         """Index counter for incrementally shrinking the drawing indent"""
         
-        self._draw(img_width, font_size)
+        self.fill = self._pick_random_colour()
+        
+        self.img_width = img_width
+        self.font_size = font_size     
 
     @property
     def origin_as_hex(self):
-        """ lookup memory_region_origin from metamodel  """
-        return hex(self.metadata.memory_region_origin)
+        """ lookup origin from metamodel  """
+        return hex(self.metadata.origin)
 
     @property
     def size_as_hex(self):
-        """ lookup memory_region_size from metamodel  """
-        return hex(self.metadata.memory_region_size)
+        """ lookup size from metamodel  """
+        return hex(self.metadata.size)
 
     @property
     def freespace_as_hex(self):
@@ -124,13 +172,13 @@ class MemoryRegionImage(Image):
 
     @property
     def origin_as_int(self):
-        """ lookup memory_region_origin from metamodel  """
-        return self.metadata.memory_region_origin
+        """ lookup origin from metamodel  """
+        return self.metadata.origin
 
     @property
     def size_as_int(self):
-        """ lookup memory_region_size from metamodel  """
-        return self.metadata.memory_region_size
+        """ lookup size from metamodel  """
+        return self.metadata.size
 
     @property
     def freespace_as_int(self):
@@ -187,43 +235,38 @@ class MemoryRegionImage(Image):
                 str(self.freespace_as_hex),
                 "+" + str(None),
             ]
-
-    def _draw(self, img_width: int, font_size: int):
+    
+    def _draw(self):
         """Create the image for the region rectangle and its inset name label"""
 
         logging.info(self)
-        if not self.size_as_hex:
-            logging.warning("Zero size region will not be added.")
-            return None
 
         if self.freespace_as_int < 0:
             region_img = DashedRectangle(
-                img_width, int(self.size_as_hex,16), fill=self.fill, line=self.line, dash=(0,0,8,0), stroke=2).img
+                self.img_width, int(self.size_as_hex,16), fill=self.fill, line=self.line, dash=(0,0,8,0), stroke=2).img
         else:
             region_img = DashedRectangle(
-                img_width, int(self.size_as_hex,16), fill=self.fill, line=self.line, dash=(0,0,0,0), stroke=2).img
-            
+                self.img_width, int(self.size_as_hex,16), fill=self.fill, line=self.line, dash=(0,0,0,0), stroke=2).img
 
         # draw name text
-        txt_lbl =  TextLabelImage(text=self.name, font_size=font_size, fill_colour="white", padding_width=10)
+        txt_lbl =  TextLabelImage(self.name, text=f"{self.name}", font_size=self.font_size, fill_colour="white", padding_width=10)
 
-        region_img = txt_lbl.overlay(region_img, ((img_width - txt_lbl.img.width) // 2, 2), 128 )
-
+        region_img = txt_lbl.overlay(region_img, mm.image.Point((self.img_width - txt_lbl.img.width) // 2, 2), alpha=128 )
 
         self.img = region_img
 
 @typeguard.typechecked
 class VoidRegionImage(Image):
 
-    def __init__(self, img_width: int, font_size: int, fill_colour:str, line_colour: str):
-        super().__init__(name="SKIPPED")
+    def __init__(self, mmap_parent: str, img_width: int, font_size: int, fill_colour: mm.metamodel.ColourType, line_colour: mm.metamodel.ColourType):
+        super().__init__("SKIPPED", mmap_parent)
         
         self.size_as_hex: str = hex(40)
         self.size_as_int: int = int(self.size_as_hex,16)
         
         self._draw(img_width, font_size, fill_colour, line_colour)
 
-    def _draw(self, img_width: int, font_size: int, fill_colour:str, line_colour: str):
+    def _draw(self, img_width: int, font_size: int, fill_colour: mm.metamodel.ColourType, line_colour: mm.metamodel.ColourType):
 
         logging.info(self)
 
@@ -235,7 +278,7 @@ class VoidRegionImage(Image):
                                    line=line_colour).img
 
         # draw name text
-        txt_img = TextLabelImage(text=self.name, font_size=font_size, font_colour="grey", fill_colour=fill_colour).img
+        txt_img = TextLabelImage(self.name, text=self.name, font_size=font_size, font_colour="grey", fill_colour=fill_colour).img
         self.img.paste(
             txt_img,
             ((img_width - txt_img.width) // 2, (self.size_as_int - txt_img.height) // 2),
@@ -244,12 +287,16 @@ class VoidRegionImage(Image):
 
 @typeguard.typechecked
 class TextLabelImage(Image):
-    def __init__(self, text: str, 
+    def __init__(self, 
+                 parent: str,
+                 text: str, 
                  font_size: int, 
-                 font_colour: str = "black", 
-                 fill_colour: Tuple[int, int, int, int] | str = "white",
+                 font_colour: mm.metamodel.ColourType = "black", 
+                 fill_colour: mm.metamodel.ColourType = "white",
                  padding_width: int = 0):
-        super().__init__(name=text)
+        
+
+        super().__init__(text, parent)
 
         self.font = PIL.ImageFont.load_default(font_size)
         """The font used to display the text"""
@@ -283,7 +330,6 @@ class TextLabelImage(Image):
         canvas = PIL.ImageDraw.Draw(self.img)
         # center the text in the oversized image, bias the y-pos by 1/5
         canvas.text(
-            # xy=(self.width / 2, (self.height / 2 - (self.height / 5))),
             xy=((self.img.width - self.width) // 2, -1),
             text=self.name,
             fill=self.fgcolour,
@@ -295,22 +341,112 @@ class TextLabelImage(Image):
 
 @typeguard.typechecked
 class ArrowBlock(Image):
-    def __init__(self, size: int = 20, line: str = "black", fill: str = "white"):
+    def __init__(self, 
+                 src: Point,
+                 dst: Point,
+                 head_width: int = 20,
+                 tail_len: int = 75, 
+                 tail_width: int = 50, 
+                 line: mm.metamodel.ColourType = "black", 
+                 fill: mm.metamodel.ColourType = "white",
+                 show_outline: bool = False):
+        """
+        src: coords for start of arrow
+        dst: coords for end of arrow
+        head_width: width of the arrow head in pixels
+        tail_len: The arrow tail length precentage out of the arrow length total (determined by dst - src). Clamped between 10% and 90%
+        tail_width: The arrow tail width precentage out of the arrow head width. Clamped between 10% and 90%
+        line: line colour
+        fill: fill colour        
+        """
+        # We need the functions from the base class
+        super().__init__("Arrow", None)
 
-        # draw an arrow in the unit square (4px by 4px)
-        w = 4 * size
-        h = 4 * size
+        self.l = int(math.hypot((dst.x - src.x), (dst.y - src.y)))
+        
+        # even numbers are impossible to center...
+        if not head_width % 2:
+            head_width = head_width - 1
 
-        self.img = PIL.Image.new("RGBA", (w + 1, h + 1))        
-        arrow_draw = PIL.ImageDraw.Draw(self.img)
-        arrow_draw.polygon(
+        h = head_width
+        max_arrow_head_width = h
+
+        # convert percentages to fraction denominator
+        if tail_len <= 10: tail_len = 10
+        if tail_len > 90: tail_len = 90
+        body_len_dec = (tail_len / 100)
+        body_len_denom = 1 / body_len_dec
+
+        if tail_width <= 10: tail_width = 10
+        if tail_width > 90: tail_width = 90
+        body_width_dec = (tail_width / 100)
+        arrow_body_width = max_arrow_head_width * body_width_dec      
+
+        self.midypos = arrow_body_width
+
+        # image needs enough height to rotate the arrow without clipping at top and bottom...
+        self.img = PIL.Image.new("RGBA", (self.l, self.l))        
+        # and establish relative midpoint for y axis so that arrow is drawn in the center of the image
+        yzero = (self.l / 2)  - (h / 2)
+
+        canvas = PIL.ImageDraw.Draw(self.img)
+        canvas.polygon(
             [
-                (0, h//4), (w//2, h//4), (w//2, 0), (w, h//2),
-                (w//2, h), (w//2, h//2 + h//4), (0, h//2 + h//4)
+                (0, yzero + (max_arrow_head_width / 2) - (arrow_body_width / 2)), 
+                (self.l//body_len_denom, yzero + (max_arrow_head_width / 2) - (arrow_body_width / 2)), 
+                (self.l//body_len_denom, yzero), 
+                (self.l, yzero + (max_arrow_head_width / 2)),  # tip of arrow head
+                (self.l//body_len_denom, yzero + h), 
+                (self.l//body_len_denom, yzero + (max_arrow_head_width / 2) + (arrow_body_width / 2)), 
+                (0, yzero + (max_arrow_head_width / 2) + (arrow_body_width / 2))
             ], 
             fill=fill, 
             outline=line, 
             width=2)
+        
+        # calc the hypot angle from the opp and adj vectors
+        self.degs = math.degrees(math.atan2(dst.y - src.y, dst.x - src.x))        
+        self.img = self.img.rotate(self.degs, resample=PIL.Image.Resampling.BICUBIC)
+        self.img = self.img.transpose(PIL.Image.FLIP_TOP_BOTTOM)  
+        
+        self.trim()
+        if show_outline:
+            canvas = PIL.ImageDraw.Draw(self.img)
+            canvas.rectangle(
+                (0, 0, self.img.width, self.img.height), 
+                outline="black", width=3)
+            
+        # final position adjustments
+        if self.degs < 10 and self.degs > -10:      # 0 degs
+            x = src.x
+        elif self.degs < 100 and self.degs > 80:      # 90 degs
+            x = src.x - (self.img.width // 2) + 1
+        elif self.degs < -80 and self.degs > -100:   # -90 degs
+            x = src.x - (self.img.width // 2)
+        elif self.degs < 90 and self.degs > -90:      # -45 degs
+            x = src.x - 1
+        else:                                       # -135, 135, 180 degs
+            if self.degs > 0:
+                x = src.x - self.img.width + 2
+            else:
+                x = src.x - self.img.width + 2
+        
+        if self.degs < 10 and self.degs > -10:      # 0 degs
+            y = src.y - (self.img.height // 2) + 1
+        elif self.degs < 190 and self.degs > 170:   # 180 degs
+            y = src.y - self.img.height // 2
+        elif self.degs > 0:                         # 45 degs
+            y = src.y - 1
+        else:                                        # -45, -90, -135 deg 
+            y = src.y - self.img.height + 2
+
+        self.pos = Point(
+            x=x,
+            y=y
+        )
+
+        
+
 
 @typeguard.typechecked
 class DashedRectangle(Image):
@@ -319,8 +455,8 @@ class DashedRectangle(Image):
             w: int, 
             h: int, 
             dash: Tuple[int, int, int, int],
-            fill: Tuple[int, int, int, int] | str, 
-            line: str = "black", 
+            fill: mm.metamodel.ColourType, 
+            line: mm.metamodel.ColourType = "black", 
             stroke: float = 1):
         """dash is 4-tuple of top, right, bottom, left edges, set to 0 or 1 to disable.
         Fill is an RGBA tuple or colour string"""
@@ -402,7 +538,7 @@ class Table:
         else:
             return Position(args[0], args[1], args[2], args[3])
 
-    def draw_table(
+    def get_table_img(
         self,
         table,
         header=[],
@@ -412,7 +548,7 @@ class Table:
         align=None,
         colors={},
         stock=False,
-    ) -> PIL.Image:
+    ) -> PIL.Image.Image:
         """
         Draw a table using only Pillow
         table:    a 2d list, must be str

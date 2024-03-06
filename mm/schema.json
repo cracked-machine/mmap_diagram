@@ -19,16 +19,16 @@
           "title": "Memory Regions",
           "type": "object"
         },
-        "map_height": {
+        "height": {
           "default": 0,
           "description": "Internal Use. This will be automically adjusted depending on the diagram size and number of memory maps.",
-          "title": "Map Height",
+          "title": "Height",
           "type": "integer"
         },
-        "map_width": {
+        "width": {
           "default": 0,
           "description": "Internal Use. This will be automically adjusted depending on the diagram size and number of memory maps.",
-          "title": "Map Width",
+          "title": "Width",
           "type": "integer"
         }
       },
@@ -40,17 +40,31 @@
     },
     "MemoryRegion": {
       "properties": {
-        "memory_region_origin": {
+        "origin": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            }
+          ],
           "description": "Origin address of the MemoryMap. In hex format string.",
-          "title": "Memory Region Origin",
-          "type": "integer"
+          "title": "Origin"
         },
-        "memory_region_size": {
+        "size": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            }
+          ],
           "description": "Size (in bytes) of the MemoryMap. In hex format string.",
-          "title": "Memory Region Size",
-          "type": "integer"
+          "title": "Size"
         },
-        "memory_region_links": {
+        "links": {
           "default": [],
           "description": "Links to other memory regions. E.g. \n[\n\n{'ParentMemoryMap1': 'ChildMemoryRegion1'}\n\n...\n\n{'ParentMemoryMapN': 'ChildMemoryRegionN'}\n]",
           "items": {
@@ -66,7 +80,7 @@
             ],
             "type": "array"
           },
-          "title": "Memory Region Links",
+          "title": "Links",
           "type": "array"
         },
         "freespace": {
@@ -83,70 +97,182 @@
         }
       },
       "required": [
-        "memory_region_origin",
-        "memory_region_size"
+        "origin",
+        "size"
       ],
       "title": "MemoryRegion",
       "type": "object"
     }
   },
   "properties": {
-    "diagram_name": {
+    "name": {
       "description": "The name of the diagram.",
-      "title": "Diagram Name",
+      "title": "Name",
       "type": "string"
     },
-    "diagram_height": {
+    "height": {
       "description": "The height of the diagram.",
-      "title": "Diagram Height",
+      "title": "Height",
       "type": "integer"
     },
-    "diagram_width": {
+    "width": {
       "description": "The width of the diagram.",
-      "title": "Diagram Width",
+      "title": "Width",
       "type": "integer"
     },
-    "diagram_legend_width": {
+    "legend_width": {
       "default": 30,
       "description": "The percentage width of the diagram legend",
-      "title": "Diagram Legend Width",
+      "title": "Legend Width",
       "type": "integer"
     },
-    "diagram_bgcolour": {
+    "bgcolour": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "type": "array"
+        }
+      ],
       "default": "white",
       "description": "The background colour used for the diagram",
-      "title": "Diagram Bgcolour",
-      "type": "string"
+      "title": "Bgcolour"
     },
     "void_fill_colour": {
-      "default": "lightgrey",
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "type": "array"
+        }
+      ],
+      "default": "white",
       "description": "Fill colour for the void region blocks",
-      "title": "Void Fill Colour",
-      "type": "string"
+      "title": "Void Fill Colour"
     },
     "void_line_colour": {
-      "default": "grey",
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "type": "array"
+        }
+      ],
+      "default": [
+        192,
+        192,
+        192
+      ],
       "description": "Line colour for the void region blocks",
-      "title": "Void Line Colour",
-      "type": "string"
+      "title": "Void Line Colour"
     },
     "title_fill_colour": {
-      "default": "blanchedalmond",
-      "description": "Fill colour for the memory region title blocks",
-      "title": "Title Fill Colour",
-      "type": "string"
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "type": "array"
+        }
+      ],
+      "default": [
+        224,
+        224,
+        224
+      ],
+      "description": "Fill colour for the memory map title blocks",
+      "title": "Title Fill Colour"
     },
     "title_line_colour": {
-      "default": "grey",
-      "description": "Line colour for the emory region title blocks",
-      "title": "Title Line Colour",
-      "type": "string"
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "type": "array"
+        }
+      ],
+      "default": [
+        32,
+        32,
+        32
+      ],
+      "description": "Line colour for the memory map title blocks",
+      "title": "Title Line Colour"
     },
     "memory_maps": {
       "additionalProperties": {
         "$ref": "#/$defs/MemoryMap"
       },
-      "description": "The diagram frame. Can contain many memory maps.",
+      "description": "MemoryMap sub-diagram contents.",
       "title": "Memory Maps",
       "type": "object"
     },
@@ -158,12 +284,80 @@
       ],
       "default": "alternate",
       "description": "Drawing indent for Memory Regions"
+    },
+    "region_alpha": {
+      "default": 192,
+      "description": "Transparency value for all region block images.",
+      "exclusiveMaximum": 256,
+      "exclusiveMinimum": -1,
+      "title": "Region Alpha",
+      "type": "integer"
+    },
+    "link_alpha": {
+      "default": 96,
+      "description": "Transparency value for all link arrow images.",
+      "exclusiveMaximum": 256,
+      "exclusiveMinimum": -1,
+      "title": "Link Alpha",
+      "type": "integer"
+    },
+    "link_fill_colour": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "type": "array"
+        }
+      ],
+      "default": "red",
+      "description": "Fill colour for the link arrows",
+      "title": "Link Fill Colour"
+    },
+    "link_line_colour": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "type": "array"
+        }
+      ],
+      "default": "red",
+      "description": "Line colour for the link arrows",
+      "title": "Link Line Colour"
     }
   },
   "required": [
-    "diagram_name",
-    "diagram_height",
-    "diagram_width",
+    "name",
+    "height",
+    "width",
     "memory_maps"
   ],
   "title": "Diagram",

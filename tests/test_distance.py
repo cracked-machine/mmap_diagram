@@ -8,7 +8,7 @@ import mm.image
 
 def test_distance_three_regions_same_size_no_collisions():
     """ """
-    diagram_height = hex(1000)
+    height = hex(1000)
     with unittest.mock.patch(
         "sys.argv",
         [
@@ -17,7 +17,7 @@ def test_distance_three_regions_same_size_no_collisions():
             "rootfs", "0x50", "0x30",
             "dtb", "0x90", "0x30",
             "-o", f"/tmp/pytest/{__name__}.md",
-            "-l", diagram_height,
+            "-l", height,
         ],
     ):
 
@@ -41,7 +41,7 @@ def test_distance_three_regions_same_size_no_collisions():
 
 def test_distance_three_regions_touching_no_collisions():
     """ """
-    diagram_height = hex(1000)
+    height = hex(1000)
     with unittest.mock.patch(
         "sys.argv",
         [
@@ -50,7 +50,7 @@ def test_distance_three_regions_touching_no_collisions():
             "rootfs", "0x40", "0x30",
             "dtb", "0x70", "0x30",
             "-o", f"/tmp/pytest/{__name__}.md",
-            "-l", diagram_height,
+            "-l", height,
         ],
     ):
 
@@ -74,7 +74,7 @@ def test_distance_three_regions_touching_no_collisions():
 
 def test_distance_three_regions_diff_size_no_collisions():
     """ """
-    diagram_height = hex(1000)
+    height = hex(1000)
     with unittest.mock.patch(
         "sys.argv",
         [
@@ -83,7 +83,7 @@ def test_distance_three_regions_diff_size_no_collisions():
             "rootfs", "0x50", "0x20",
             "dtb", "0x90", "0x30",
             "-o", f"/tmp/pytest/{__name__}.md",
-            "-l", diagram_height,
+            "-l", height,
         ],
     ):
 
@@ -107,7 +107,7 @@ def test_distance_three_regions_diff_size_no_collisions():
 
 def test_distance_three_regions_bottom_collision():
     """ """
-    diagram_height = hex(1000)
+    height = hex(1000)
     with unittest.mock.patch(
         "sys.argv",
         [
@@ -116,7 +116,7 @@ def test_distance_three_regions_bottom_collision():
             "rootfs", "0x50", "0x30",
             "dtb", "0x90", "0x30",
             "-o", f"/tmp/pytest/{__name__}.md",
-            "-l", diagram_height,
+            "-l", height,
         ],
     ):
 
@@ -140,7 +140,7 @@ def test_distance_three_regions_bottom_collision():
 
 def test_distance_three_regions_bottom_middle_collision():
     """ """
-    diagram_height = hex(1000)
+    height = hex(1000)
     with unittest.mock.patch(
         "sys.argv",
         [
@@ -149,7 +149,7 @@ def test_distance_three_regions_bottom_middle_collision():
             "rootfs", "0x50", "0x50",
             "dtb", "0x90", "0x30",
             "-o", f"/tmp/pytest/{__name__}.md",
-            "-l", diagram_height,
+            "-l", height,
         ],
     ):
 
@@ -173,7 +173,7 @@ def test_distance_three_regions_bottom_middle_collision():
 
 def test_distance_five_regions_bottom_top_collision():
     """ """
-    diagram_height = hex(1000)
+    height = hex(1000)
     with unittest.mock.patch(
         "sys.argv",
         [
@@ -184,7 +184,7 @@ def test_distance_five_regions_bottom_top_collision():
             "uboot", "0xD0", "0x50",
             "uboot-scr", "0x110", "0x30",
             "-o", f"/tmp/pytest/{__name__}.md",
-            "-l", str(diagram_height),
+            "-l", str(height),
         ],
     ):
 

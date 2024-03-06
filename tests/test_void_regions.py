@@ -4,26 +4,13 @@ import mm.image
 import pathlib
 import PIL.Image
 import pytest
+from tests.common_fixtures import file_setup
 
-
-@pytest.fixture
-def setup():
-    report = pathlib.Path(f"/tmp/pytest/{__name__}.md")
-    report.unlink(missing_ok=True)
-
-    image_full = pathlib.Path(f"/tmp/pytest/{__name__}_full.png")
-    image_full.unlink(missing_ok=True)
-
-    image_cropped = pathlib.Path(f"/tmp/pytest/{__name__}_cropped.png")
-    image_cropped.unlink(missing_ok=True)
-
-    return {"report": report, "image_full": image_full, "image_cropped": image_cropped}
-
-
-def test_void_region_default(setup):
+@pytest.mark.parametrize("file_setup", [{"file_path": "out/tmp/test_void_region_default"}], indirect=True)
+def test_void_region_default(file_setup):
     """ """
 
-    diagram_height = 2000
+    height = 2000
     with unittest.mock.patch(
         "sys.argv",
         [
@@ -31,8 +18,8 @@ def test_void_region_default(setup):
             "kernel", "0x10", "0x30",
             "rootfs", "0x50", "0x30",
             "dtb", "0x190", "0x30",
-            "-o", str(setup["report"]),
-            "-l", hex(diagram_height),
+            "-o", str(file_setup["report"]),
+            "-l", hex(height),
         ],
     ):
 
@@ -56,21 +43,19 @@ def test_void_region_default(setup):
                 assert region_image.size_as_hex == "0x30"
                 assert region_image.freespace_as_hex == "0x610"
 
-        assert setup["report"].exists()
+        assert file_setup["report"].exists()
 
-        assert setup["image_full"].exists()
-        found_size = PIL.Image.open(str(setup["image_full"])).size
-        assert found_size == (400, diagram_height)
+        assert file_setup["diagram_image"].exists()
+        found_size = PIL.Image.open(str(file_setup["diagram_image"])).size
+        assert found_size == (400, 530)
 
-        assert setup["image_cropped"].exists()
-        found_size = PIL.Image.open(str(setup["image_cropped"])).size
-        assert found_size == (400, 540)
+        assert file_setup["table_image"].exists()
 
-
-def test_void_region_uservalue_500(setup):
+@pytest.mark.parametrize("file_setup", [{"file_path": "out/tmp/test_void_region_uservalue_500"}], indirect=True)
+def test_void_region_uservalue_500(file_setup):
     """ """
 
-    diagram_height = 1000
+    height = 1000
     with unittest.mock.patch(
         "sys.argv",
         [
@@ -78,8 +63,8 @@ def test_void_region_uservalue_500(setup):
             "kernel", "0x10", "0x30",
             "rootfs", "0x50", "0x30",
             "dtb", "0x190", "0x30",
-            "-o", str(setup["report"]),
-            "-l", hex(diagram_height),
+            "-o", str(file_setup["report"]),
+            "-l", hex(height),
             "-v", hex(500),
         ],
     ):
@@ -104,22 +89,19 @@ def test_void_region_uservalue_500(setup):
                 assert region_image.size_as_hex == "0x30"
                 assert region_image.freespace_as_hex == "0x228"
 
-        assert setup["report"].exists()
+        assert file_setup["report"].exists()
 
-        assert setup["image_full"].exists()
-        found_size = PIL.Image.open(str(setup["image_full"])).size
-        assert found_size == (400, diagram_height)
+        assert file_setup["diagram_image"].exists()
+        found_size = PIL.Image.open(str(file_setup["diagram_image"])).size
+        assert found_size == (400, 530)
 
-        # empty section between rootfs and dtb should be retained
-        assert setup["image_cropped"].exists()
-        found_size = PIL.Image.open(str(setup["image_cropped"])).size
-        assert found_size == (400, 540)
+        assert file_setup["table_image"].exists()
 
-
-def test_void_region_uservalue_200(setup):
+@pytest.mark.parametrize("file_setup", [{"file_path": "out/tmp/test_void_region_uservalue_200"}], indirect=True)
+def test_void_region_uservalue_200(file_setup):
     """ """
 
-    diagram_height = 1000
+    height = 1000
     with unittest.mock.patch(
         "sys.argv",
         [
@@ -127,8 +109,8 @@ def test_void_region_uservalue_200(setup):
             "kernel", "0x10", "0x30",
             "rootfs", "0x50", "0x30",
             "dtb", "0x190", "0x30",
-            "-o", str(setup["report"]),
-            "-l", hex(diagram_height),
+            "-o", str(file_setup["report"]),
+            "-l", hex(height),
             "-v", hex(200),
         ],
     ):
@@ -153,13 +135,10 @@ def test_void_region_uservalue_200(setup):
                 assert region_image.size_as_hex == "0x30"
                 assert region_image.freespace_as_hex == "0x228"
 
-        assert setup["report"].exists()
+        assert file_setup["report"].exists()
 
-        assert setup["image_full"].exists()
-        found_size = PIL.Image.open(str(setup["image_full"])).size
-        assert found_size == (400, diagram_height)
+        assert file_setup["diagram_image"].exists()
+        found_size = PIL.Image.open(str(file_setup["diagram_image"])).size
+        assert found_size == (400, 352)
 
-        # reduced void threshold, so empty section between rootfs and dtb should be voided, making the file smaller
-        assert setup["image_cropped"].exists()
-        found_size = PIL.Image.open(str(setup["image_cropped"])).size
-        assert found_size == (400, 328)
+        assert file_setup["table_image"].exists()
