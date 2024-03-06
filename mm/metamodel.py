@@ -113,7 +113,7 @@ class Diagram(ConfigParent):
     ] 
     void_fill_colour: Annotated[
         str,
-        pydantic.Field("lightgrey", description="Fill colour for the void region blocks")
+        pydantic.Field("white", description="Fill colour for the void region blocks")
     ]
     void_line_colour: Annotated[
         str,

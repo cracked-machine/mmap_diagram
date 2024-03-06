@@ -4,7 +4,7 @@
   "width": 1000,
   "legend_width": 30,
   "bgcolour": "white",
-  "void_fill_colour": "lightgrey",
+  "void_fill_colour": "white",
   "void_line_colour": "grey",
   "title_fill_colour": "blanchedalmond",
   "title_line_colour": "grey",

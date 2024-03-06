@@ -133,7 +133,7 @@
       "type": "string"
     },
     "void_fill_colour": {
-      "default": "lightgrey",
+      "default": "white",
       "description": "Fill colour for the void region blocks",
       "title": "Void Fill Colour",
       "type": "string"
