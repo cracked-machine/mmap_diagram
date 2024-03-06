@@ -1,9 +1,9 @@
 {
-  "diagram_name": "TestDiagram",
-  "diagram_height": 1000,
-  "diagram_width": 400,
-  "diagram_legend_width": 30,
-  "diagram_bgcolour": "white",
+  "name": "TestDiagram",
+  "height": 1000,
+  "width": 400,
+  "legend_width": 30,
+  "bgcolour": "white",
   "void_fill_colour": "lightgrey",
   "void_line_colour": "grey",
   "title_fill_colour": "blanchedalmond",
@@ -12,9 +12,9 @@
     "eMMC": {
       "memory_regions": {
         "Blob1": {
-          "memory_region_origin": 16,
-          "memory_region_size": 16,
-          "memory_region_links": [
+          "origin": 16,
+          "size": 16,
+          "links": [
             [
               "DRAM",
               "Blob2"
@@ -32,16 +32,16 @@
     "DRAM": {
       "memory_regions": {
         "Blob2": {
-          "memory_region_origin": 16,
-          "memory_region_size": 16,
-          "memory_region_links": [],
+          "origin": 16,
+          "size": 16,
+          "links": [],
           "freespace": 48,
           "collisions": {}
         },
         "Blob3": {
-          "memory_region_origin": 80,
-          "memory_region_size": 16,
-          "memory_region_links": [],
+          "origin": 80,
+          "size": 16,
+          "links": [],
           "freespace": 904,
           "collisions": {}
         }

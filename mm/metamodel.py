@@ -24,15 +24,15 @@ class IndentScheme(str, enum.Enum):
 # data model
 class MemoryRegion(ConfigParent):
 
-    memory_region_origin: Annotated[
+    origin: Annotated[
         int | str,
         pydantic.Field(..., description="Origin address of the MemoryMap. In hex format string."),
     ]
-    memory_region_size: Annotated[
+    size: Annotated[
         int | str,
         pydantic.Field(..., description="Size (in bytes) of the MemoryMap. In hex format string."),
     ]
-    memory_region_links: list[tuple[str,str]] = pydantic.Field(
+    links: list[tuple[str,str]] = pydantic.Field(
         [],
         description="""Links to other memory regions. E.g. """
         """\n["""
@@ -64,7 +64,7 @@ class MemoryRegion(ConfigParent):
         else:
             return v
 
-    @pydantic.field_validator("memory_region_origin", "memory_region_size", mode="before")
+    @pydantic.field_validator("origin", "size", mode="before")
     @classmethod
     def check_empty_str(cls, v: any):
         assert v, "Empty value found!"
@@ -79,35 +79,35 @@ class MemoryMap(ConfigParent):
         dict[str, MemoryRegion],
         pydantic.Field(description="Memory map containing memory regions.")
     ]
-    map_height: Annotated[
+    height: Annotated[
         int,
         pydantic.Field(0, description="Internal Use. This will be automically adjusted depending on the diagram size and number of memory maps.", exclude=True)
     ]
-    map_width: Annotated[
+    width: Annotated[
         int,
         pydantic.Field(0, description="Internal Use. This will be automically adjusted depending on the diagram size and number of memory maps.", exclude=True)
     ]
 
 class Diagram(ConfigParent):
 
-    # diagram_name: str = pydantic.Field(description="The name of the diagram.")
-    diagram_name: Annotated[
+    # name: str = pydantic.Field(description="The name of the diagram.")
+    name: Annotated[
         str, 
         pydantic.Field(..., description="The name of the diagram.")
     ]
-    diagram_height: Annotated[
+    height: Annotated[
         int,
         pydantic.Field(..., description="The height of the diagram.")
     ]
-    diagram_width: Annotated[
+    width: Annotated[
         int,
         pydantic.Field(..., description="The width of the diagram.")
     ]
-    diagram_legend_width: Annotated[
+    legend_width: Annotated[
         int,
         pydantic.Field(30, description="The percentage width of the diagram legend")
     ]
-    diagram_bgcolour: Annotated[
+    bgcolour: Annotated[
         str,
         pydantic.Field("white", description="The background colour used for the diagram")
     ] 
@@ -136,7 +136,7 @@ class Diagram(ConfigParent):
         pydantic.Field(IndentScheme.alternate, description="Drawing indent for Memory Regions")
     ]
 
-    @pydantic.field_validator("diagram_name")
+    @pydantic.field_validator("name")
     @classmethod
     def check_empty_str(cls, v: str):
         assert v, "Empty string found!"
@@ -154,13 +154,13 @@ class Diagram(ConfigParent):
             for region in mmap.memory_regions.items():
                 found_memory_regions.append(region)
                 
-                for regionlink in region[1].memory_region_links:
+                for regionlink in region[1].links:
                     found_region_links.append(
                         {
                             "source_map_name": mmap_name, 
                             "source_region_name": region[0], 
                             "target_link": regionlink, 
-                            "target_region_size": region[1].memory_region_size
+                            "target_region_size": region[1].size
                         }
                     )
                     
@@ -180,11 +180,11 @@ class Diagram(ConfigParent):
             # also check the from/to memoryregions are the same size
             for mr in found_memory_regions:
                 if mr[0] == region_link_child_memregion:
-                    assert mr[1].memory_region_size == regionlink['target_region_size'],\
+                    assert mr[1].size == regionlink['target_region_size'],\
                     f"Size mismatch from link {regionlink['source_map_name']}.{regionlink['source_region_name']} to {region_link_parent_memmap}.{region_link_child_memregion}"
 
 
-            # assert any((mr[1].memory_region_size == regionlink['target_region_size'] for mr in found_memory_regions)),\
+            # assert any((mr[1].size == regionlink['target_region_size'] for mr in found_memory_regions)),\
             #     f"Size mismatch between {region_link_parent_memmap}.{mr.name} and {region_link_parent_memmap}.{ regionlink['target_region_size']}"
 
         return v
@@ -194,16 +194,16 @@ class Diagram(ConfigParent):
         """ Resize the multiple memory maps to fit within the diagram"""
         # assume all memory maps should always be same height as overall diagram
         for memory_map in self.memory_maps.values():
-            memory_map.map_height = self.diagram_height
+            memory_map.height = self.height
         
         # command line input (only one memory map possible)
         if len(self.memory_maps) == 1:
             pass
         else:
-            new_memory_map_width = self.diagram_width // len(self.memory_maps) 
+            new_memory_map_width = self.width // len(self.memory_maps) 
             new_memory_map_width - 10 # allow for some extra space
             for memory_map in self.memory_maps.values():
-                memory_map.map_width = new_memory_map_width
+                memory_map.width = new_memory_map_width
 
         return self
 
@@ -226,10 +226,10 @@ class Diagram(ConfigParent):
                 for other_region in neighbour_region_list:
                     # calc the end address of this and inspected region
                     other_region_name = other_region[0]
-                    other_region_origin = other_region[1].memory_region_origin
-                    other_region_size = other_region[1].memory_region_size
+                    other_region_origin = other_region[1].origin
+                    other_region_size = other_region[1].size
 
-                    this_region_end: int = memory_region.memory_region_origin + memory_region.memory_region_size
+                    this_region_end: int = memory_region.origin + memory_region.size
                     other_region_end: int = other_region_origin + other_region_size
 
                     # skip calculating distance from yourself.
@@ -237,7 +237,7 @@ class Diagram(ConfigParent):
                         continue
 
                     # skip if 'this' region origin is ahead of the probed region end address
-                    if memory_region.memory_region_origin >= other_region_end:
+                    if memory_region.origin >= other_region_end:
                         continue
 
                     distance_to_other_region: int = other_region_origin - this_region_end
@@ -246,14 +246,14 @@ class Diagram(ConfigParent):
                     # collision detected
                     if distance_to_other_region < 0:
                         # was the region that collided into us at a lower or higher origin address
-                        if other_region_origin < memory_region.memory_region_origin:
+                        if other_region_origin < memory_region.origin:
                             # lower so use our origin address as the collion point
-                            memory_region.collisions[other_region_name] = memory_region.memory_region_origin
+                            memory_region.collisions[other_region_name] = memory_region.origin
                         else:
                             # higher so use their origin address as the collision point
                             memory_region.collisions[other_region_name] = other_region_origin
 
-                        if memory_region.memory_region_origin < other_region_origin:
+                        if memory_region.origin < other_region_origin:
                             # no distance left
                             memory_region.freespace = distance_to_other_region
                             pass
@@ -276,9 +276,9 @@ class Diagram(ConfigParent):
                         lowest = min(non_collision_distances, key=non_collision_distances.get)
                         memory_region.freespace = non_collision_distances[lowest]
                     else:
-                        memory_region.freespace = memory_map.map_height - this_region_end
+                        memory_region.freespace = memory_map.height - this_region_end
                 elif memory_region.collisions and not memory_region.freespace:
-                    memory_region.freespace = memory_map.map_height - this_region_end
+                    memory_region.freespace = memory_map.height - this_region_end
 
     
 # helper functions

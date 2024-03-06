@@ -13,9 +13,9 @@ def assert_expected_scale(
     from mm.diagram import Diagram
     assert img_path.exists()
     outimg = PIL.Image.open(str(img_path))
-    assert Diagram.model.diagram_height == height * scale
-    assert Diagram.model.diagram_width == width * scale
-    assert outimg.size == (Diagram.model.diagram_width, cropped_height)
+    assert Diagram.model.height == height * scale
+    assert Diagram.model.width == width * scale
+    assert outimg.size == (Diagram.model.width, cropped_height)
 
 @pytest.mark.parametrize("file_setup", [{"file_path": "out/tmp/test_scaling_x1"}], indirect=True)
 def test_scaling_x1(file_setup):

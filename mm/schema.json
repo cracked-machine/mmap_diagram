@@ -19,16 +19,16 @@
           "title": "Memory Regions",
           "type": "object"
         },
-        "map_height": {
+        "height": {
           "default": 0,
           "description": "Internal Use. This will be automically adjusted depending on the diagram size and number of memory maps.",
-          "title": "Map Height",
+          "title": "Height",
           "type": "integer"
         },
-        "map_width": {
+        "width": {
           "default": 0,
           "description": "Internal Use. This will be automically adjusted depending on the diagram size and number of memory maps.",
-          "title": "Map Width",
+          "title": "Width",
           "type": "integer"
         }
       },
@@ -40,7 +40,7 @@
     },
     "MemoryRegion": {
       "properties": {
-        "memory_region_origin": {
+        "origin": {
           "anyOf": [
             {
               "type": "integer"
@@ -50,9 +50,9 @@
             }
           ],
           "description": "Origin address of the MemoryMap. In hex format string.",
-          "title": "Memory Region Origin"
+          "title": "Origin"
         },
-        "memory_region_size": {
+        "size": {
           "anyOf": [
             {
               "type": "integer"
@@ -62,9 +62,9 @@
             }
           ],
           "description": "Size (in bytes) of the MemoryMap. In hex format string.",
-          "title": "Memory Region Size"
+          "title": "Size"
         },
-        "memory_region_links": {
+        "links": {
           "default": [],
           "description": "Links to other memory regions. E.g. \n[\n\n{'ParentMemoryMap1': 'ChildMemoryRegion1'}\n\n...\n\n{'ParentMemoryMapN': 'ChildMemoryRegionN'}\n]",
           "items": {
@@ -80,7 +80,7 @@
             ],
             "type": "array"
           },
-          "title": "Memory Region Links",
+          "title": "Links",
           "type": "array"
         },
         "freespace": {
@@ -97,39 +97,39 @@
         }
       },
       "required": [
-        "memory_region_origin",
-        "memory_region_size"
+        "origin",
+        "size"
       ],
       "title": "MemoryRegion",
       "type": "object"
     }
   },
   "properties": {
-    "diagram_name": {
+    "name": {
       "description": "The name of the diagram.",
-      "title": "Diagram Name",
+      "title": "Name",
       "type": "string"
     },
-    "diagram_height": {
+    "height": {
       "description": "The height of the diagram.",
-      "title": "Diagram Height",
+      "title": "Height",
       "type": "integer"
     },
-    "diagram_width": {
+    "width": {
       "description": "The width of the diagram.",
-      "title": "Diagram Width",
+      "title": "Width",
       "type": "integer"
     },
-    "diagram_legend_width": {
+    "legend_width": {
       "default": 30,
       "description": "The percentage width of the diagram legend",
-      "title": "Diagram Legend Width",
+      "title": "Legend Width",
       "type": "integer"
     },
-    "diagram_bgcolour": {
+    "bgcolour": {
       "default": "white",
       "description": "The background colour used for the diagram",
-      "title": "Diagram Bgcolour",
+      "title": "Bgcolour",
       "type": "string"
     },
     "void_fill_colour": {
@@ -175,9 +175,9 @@
     }
   },
   "required": [
-    "diagram_name",
-    "diagram_height",
-    "diagram_width",
+    "name",
+    "height",
+    "width",
     "memory_maps"
   ],
   "title": "Diagram",

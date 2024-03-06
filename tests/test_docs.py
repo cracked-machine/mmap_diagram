@@ -11,7 +11,7 @@ import json
 def test_generate_doc_example_normal(file_setup):
     """ """
 
-    diagram_height = 1000
+    height = 1000
     with unittest.mock.patch(
         "sys.argv",
         [
@@ -20,7 +20,7 @@ def test_generate_doc_example_normal(file_setup):
             "rootfs", "0x50", "0x30",
             "dtb", "0x190", "0x30",
             "-o", str(file_setup["report"]),
-            "-l", hex(diagram_height),
+            "-l", hex(height),
             "-v", hex(200),
         ],
     ):
@@ -57,7 +57,7 @@ def test_generate_doc_example_normal(file_setup):
 @pytest.mark.parametrize("file_setup", [{"file_path": "doc/example/test_generate_doc_example_collisions"}], indirect=True)
 def test_generate_doc_example_collisions(file_setup):
     """ """
-    diagram_height = hex(1000)
+    height = hex(1000)
     with unittest.mock.patch(
         "sys.argv",
         [
@@ -66,7 +66,7 @@ def test_generate_doc_example_collisions(file_setup):
             "rootfs", "0x50", "0x50",
             "dtb", "0x90", "0x30",
             "-o", str(file_setup["report"]),
-            "-l", diagram_height,
+            "-l", height,
             "-v", hex(200),
         ],
     ):
@@ -100,13 +100,13 @@ def test_generate_doc_example_two_maps(input, file_setup):
     """ """
 
     input['memory_maps']['eMMC']['memory_regions']['Blob4'] = {
-        "memory_region_origin": "0x100",
-        "memory_region_size": "0x10"
+        "origin": "0x100",
+        "size": "0x10"
     }
 
     input['memory_maps']['DRAM']['memory_regions']['Blob5'] = {
-        "memory_region_origin": "0x30",
-        "memory_region_size": "0x10"
+        "origin": "0x30",
+        "size": "0x10"
     }
 
     input_file = pathlib.Path("./doc/example/two_maps_input.json")
@@ -114,14 +114,14 @@ def test_generate_doc_example_two_maps(input, file_setup):
         fp.write(json.dumps(input, indent=2))
 
 
-    diagram_height = 1000
+    height = 1000
     with unittest.mock.patch(
         "sys.argv",
             [
                 "mm.diagram",
                 "-f", str(input_file),
                 "-o", str(file_setup["report"]),
-                "-l", hex(diagram_height),
+                "-l", hex(height),
                 "-v", hex(200),
             ],
         ):
@@ -143,41 +143,41 @@ def test_generate_doc_example_three_maps(input, file_setup):
     
     """ """
     input["memory_maps"]['eMMC']['memory_regions']['Blob1'] = {
-        "memory_region_origin": hex(0),
-        "memory_region_size": hex(32),
-        "memory_region_links": [
+        "origin": hex(0),
+        "size": hex(32),
+        "links": [
             ["DRAM", "Blob2"],
             ["DRAM", "Blob3"]
         ]
     }
 
     input["memory_maps"]['DRAM']['memory_regions']['Blob2'] = {
-        "memory_region_origin": hex(0),
-        "memory_region_size": hex(32),
+        "origin": hex(0),
+        "size": hex(32),
     }
     input["memory_maps"]['DRAM']['memory_regions']['Blob3'] = {
-        "memory_region_origin": hex(80),
-        "memory_region_size": hex(32),
+        "origin": hex(80),
+        "size": hex(32),
     }    
     input["memory_maps"]['DRAM']['memory_regions']['Blob4'] = {
-        "memory_region_origin": hex(40),
-        "memory_region_size": hex(32),
+        "origin": hex(40),
+        "size": hex(32),
     }
     input["memory_maps"]['DRAM']['memory_regions']['Blob5'] = {
-        "memory_region_origin": hex(120),
-        "memory_region_size": hex(32),
+        "origin": hex(120),
+        "size": hex(32),
     }
     input["memory_maps"]['flash'] = {           
         "memory_regions": 
         {
             "Blob6": {
-                "memory_region_origin": hex(10),
-                "memory_region_size": hex(60)
+                "origin": hex(10),
+                "size": hex(60)
             },
             "Blob7": {
-                "memory_region_origin": hex(80),
-                "memory_region_size": hex(32),
-                "memory_region_links": [
+                "origin": hex(80),
+                "size": hex(32),
+                "links": [
                     ["DRAM", "Blob4"],
                     ["DRAM", "Blob5"]
                 ]
@@ -190,14 +190,14 @@ def test_generate_doc_example_three_maps(input, file_setup):
         fp.write(json.dumps(input, indent=2))
 
 
-    diagram_height = 1000
+    height = 1000
     with unittest.mock.patch(
         "sys.argv",
             [
                 "mm.diagram",
                 "-f", str(input_file),
                 "-o", str(file_setup["report"]),
-                "-l", hex(diagram_height),
+                "-l", hex(height),
                 "-v", hex(200),
             ],
         ):

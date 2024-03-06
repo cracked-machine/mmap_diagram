@@ -1,15 +1,15 @@
 {
   "$schema": "/home/chris/projects/python/mmdiagram/mm/schema.json",
-  "diagram_name": "TestDiagram",
-  "diagram_height": 1000,
-  "diagram_width": 400,
+  "name": "TestDiagram",
+  "height": 1000,
+  "width": 400,
   "memory_maps": {
     "eMMC": {
       "memory_regions": {
         "Blob1": {
-          "memory_region_origin": "0x0",
-          "memory_region_size": "0x20",
-          "memory_region_links": [
+          "origin": "0x0",
+          "size": "0x20",
+          "links": [
             [
               "DRAM",
               "Blob2"
@@ -25,33 +25,33 @@
     "DRAM": {
       "memory_regions": {
         "Blob2": {
-          "memory_region_origin": "0x0",
-          "memory_region_size": "0x20"
+          "origin": "0x0",
+          "size": "0x20"
         },
         "Blob3": {
-          "memory_region_origin": "0x50",
-          "memory_region_size": "0x20"
+          "origin": "0x50",
+          "size": "0x20"
         },
         "Blob4": {
-          "memory_region_origin": "0x28",
-          "memory_region_size": "0x20"
+          "origin": "0x28",
+          "size": "0x20"
         },
         "Blob5": {
-          "memory_region_origin": "0x78",
-          "memory_region_size": "0x20"
+          "origin": "0x78",
+          "size": "0x20"
         }
       }
     },
     "flash": {
       "memory_regions": {
         "Blob6": {
-          "memory_region_origin": "0xa",
-          "memory_region_size": "0x3c"
+          "origin": "0xa",
+          "size": "0x3c"
         },
         "Blob7": {
-          "memory_region_origin": "0x50",
-          "memory_region_size": "0x20",
-          "memory_region_links": [
+          "origin": "0x50",
+          "size": "0x20",
+          "links": [
             [
               "DRAM",
               "Blob4"

@@ -142,13 +142,13 @@ class MemoryRegionImage(Image):
 
     @property
     def origin_as_hex(self):
-        """ lookup memory_region_origin from metamodel  """
-        return hex(self.metadata.memory_region_origin)
+        """ lookup origin from metamodel  """
+        return hex(self.metadata.origin)
 
     @property
     def size_as_hex(self):
-        """ lookup memory_region_size from metamodel  """
-        return hex(self.metadata.memory_region_size)
+        """ lookup size from metamodel  """
+        return hex(self.metadata.size)
 
     @property
     def freespace_as_hex(self):
@@ -157,13 +157,13 @@ class MemoryRegionImage(Image):
 
     @property
     def origin_as_int(self):
-        """ lookup memory_region_origin from metamodel  """
-        return self.metadata.memory_region_origin
+        """ lookup origin from metamodel  """
+        return self.metadata.origin
 
     @property
     def size_as_int(self):
-        """ lookup memory_region_size from metamodel  """
-        return self.metadata.memory_region_size
+        """ lookup size from metamodel  """
+        return self.metadata.size
 
     @property
     def freespace_as_int(self):
@@ -231,7 +231,7 @@ class MemoryRegionImage(Image):
         if not self.name in MemoryRegionImage._colour_mappings:
             MemoryRegionImage._colour_mappings[self.name] = (r, g, b, a)
 
-        for link in self.metadata.memory_region_links:
+        for link in self.metadata.links:
             if not link[1] in MemoryRegionImage._colour_mappings:
                 MemoryRegionImage._colour_mappings[link[1]] = (r, g, b, a)
 

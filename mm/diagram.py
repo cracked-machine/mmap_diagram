@@ -56,11 +56,11 @@ class MemoryMapDiagram:
 
         assert len(memory_map_metadata) == 1, "MemoryMapDiagram should omly be initialised with a single mm.metamodel.MemoryMap."
         
-        self.width = next(iter(memory_map_metadata.values())).map_width
-        self.height = next(iter(memory_map_metadata.values())).map_height
+        self.width = next(iter(memory_map_metadata.values())).width
+        self.height = next(iter(memory_map_metadata.values())).height
 
 
-        legend_width_pixels = (self.width // 100) * Diagram.model.diagram_legend_width
+        legend_width_pixels = (self.width // 100) * Diagram.model.legend_width
         self._legend_width = legend_width_pixels
         """width of the area used for text annotations/legend"""
 
@@ -152,7 +152,7 @@ class MemoryMapDiagram:
         map_img_redux = PIL.Image.new(
             "RGBA", 
             (self.width, self.height), 
-            color=Diagram.model.diagram_bgcolour)
+            color=Diagram.model.bgcolour)
         
         next_void_pos = 0
         last_void_pos = 0 
@@ -235,8 +235,8 @@ class Diagram:
         
         final_diagram_img = PIL.Image.new(
             "RGBA", 
-            (Diagram.model.diagram_width, max_diagram_height + max_name_lbl_height + 10), 
-            color=Diagram.model.diagram_bgcolour)       
+            (Diagram.model.width, max_diagram_height + max_name_lbl_height + 10), 
+            color=Diagram.model.bgcolour)       
         
         # add region and labels first
         for mmd_idx, mmd in enumerate(self.mmd_list):
@@ -257,7 +257,7 @@ class Diagram:
             for region_image in mmd.image_list:
                 source_region_mid_pos_x = region_image.abs_mid_pos.x
                 source_region_mid_pos_y = region_image.abs_mid_pos.y
-                for link in region_image.metadata.memory_region_links:
+                for link in region_image.metadata.links:
                     mmd_parent_name = link[0]
                     region_child_name = link[1]
                     # search for the matching parent/child memmap/memregion
@@ -430,13 +430,13 @@ class Diagram:
             # command line parameters only support one memory map per diagram
             inputdict = {
                 "$schema": "../../mm/schema.json",
-                "diagram_name": "Diagram",
-                "diagram_height": int(Diagram.pargs.limit,16) * Diagram.pargs.scale,
-                "diagram_width": 400 * Diagram.pargs.scale,
+                "name": "Diagram",
+                "height": int(Diagram.pargs.limit,16) * Diagram.pargs.scale,
+                "width": 400 * Diagram.pargs.scale,
                 "memory_maps": { 
                     mmname : { 
-                        "map_height": int(Diagram.pargs.limit,16) * Diagram.pargs.scale,
-                        "map_width": 400 * Diagram.pargs.scale,
+                        "height": int(Diagram.pargs.limit,16) * Diagram.pargs.scale,
+                        "width": 400 * Diagram.pargs.scale,
                         "memory_regions": { } # regions added below
                     }
                 }
@@ -450,8 +450,8 @@ class Diagram:
                     continue
 
                 inputdict['memory_maps'][mmname]['memory_regions'][datatuple[0]] = {
-                        "memory_region_origin": datatuple[1],
-                        "memory_region_size": datatuple[2]
+                        "origin": datatuple[1],
+                        "size": datatuple[2]
                     }
             
         return mm.metamodel.Diagram(**inputdict)

@@ -10,7 +10,7 @@ from tests.common_fixtures import file_setup
 def test_void_region_default(file_setup):
     """ """
 
-    diagram_height = 2000
+    height = 2000
     with unittest.mock.patch(
         "sys.argv",
         [
@@ -19,7 +19,7 @@ def test_void_region_default(file_setup):
             "rootfs", "0x50", "0x30",
             "dtb", "0x190", "0x30",
             "-o", str(file_setup["report"]),
-            "-l", hex(diagram_height),
+            "-l", hex(height),
         ],
     ):
 
@@ -55,7 +55,7 @@ def test_void_region_default(file_setup):
 def test_void_region_uservalue_500(file_setup):
     """ """
 
-    diagram_height = 1000
+    height = 1000
     with unittest.mock.patch(
         "sys.argv",
         [
@@ -64,7 +64,7 @@ def test_void_region_uservalue_500(file_setup):
             "rootfs", "0x50", "0x30",
             "dtb", "0x190", "0x30",
             "-o", str(file_setup["report"]),
-            "-l", hex(diagram_height),
+            "-l", hex(height),
             "-v", hex(500),
         ],
     ):
@@ -101,7 +101,7 @@ def test_void_region_uservalue_500(file_setup):
 def test_void_region_uservalue_200(file_setup):
     """ """
 
-    diagram_height = 1000
+    height = 1000
     with unittest.mock.patch(
         "sys.argv",
         [
@@ -110,7 +110,7 @@ def test_void_region_uservalue_200(file_setup):
             "rootfs", "0x50", "0x30",
             "dtb", "0x190", "0x30",
             "-o", str(file_setup["report"]),
-            "-l", hex(diagram_height),
+            "-l", hex(height),
             "-v", hex(200),
         ],
     ):

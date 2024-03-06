@@ -41,7 +41,7 @@ def test_schema_missing_diagram_name(input):
     mm.metamodel.Diagram(**test_data)
     
     # invalidate test_data - should fail
-    test_data['diagram_name'] = ""
+    test_data['name'] = ""
     with pytest.raises(pydantic.ValidationError): 
         mm.metamodel.Diagram(**test_data)
 
@@ -52,7 +52,7 @@ def test_schema_memregion_origin_emptystr(input):
     mm.metamodel.Diagram(**test_data)
 
     # invalidate test_data - should fail
-    test_data['memory_maps']['eMMC']['memory_regions']['Blob1']['memory_region_origin'] = ""
+    test_data['memory_maps']['eMMC']['memory_regions']['Blob1']['origin'] = ""
     with pytest.raises(pydantic.ValidationError): 
         mm.metamodel.Diagram(**test_data)
 
@@ -63,7 +63,7 @@ def test_schema_missing_memregion_size(input):
     mm.metamodel.Diagram(**test_data)
     
     # invalidate test_data - should fail
-    test_data['memory_maps']['eMMC']['memory_regions']['Blob1']['memory_region_size'] = ""
+    test_data['memory_maps']['eMMC']['memory_regions']['Blob1']['size'] = ""
     with pytest.raises(pydantic.ValidationError): 
         mm.metamodel.Diagram(**test_data)
 
@@ -74,7 +74,7 @@ def test_schema_hexstr_memregion_origin(input):
     mm.metamodel.Diagram(**test_data)
     
     # invalidate test_data - should fail
-    test_data['memory_maps']['eMMC']['memory_regions']['Blob1']['memory_region_origin'] = "10"
+    test_data['memory_maps']['eMMC']['memory_regions']['Blob1']['origin'] = "10"
     with pytest.raises(pydantic.ValidationError): 
         mm.metamodel.Diagram(**test_data)
 
@@ -85,7 +85,7 @@ def test_schema_hexstr_memregion_size(input):
     mm.metamodel.Diagram(**test_data)
     
     # invalidate test_data - should fail
-    test_data['memory_maps']['eMMC']['memory_regions']['Blob1']['memory_region_size'] = "10"
+    test_data['memory_maps']['eMMC']['memory_regions']['Blob1']['size'] = "10"
     with pytest.raises(pydantic.ValidationError): 
         mm.metamodel.Diagram(**test_data)
 
@@ -96,19 +96,19 @@ def test_schema_memregion_links(input):
     mm.metamodel.Diagram(**test_data)
     
     # invalidate test_data - should fail
-    test_data['memory_maps']['eMMC']['memory_regions']['Blob1']['memory_region_links'][0] = ["","Blob2"]
+    test_data['memory_maps']['eMMC']['memory_regions']['Blob1']['links'][0] = ["","Blob2"]
     with pytest.raises(pydantic.ValidationError): 
         mm.metamodel.Diagram(**test_data)
     
-    test_data['memory_maps']['eMMC']['memory_regions']['Blob1']['memory_region_links'][0] = ["NotExist","Blob2"]
+    test_data['memory_maps']['eMMC']['memory_regions']['Blob1']['links'][0] = ["NotExist","Blob2"]
     with pytest.raises(pydantic.ValidationError): 
         mm.metamodel.Diagram(**test_data)
 
-    test_data['memory_maps']['eMMC']['memory_regions']['Blob1']['memory_region_links'][0] = ["DRAM",""]
+    test_data['memory_maps']['eMMC']['memory_regions']['Blob1']['links'][0] = ["DRAM",""]
     with pytest.raises(pydantic.ValidationError): 
         mm.metamodel.Diagram(**test_data)
 
-    test_data['memory_maps']['eMMC']['memory_regions']['Blob1']['memory_region_links'][0] = ["DRAM","NotExist"]
+    test_data['memory_maps']['eMMC']['memory_regions']['Blob1']['links'][0] = ["DRAM","NotExist"]
     with pytest.raises(pydantic.ValidationError): 
         mm.metamodel.Diagram(**test_data)
 
@@ -120,8 +120,8 @@ def test_schema_memregion_links_mismatched_sizes(input):
     mm.metamodel.Diagram(**test_data)
     
     # invalidate test_data - eMMC:Blob1 is linked to DRAM:Blob2 and now they are different sizes - should fail
-    test_data['memory_maps']['eMMC']['memory_regions']['Blob1']['memory_region_size'] = "0x10"
-    test_data['memory_maps']['DRAM']['memory_regions']['Blob2']['memory_region_size'] = "0x20"
+    test_data['memory_maps']['eMMC']['memory_regions']['Blob1']['size'] = "0x10"
+    test_data['memory_maps']['DRAM']['memory_regions']['Blob2']['size'] = "0x20"
     with pytest.raises(pydantic.ValidationError): 
         mm.metamodel.Diagram(**test_data)       
 
