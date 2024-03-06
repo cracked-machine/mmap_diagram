@@ -291,7 +291,8 @@ class Diagram:
                                         head_width=25,
                                         tail_len=75,
                                         tail_width=20,
-                                        fill=Diagram.model.link_fill_colour
+                                        fill=Diagram.model.link_fill_colour,
+                                        line=Diagram.model.link_line_colour
                                     )
                                     final_diagram_img = arrow.overlay(final_diagram_img, mm.image.Point(arrow.pos.x, arrow.pos.y), Diagram.model.link_alpha)
      

@@ -124,15 +124,15 @@ class Diagram(ConfigParent):
     ]
     title_fill_colour: Annotated[
         ColourType,
-        pydantic.Field((224,224,224), description="Fill colour for the memory region title blocks")
+        pydantic.Field((224,224,224), description="Fill colour for the memory map title blocks")
     ]
     title_line_colour: Annotated[
         ColourType,
-        pydantic.Field((32,32,32), description="Line colour for the emory region title blocks")
+        pydantic.Field((32,32,32), description="Line colour for the memory map title blocks")
     ]
     memory_maps: Annotated[
         dict[str, MemoryMap],
-        pydantic.Field(..., description="The diagram frame. Can contain many memory maps.")
+        pydantic.Field(..., description="MemoryMap sub-diagram contents.")
     ]
     indent_scheme: Annotated[
         IndentScheme,
@@ -148,7 +148,11 @@ class Diagram(ConfigParent):
     ]
     link_fill_colour: Annotated[
         ColourType,
-        pydantic.Field((224,224,224), description="Line colour for the emory region title blocks")
+        pydantic.Field("red", description="Fill colour for the link arrows")
+    ]
+    link_line_colour: Annotated[
+        ColourType,
+        pydantic.Field("red", description="Line colour for the link arrows")
     ]
 
     @pydantic.field_validator("name")

@@ -235,7 +235,7 @@
         224,
         224
       ],
-      "description": "Fill colour for the memory region title blocks",
+      "description": "Fill colour for the memory map title blocks",
       "title": "Title Fill Colour"
     },
     "title_line_colour": {
@@ -265,14 +265,14 @@
         32,
         32
       ],
-      "description": "Line colour for the emory region title blocks",
+      "description": "Line colour for the memory map title blocks",
       "title": "Title Line Colour"
     },
     "memory_maps": {
       "additionalProperties": {
         "$ref": "#/$defs/MemoryMap"
       },
-      "description": "The diagram frame. Can contain many memory maps.",
+      "description": "MemoryMap sub-diagram contents.",
       "title": "Memory Maps",
       "type": "object"
     },
@@ -323,13 +323,35 @@
           "type": "array"
         }
       ],
-      "default": [
-        224,
-        224,
-        224
-      ],
-      "description": "Line colour for the emory region title blocks",
+      "default": "red",
+      "description": "Fill colour for the link arrows",
       "title": "Link Fill Colour"
+    },
+    "link_line_colour": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "type": "array"
+        }
+      ],
+      "default": "red",
+      "description": "Line colour for the link arrows",
+      "title": "Link Line Colour"
     }
   },
   "required": [

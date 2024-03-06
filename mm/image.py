@@ -406,7 +406,7 @@ class ArrowBlock(Image):
         
         # calc the hypot angle from the opp and adj vectors
         self.degs = math.degrees(math.atan2(dst.y - src.y, dst.x - src.x))        
-        self.img = self.img.rotate(self.degs)
+        self.img = self.img.rotate(self.degs, resample=PIL.Image.Resampling.BICUBIC)
         self.img = self.img.transpose(PIL.Image.FLIP_TOP_BOTTOM)  
         
         self.trim()
