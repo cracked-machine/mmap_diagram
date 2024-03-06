@@ -2,11 +2,13 @@
 import pydantic
 import pathlib
 import json
-from typing import Tuple, Literal
+from typing import Tuple, Literal, Union
 from typing_extensions import Annotated
 import logging
 import enum
 import decimal
+
+ColourType = Union[str | Tuple[int, int, int]]
 
 class ConfigParent(pydantic.BaseModel):
     model_config = pydantic.ConfigDict(
@@ -109,24 +111,24 @@ class Diagram(ConfigParent):
         pydantic.Field(30, description="The percentage width of the diagram legend")
     ]
     bgcolour: Annotated[
-        str,
+        ColourType,
         pydantic.Field("white", description="The background colour used for the diagram")
     ] 
     void_fill_colour: Annotated[
-        str,
+        ColourType,
         pydantic.Field("white", description="Fill colour for the void region blocks")
     ]
     void_line_colour: Annotated[
-        str,
-        pydantic.Field("grey", description="Line colour for the void region blocks")
+        ColourType,
+        pydantic.Field((192,192,192), description="Line colour for the void region blocks")
     ]
     title_fill_colour: Annotated[
-        str,
-        pydantic.Field("blanchedalmond", description="Fill colour for the memory region title blocks")
+        ColourType,
+        pydantic.Field((224,224,224), description="Fill colour for the memory region title blocks")
     ]
     title_line_colour: Annotated[
-        str,
-        pydantic.Field("grey", description="Line colour for the emory region title blocks")
+        ColourType,
+        pydantic.Field((32,32,32), description="Line colour for the emory region title blocks")
     ]
     memory_maps: Annotated[
         dict[str, MemoryMap],
@@ -143,6 +145,10 @@ class Diagram(ConfigParent):
     link_alpha: Annotated[
         int,
         pydantic.Field(96, description="Transparency value for all link arrow images.", gt=-1, lt=256)
+    ]
+    link_fill_colour: Annotated[
+        ColourType,
+        pydantic.Field((224,224,224), description="Line colour for the emory region title blocks")
     ]
 
     @pydantic.field_validator("name")

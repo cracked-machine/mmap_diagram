@@ -13,6 +13,7 @@ import math
 import dataclasses
 
 
+
 @dataclasses.dataclass
 class Point:
     x: float
@@ -93,27 +94,26 @@ class Image():
         else:
             logging.warning("Error trimming image")
    
-    def _pick_random_colour(self) -> Tuple[int, int, int, int]:
+    def _pick_random_colour(self) -> Tuple[int, int, int]:
         """Pick random RGBA colour band values"""
         min_band = int("00", 16)
         max_band = int("44", 16)
         r =random.randint(min_band, max_band)
         g =random.randint(min_band, max_band)
         b =random.randint(min_band, max_band)
-        a =255
-        return (r, g, b, a)
+        return (r, g, b)
 
 @typeguard.typechecked
 class MapNameImage(Image):
     """Wrapper class for PIL.Image.Image object. Represents a MemoryMap sub diagram."""
 
-    def __init__(self, name: str, img_width: int, font_size: int, fill_colour:str, line_colour: str):
+    def __init__(self, name: str, img_width: int, font_size: int, fill_colour: mm.metamodel.ColourType, line_colour: mm.metamodel.ColourType):
 
         super().__init__(name, None)
         
         self._draw(img_width, font_size, fill_colour, line_colour)
 
-    def _draw(self, img_width: int, font_size: int, fill_colour:str, line_colour: str) -> None:
+    def _draw(self, img_width: int, font_size: int, fill_colour: mm.metamodel.ColourType, line_colour: mm.metamodel.ColourType) -> None:
         """Create the image for the region rectangle and its inset name label"""
 
         txt_lbl =  TextLabelImage(self.name, text=self.name, font_size=font_size)
@@ -258,7 +258,7 @@ class MemoryRegionImage(Image):
 @typeguard.typechecked
 class VoidRegionImage(Image):
 
-    def __init__(self, mmap_parent: str, img_width: int, font_size: int, fill_colour:str, line_colour: str):
+    def __init__(self, mmap_parent: str, img_width: int, font_size: int, fill_colour: mm.metamodel.ColourType, line_colour: mm.metamodel.ColourType):
         super().__init__("SKIPPED", mmap_parent)
         
         self.size_as_hex: str = hex(40)
@@ -266,7 +266,7 @@ class VoidRegionImage(Image):
         
         self._draw(img_width, font_size, fill_colour, line_colour)
 
-    def _draw(self, img_width: int, font_size: int, fill_colour:str, line_colour: str):
+    def _draw(self, img_width: int, font_size: int, fill_colour: mm.metamodel.ColourType, line_colour: mm.metamodel.ColourType):
 
         logging.info(self)
 
@@ -291,8 +291,8 @@ class TextLabelImage(Image):
                  parent: str,
                  text: str, 
                  font_size: int, 
-                 font_colour: str = "black", 
-                 fill_colour: Tuple[int, int, int, int] | str = "white",
+                 font_colour: mm.metamodel.ColourType = "black", 
+                 fill_colour: mm.metamodel.ColourType = "white",
                  padding_width: int = 0):
         
 
@@ -347,8 +347,8 @@ class ArrowBlock(Image):
                  head_width: int = 20,
                  tail_len: int = 75, 
                  tail_width: int = 50, 
-                 line: str = "black", 
-                 fill: str = "white",
+                 line: mm.metamodel.ColourType = "black", 
+                 fill: mm.metamodel.ColourType = "white",
                  show_outline: bool = False):
         """
         src: coords for start of arrow
@@ -455,8 +455,8 @@ class DashedRectangle(Image):
             w: int, 
             h: int, 
             dash: Tuple[int, int, int, int],
-            fill: Tuple[int, int, int, int] | str, 
-            line: str = "black", 
+            fill: mm.metamodel.ColourType, 
+            line: mm.metamodel.ColourType = "black", 
             stroke: float = 1):
         """dash is 4-tuple of top, right, bottom, left edges, set to 0 or 1 to disable.
         Fill is an RGBA tuple or colour string"""

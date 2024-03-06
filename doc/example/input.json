@@ -5,9 +5,21 @@
   "legend_width": 30,
   "bgcolour": "white",
   "void_fill_colour": "white",
-  "void_line_colour": "grey",
-  "title_fill_colour": "blanchedalmond",
-  "title_line_colour": "grey",
+  "void_line_colour": [
+    192,
+    192,
+    192
+  ],
+  "title_fill_colour": [
+    224,
+    224,
+    224
+  ],
+  "title_line_colour": [
+    32,
+    32,
+    32
+  ],
   "memory_maps": {
     "eMMC": {
       "memory_regions": {
@@ -50,5 +62,10 @@
   },
   "indent_scheme": "alternate",
   "region_alpha": 192,
-  "link_alpha": 96
+  "link_alpha": 96,
+  "link_fill_colour": [
+    224,
+    224,
+    224
+  ]
 }

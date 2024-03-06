@@ -127,34 +127,146 @@
       "type": "integer"
     },
     "bgcolour": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "type": "array"
+        }
+      ],
       "default": "white",
       "description": "The background colour used for the diagram",
-      "title": "Bgcolour",
-      "type": "string"
+      "title": "Bgcolour"
     },
     "void_fill_colour": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "type": "array"
+        }
+      ],
       "default": "white",
       "description": "Fill colour for the void region blocks",
-      "title": "Void Fill Colour",
-      "type": "string"
+      "title": "Void Fill Colour"
     },
     "void_line_colour": {
-      "default": "grey",
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "type": "array"
+        }
+      ],
+      "default": [
+        192,
+        192,
+        192
+      ],
       "description": "Line colour for the void region blocks",
-      "title": "Void Line Colour",
-      "type": "string"
+      "title": "Void Line Colour"
     },
     "title_fill_colour": {
-      "default": "blanchedalmond",
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "type": "array"
+        }
+      ],
+      "default": [
+        224,
+        224,
+        224
+      ],
       "description": "Fill colour for the memory region title blocks",
-      "title": "Title Fill Colour",
-      "type": "string"
+      "title": "Title Fill Colour"
     },
     "title_line_colour": {
-      "default": "grey",
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "type": "array"
+        }
+      ],
+      "default": [
+        32,
+        32,
+        32
+      ],
       "description": "Line colour for the emory region title blocks",
-      "title": "Title Line Colour",
-      "type": "string"
+      "title": "Title Line Colour"
     },
     "memory_maps": {
       "additionalProperties": {
@@ -188,6 +300,36 @@
       "exclusiveMinimum": -1,
       "title": "Link Alpha",
       "type": "integer"
+    },
+    "link_fill_colour": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "type": "array"
+        }
+      ],
+      "default": [
+        224,
+        224,
+        224
+      ],
+      "description": "Line colour for the emory region title blocks",
+      "title": "Link Fill Colour"
     }
   },
   "required": [
