@@ -160,8 +160,8 @@ class MemoryMapDiagram:
         for x in range(0, len(redux_subgroup)):
 
             region: mm.image.MemoryRegionImage
-            for region in redux_subgroup[x]:
-
+            for idx, region in enumerate(redux_subgroup[x]):
+                
                 if isinstance(region, mm.image.MemoryRegionImage):
                     region._draw()
                     # add memory region
@@ -169,7 +169,7 @@ class MemoryMapDiagram:
                         dest=map_img_redux, 
                         xy=mm.image.Point(0, region.origin_as_int - last_void_pos), 
                         alpha=int(Diagram.model.region_alpha))
-                    
+
                     # add origin address text
                     map_img_redux = self._add_label(
                         dest=map_img_redux, 
@@ -184,6 +184,15 @@ class MemoryMapDiagram:
                     # add void region
                     map_img_redux.paste(region.img, (0, next_void_pos))
                     last_void_pos = next_void_pos + region.img.height
+
+        if x == len(redux_subgroup) - 1 and idx == len(redux_subgroup[x]) - 1:
+            map_img_redux = self._add_label(
+                dest=map_img_redux, 
+                xy=mm.image.Point(region.img.width + 5, next_void_pos + region.img.height - 9), 
+                len=1, 
+                text=hex(Diagram.model.height), 
+                font_size=10)
+                                        
 
         # remove any white space at the top of the diagram
         map_img_redux = map_img_redux.crop(
