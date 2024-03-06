@@ -314,11 +314,11 @@ class Diagram:
                 table_data.append(memregion.get_data_as_list())
 
         # sort by ascending origin value starting from the table bottom
-        table_data.sort(key=lambda x: int(x[1],16), reverse=True)
+        table_data.sort(key=lambda x: int(x[2],16), reverse=True)
 
         table_img = mm.image.Table().get_table_img(
             table=table_data,
-            header=["Name", "Origin", "Size", "Free Space", "Collisions"],
+            header=["Map", "Region", "Origin", "Size", "Free Space", "Collisions", "links"],
             font=PIL.ImageFont.load_default(table_text_size),
             stock=True,
             colors={"red": "green", "green": "red"},
@@ -339,9 +339,9 @@ class Diagram:
         table_list.sort(key=lambda x: x.origin_as_int, reverse=True)
 
         with open(Diagram.pargs.out, "w") as f:
-            f.write(f"""![memory map diagram]({pathlib.Path(Diagram.pargs.out).stem}_cropped.png)\n""")
-            f.write("|name|origin|size|free Space|collisions\n")
-            f.write("|:-|:-|:-|:-|:-|\n")
+            f.write(f"""![memory map diagram]({pathlib.Path(Diagram.pargs.out).stem}_redux.png)\n""")
+            f.write("|map|region|origin|size|free Space|collisions|links|\n")
+            f.write("|:-|:-|:-|:-|:-|:-|:-|\n")
             for mr in table_list:
                 f.write(f"{mr}\n")
 
