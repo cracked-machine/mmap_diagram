@@ -13,7 +13,7 @@ import typeguard
 import sys
 import pathlib
 import logging
-
+import re
 import mm.image
 import mm.metamodel
 
@@ -330,23 +330,19 @@ class Diagram:
     def _create_table_image(self, mmd_list: List[MemoryMapDiagram]):
         """Create a png image of the summary table"""
 
-        table_text_size = 15
-        """Fixed size for table text"""
         table_data = []
-        
         for region_map_list in mmd_list:
             for memregion in (region_map_list.image_list):
-                table_data.append(memregion.get_data_as_list())
+                table_data.append(memregion)
 
-        # sort by ascending origin value (index 2) starting from the table bottom
-        # assumes origin value format: hex (decimal)
-        # TODO fix this
-        # table_data.sort(key=lambda x: int(x[2][ x[2].index('(') + 1 : x[2].index(')') ]), reverse=True)
+        # sort by origin value, then expand into list of lists
+        table_data.sort(key=lambda x: x.origin_as_int, reverse=True)
+        table_data = [d.get_data_as_list() for d in table_data]
 
         table_img = mm.image.Table().get_table_img(
             table=table_data,
             header=["Map", "Region", "Origin", "Size", "Free Space", "Collisions", "links", "Drawing Scale"],
-            font=PIL.ImageFont.load_default(table_text_size),
+            font=PIL.ImageFont.load_default(15),
             stock=True,
             colors={"red": "green", "green": "red"},
         )
@@ -357,7 +353,7 @@ class Diagram:
     def _create_markdown(self,  mmd_list: List[MemoryMapDiagram]):
         """Create markdown doc containing the diagram image """
         """and text-base summary table"""
-        table_list = []
+        table_list: List[mm.image.MemoryRegionImage] = []
         for region_map_list in mmd_list:
             for memregion in (region_map_list.image_list): 
                 table_list.append(memregion)           
@@ -369,6 +365,7 @@ class Diagram:
             f.write(f"""![memory map diagram]({pathlib.Path(Diagram.pargs.out).stem}_redux.png)\n""")
             f.write("|map|region|origin|size|free Space|collisions|links|draw scale|\n")
             f.write("|:-|:-|:-|:-|:-|:-|:-|:-|\n")
+            # use __str__ from mm.image.MemoryRegionImage to print tabulated row
             for mr in table_list:
                 f.write(f"{mr}\n")
 
