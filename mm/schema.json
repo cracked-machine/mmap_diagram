@@ -30,6 +30,12 @@
           "description": "Internal Use. This will be automically adjusted depending on the diagram size and number of memory maps.",
           "title": "Width",
           "type": "integer"
+        },
+        "scale": {
+          "default": 1,
+          "description": "Drawing scale denominator. Internal use only.",
+          "title": "Scale",
+          "type": "integer"
         }
       },
       "required": [

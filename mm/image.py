@@ -137,7 +137,13 @@ class MapNameImage(Image):
 class MemoryRegionImage(Image):
     """Wrapper class for PIL.Image.Image object. Represents a MemoryRegion block."""
 
-    def __init__(self, name: str, mmap_parent: str, metadata: mm.metamodel.MemoryRegion, img_width: int, font_size: int):
+    def __init__(self, 
+                 name: str, 
+                 mmap_parent: str, 
+                 metadata: mm.metamodel.MemoryRegion, 
+                 img_width: int, 
+                 font_size: int,
+                 draw_scale: int):
 
         super().__init__(name, mmap_parent)
 
@@ -153,7 +159,8 @@ class MemoryRegionImage(Image):
         self.fill = self._pick_random_colour()
         
         self.img_width = img_width
-        self.font_size = font_size     
+        self.font_size = font_size  
+        self.draw_scale = draw_scale  
 
     @property
     def origin_as_hex(self):
@@ -274,10 +281,10 @@ class MemoryRegionImage(Image):
 
         if self.freespace_as_int < 0:
             region_img = DashedRectangle(
-                self.img_width, int(self.size_as_hex,16), fill=self.fill, line=self.line, dash=(0,0,8,0), stroke=2).img
+                self.img_width, int(self.size_as_hex,16) // self.draw_scale, fill=self.fill, line=self.line, dash=(0,0,8,0), stroke=2).img
         else:
             region_img = DashedRectangle(
-                self.img_width, int(self.size_as_hex,16), fill=self.fill, line=self.line, dash=(0,0,0,0), stroke=2).img
+                self.img_width, int(self.size_as_hex,16) // self.draw_scale, fill=self.fill, line=self.line, dash=(0,0,0,0), stroke=2).img
 
         # draw name text
         txt_lbl =  TextLabelImage(self.name, text=f"{self.name}", font_size=self.font_size, fill_colour="white", padding_width=10)

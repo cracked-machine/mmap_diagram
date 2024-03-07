@@ -6,7 +6,7 @@ from typing import Tuple, Literal, Union
 from typing_extensions import Annotated
 import logging
 import enum
-import decimal
+import math
 
 ColourType = Union[str | Tuple[int, int, int]]
 
@@ -89,6 +89,10 @@ class MemoryMap(ConfigParent):
     width: Annotated[
         int,
         pydantic.Field(0, description="Internal Use. This will be automically adjusted depending on the diagram size and number of memory maps.", exclude=True)
+    ]
+    draw_scale:Annotated [
+        int,
+        pydantic.Field(1, description="Drawing scale denominator. Internal use only.", exclude=True)
     ]
 
 class Diagram(ConfigParent):
@@ -290,6 +294,15 @@ class Diagram(ConfigParent):
                         memory_region.freespace = memory_map.height - this_region_end
                 elif memory_region.collisions and not memory_region.freespace:
                     memory_region.freespace = memory_map.height - this_region_end
+            largest = 0
+            for region in memory_map.memory_regions.values():
+                if region.origin + region.size > largest:
+                    largest = region.origin + region.size
+            
+            # determine drawing scale ratio from the largest required memory address
+            memory_map.draw_scale = math.ceil(largest / memory_map.height)
+            
+            pass
 
     
 # helper functions

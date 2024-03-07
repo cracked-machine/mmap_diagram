@@ -5,7 +5,7 @@ import pathlib
 @pytest.fixture
 def input() -> Dict:
     valid = {
-        "$schema": "/home/chris/projects/python/mmdiagram/mm/schema.json",
+        "$schema": "../mm/schema.json",
         "name": "TestDiagram",
         "height": 1000,
         "width": 1000,
@@ -14,8 +14,8 @@ def input() -> Dict:
                 "memory_regions": 
                 {
                     "Blob1": {
-                    "origin": "0x10",
-                    "size": "0x10",
+                        "origin": "0x10",
+                        "size": "0x10",
                     "links": [
                         ["DRAM", "Blob2"],
                         ["DRAM", "Blob3"]
@@ -27,12 +27,12 @@ def input() -> Dict:
                 "memory_regions": 
                 {
                     "Blob2": {
-                    "origin": "0x10",
-                    "size": "0x10"
+                        "origin": "0x10",
+                        "size": "0x10"
                     },
                     "Blob3": {
-                    "origin": "0x50",
-                    "size": "0x10"
+                        "origin": "0x50",
+                        "size": "0x10"
                     }
                 }
             }
@@ -40,6 +40,42 @@ def input() -> Dict:
     }
         
     return valid
+
+@pytest.fixture
+def zynqmp() -> Dict:
+    data = {
+        "$schema": "../mm/schema.json",
+        "name": "ZynqMP",
+        "height": 1000,
+        "width": 1000,
+        "memory_maps": {
+            "GlobalSystemAddressMap": {
+                "memory_regions": 
+                {
+                    "DDRMemoryController": {
+                        "origin": "0x10",
+                        "size": hex(2000),
+       
+                    }
+                }
+            },
+            # "DRAM": {
+            #     "memory_regions": 
+            #     {
+            #         "Blob2": {
+            #             "origin": "0x10",
+            #             "size": "0x10"
+            #         },
+            #         "Blob3": {
+            #             "origin": "0x50",
+            #             "size": "0x10"
+            #         }
+            #     }
+            # }
+        }
+    }
+
+    return data
 
 @pytest.fixture
 def file_setup(request):

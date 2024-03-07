@@ -3,7 +3,7 @@ import mm.diagram
 import pathlib
 import pytest
 import PIL.Image
-from tests.common_fixtures import input, file_setup
+from tests.common_fixtures import input, file_setup, zynqmp
 import json
 
 
@@ -209,3 +209,25 @@ def test_generate_doc_example_three_maps(input, file_setup):
         assert file_setup["diagram_image"].exists()
         assert PIL.Image.open(str(file_setup["diagram_image"])).size == (1000, 234)
         assert file_setup["table_image"].exists()
+
+
+@pytest.mark.parametrize("file_setup", [{"file_path": "doc/example/test_generate_doc_zynqmp_example"}], indirect=True)
+def test_generate_doc_zynqmp_example(file_setup, zynqmp):
+    """ """
+    
+    input_file = pathlib.Path("./doc/example/zynqmp.json")
+    with input_file.open("w") as fp:
+        fp.write(json.dumps(zynqmp, indent=2))
+
+    with unittest.mock.patch(
+        "sys.argv",
+            [
+                "mm.diagram",
+                "-f", str(input_file),
+                "-o", str(file_setup["report"]),
+                "-v", hex(200),
+                "-l", hex(1000),
+            ],
+        ):
+
+        mm.diagram.Diagram()

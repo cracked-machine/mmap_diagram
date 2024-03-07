@@ -1,0 +1,16 @@
+{
+  "$schema": "../mm/schema.json",
+  "name": "ZynqMP",
+  "height": 1000,
+  "width": 1000,
+  "memory_maps": {
+    "GlobalSystemAddressMap": {
+      "memory_regions": {
+        "DDRMemoryController": {
+          "origin": "0x10",
+          "size": "0x7d0"
+        }
+      }
+    }
+  }
+}

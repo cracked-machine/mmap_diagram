@@ -86,7 +86,7 @@ class MemoryMapDiagram:
     def _create_image_list(self, memory_map_metadata: Dict[str, mm.metamodel.MemoryMap]) -> List[mm.image.MemoryRegionImage]:
         
         image_list: List[mm.image.MemoryRegionImage] = []
-    
+        draw_scale = next(iter(memory_map_metadata.values())).draw_scale
         mmap_name = next(iter(memory_map_metadata))
         for region_name, region in memory_map_metadata.get(mmap_name).memory_regions.items():
             new_mr_image = mm.image.MemoryRegionImage(
@@ -94,7 +94,8 @@ class MemoryMapDiagram:
                 self.name,
                 region,
                 img_width=(self.width - self._legend_width - (self.width//5)),
-                font_size=self.default_region_text_size
+                font_size=self.default_region_text_size,
+                draw_scale=draw_scale
             )
             image_list.append(new_mr_image)
             
@@ -120,7 +121,7 @@ class MemoryMapDiagram:
                     image.draw_indent = region_indent
                     region_indent += 5
         
-        self._create_mmap(image_list)   
+        self._create_mmap(image_list, draw_scale)   
 
         return image_list
     
@@ -130,7 +131,7 @@ class MemoryMapDiagram:
         dest = label.overlay(dest, xy)
         return dest
 
-    def _create_mmap(self, memregion_list: List[mm.image.MemoryRegionImage]):
+    def _create_mmap(self, memregion_list: List[mm.image.MemoryRegionImage], draw_scale: int):
         """Create a dict of region groups, interleaved with void regions. 
         Then draw the regions onto a larger memory map image. """
 
@@ -200,11 +201,12 @@ class MemoryMapDiagram:
                 0,                                                  # left
                 0,                                                  # upper
                 map_img_redux.width,                                # right
-                last_void_pos if last_void_pos else next_void_pos   # lower
+                last_void_pos // draw_scale if last_void_pos else next_void_pos // draw_scale   # lower
             )
         )
         
         # flip back up the right way
+        map_img_redux.save("FUCK.png")
         self.final_map_img_redux = map_img_redux.transpose(PIL.Image.FLIP_TOP_BOTTOM)           
 
 class Diagram:
