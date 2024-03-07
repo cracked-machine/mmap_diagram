@@ -59,13 +59,14 @@ class MemoryMapDiagram:
         
         self.width = next(iter(memory_map_metadata.values())).width
         self.height = next(iter(memory_map_metadata.values())).height
+        self.draw_scale = next(iter(memory_map_metadata.values())).draw_scale
 
 
         legend_width_pixels = (self.width // 100) * Diagram.model.legend_width
         self._legend_width = legend_width_pixels
         """width of the area used for text annotations/legend"""
 
-        self.name_lbl = mm.image.MapNameImage(self.name, 
+        self.name_lbl = mm.image.MapNameImage(self.name + " - scale " + str(self.draw_scale) + ":1", 
                                               img_width=self.width, 
                                               font_size=self.default_region_text_size,
                                               fill_colour=Diagram.model.title_fill_colour,
@@ -86,7 +87,7 @@ class MemoryMapDiagram:
     def _create_image_list(self, memory_map_metadata: Dict[str, mm.metamodel.MemoryMap]) -> List[mm.image.MemoryRegionImage]:
         
         image_list: List[mm.image.MemoryRegionImage] = []
-        draw_scale = next(iter(memory_map_metadata.values())).draw_scale
+        
         mmap_name = next(iter(memory_map_metadata))
         for region_name, region in memory_map_metadata.get(mmap_name).memory_regions.items():
             new_mr_image = mm.image.MemoryRegionImage(
@@ -95,7 +96,7 @@ class MemoryMapDiagram:
                 region,
                 img_width=(self.width - self._legend_width - (self.width//5)),
                 font_size=self.default_region_text_size,
-                draw_scale=draw_scale
+                draw_scale=self.draw_scale
             )
             image_list.append(new_mr_image)
             
@@ -121,7 +122,7 @@ class MemoryMapDiagram:
                     image.draw_indent = region_indent
                     region_indent += 5
         
-        self._create_mmap(image_list, draw_scale)   
+        self._create_mmap(image_list, self.draw_scale)   
 
         return image_list
     
@@ -260,7 +261,7 @@ class Diagram:
                 mmd.final_map_img_redux.transpose(PIL.Image.FLIP_TOP_BOTTOM), 
                 ( (mmd_idx * mmd.width), 0))
             
-            # add the mem map name label at the complete diagram level so they line up at y = 0
+            # add the mem map name label at this stage so all titles line up at the "top"
             final_diagram_img = mmd.name_lbl.overlay(
                 final_diagram_img,
                 mm.image.Point( (mmd_idx * mmd.width), final_diagram_img.height - max_name_lbl_height),
@@ -326,12 +327,13 @@ class Diagram:
             for memregion in (region_map_list.image_list):
                 table_data.append(memregion.get_data_as_list())
 
-        # sort by ascending origin value starting from the table bottom
-        table_data.sort(key=lambda x: int(x[2],16), reverse=True)
+        # sort by ascending origin value (index 2) starting from the table bottom
+        # assumes origin value format: hex (decimal)
+        table_data.sort(key=lambda x: x[2][ x[2].index('(') + 1 : x[2].index(')') ], reverse=True)
 
         table_img = mm.image.Table().get_table_img(
             table=table_data,
-            header=["Map", "Region", "Origin", "Size", "Free Space", "Collisions", "links"],
+            header=["Map", "Region", "Origin", "Size", "Free Space", "Collisions", "links", "Drawing Scale"],
             font=PIL.ImageFont.load_default(table_text_size),
             stock=True,
             colors={"red": "green", "green": "red"},
@@ -353,8 +355,8 @@ class Diagram:
 
         with open(Diagram.pargs.out, "w") as f:
             f.write(f"""![memory map diagram]({pathlib.Path(Diagram.pargs.out).stem}_redux.png)\n""")
-            f.write("|map|region|origin|size|free Space|collisions|links|\n")
-            f.write("|:-|:-|:-|:-|:-|:-|:-|\n")
+            f.write("|map|region|origin|size|free Space|collisions|links|draw scale|\n")
+            f.write("|:-|:-|:-|:-|:-|:-|:-|:-|\n")
             for mr in table_list:
                 f.write(f"{mr}\n")
 

@@ -239,15 +239,17 @@ class MemoryRegionImage(Image):
             + "'>"
             + str(self.name)
             + "</span>|"
-            + str(self.origin_as_hex)
+            + str(self.origin_as_hex) + " (" +  str(self.origin_as_int) + ")"
             + "|"
-            + str(self.size_as_hex)
+            + str(self.size_as_hex) + " (" +  str(self.size_as_int) + ")"
             + "|"
-            + str(self.freespace_as_hex)
+            + str(self.freespace_as_hex) + " (" +  str(self.freespace_as_int) + ")"
             + "|"
             + str(self.splitdata(self.collisions_as_hex, newline="<BR>", mid="@"))
             + "|"
             + str(self.splitdata(self.metadata.links, newline="<BR>"))
+            + "|"
+            + str(self.draw_scale) + ":1"
             + "|"
         )
 
@@ -260,7 +262,8 @@ class MemoryRegionImage(Image):
             str(self.size_as_hex) + " (" +  str(self.size_as_int) + ")",
             str(self.freespace_as_hex) + " (" +  str(self.freespace_as_int) + ")",
             "+" + str(None) if not self.collisions else str(self.splitdata(self.collisions_as_hex, mid="@")),
-            str(self.splitdata(self.metadata.links))
+            str(self.splitdata(self.metadata.links)),
+            str(self.draw_scale) + ":1"
         ]
     
     def _draw(self):
