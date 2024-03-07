@@ -253,26 +253,15 @@ class MemoryRegionImage(Image):
 
     def get_data_as_list(self) -> List:
         """Get selected instance attributes"""
-        if self.collisions:
-            return [
-                str(self.parent),
-                str(self.name),
-                str(self.origin_as_hex),
-                str(self.size_as_hex),
-                str(self.freespace_as_hex),
-                "-" + str(self.splitdata(self.collisions_as_hex, mid="@")),
-                str(self.splitdata(self.metadata.links))
-            ]
-        else:
-            return [
-                str(self.parent),
-                str(self.name),
-                str(self.origin_as_hex),
-                str(self.size_as_hex),
-                str(self.freespace_as_hex),
-                "+" + str(None),
-                str(self.splitdata(self.metadata.links))
-            ]
+        return [
+            str(self.parent),
+            str(self.name),
+            str(self.origin_as_hex) + " (" +  str(self.origin_as_int) + ")",
+            str(self.size_as_hex) + " (" +  str(self.size_as_int) + ")",
+            str(self.freespace_as_hex) + " (" +  str(self.freespace_as_int) + ")",
+            "+" + str(None) if not self.collisions else str(self.splitdata(self.collisions_as_hex, mid="@")),
+            str(self.splitdata(self.metadata.links))
+        ]
     
     def _draw(self):
         """Create the image for the region rectangle and its inset name label"""
@@ -581,8 +570,9 @@ class Table:
         table,
         header=[],
         font=PIL.ImageFont.load_default(),
+        caption: str = "",
         cell_pad=(20, 10),
-        margin=(10, 10),
+        margin=[10, 10],
         align=None,
         colors={},
         stock=False,
@@ -598,6 +588,7 @@ class Table:
         colors:   dict, as follows
         stock:    bool, set red/green font color for cells start with +/-
         """
+
         _color = {
             "bg": "white",
             "cell_bg": "white",
@@ -609,7 +600,21 @@ class Table:
             "green": "green",
         }
         _color.update(colors)
+
+        # shift the table top margin downwards to fit the caption text
+        left, top, right, bottom = PIL.ImageDraw.Draw(PIL.Image.new("RGBA", (0,0))).multiline_textbbox(
+            (0,0),
+            text=caption,
+            font=font
+        )        
+        caption_height = bottom - top
+        # explicitly set the bottom margin to be the original top margin
+        if len(margin) > 2: margin[2] = margin[0]
+        else: margin.append(margin[0])
+        # now change the top margin to fit in our text caption
+        margin[0] = margin[0] + caption_height  
         _margin = self._position_tuple(*margin)
+        
 
         table = table.copy()
         if header:
@@ -629,6 +634,7 @@ class Table:
                 row_max_hei[i] = max(bottom - top, row_max_hei[i])
         tab_width = sum(col_max_wid) + len(col_max_wid) * 2 * cell_pad[0]
         tab_heigh = sum(row_max_hei) + len(row_max_hei) * 2 * cell_pad[1]
+        
 
         tab = PIL.Image.new(
             "RGBA",
@@ -639,7 +645,7 @@ class Table:
             _color["bg"],
         )
         draw = PIL.ImageDraw.Draw(tab)
-
+        draw.text(text=caption, xy=(_margin.left,0), font=font, fill="black")
         draw.rectangle(
             [
                 (_margin.left, _margin.top),
@@ -693,10 +699,10 @@ class Table:
                 if stock:
                     if table[i][j].startswith("+"):
                         color = _color["red"]
-                        table[i][j] = table[i][j][1:]
+                        table[i][j] = table[i][j][1:]   # remove the '+'
                     elif table[i][j].startswith("-"):
                         color = _color["green"]
-                        table[i][j] = table[i][j][1:]
+                        table[i][j] = table[i][j][1:]   # remove the '-'
                 _left = left
                 if (align and align[j] == "c") or (header and i == 0):
                     _left += (col_max_wid[j] - font.getlength(table[i][j])) // 2
