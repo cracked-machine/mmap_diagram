@@ -170,7 +170,8 @@ class MemoryMapDiagram:
                         dest=map_img_redux, 
                         xy=mm.image.Point(0, region.origin_as_int - last_void_pos), 
                         alpha=int(Diagram.model.region_alpha))
-
+                    
+                    
                     # add origin address text
                     map_img_redux = self._add_label(
                         dest=map_img_redux, 
@@ -186,6 +187,7 @@ class MemoryMapDiagram:
                     map_img_redux.paste(region.img, (0, next_void_pos))
                     last_void_pos = next_void_pos + region.img.height
 
+        # TODO add for region if top most graphic block
         if x == len(redux_subgroup) - 1 and idx == len(redux_subgroup[x]) - 1:
             map_img_redux = self._add_label(
                 dest=map_img_redux, 
