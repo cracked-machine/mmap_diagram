@@ -295,6 +295,8 @@ class Diagram(ConfigParent):
                 elif memory_region.collisions and not memory_region.freespace:
                     memory_region.freespace = memory_map.height - this_region_end
             largest = 0
+
+            # TODO move to top of function and use draw_scale to calc freespace
             for region in memory_map.memory_regions.values():
                 if region.origin + region.size > largest:
                     largest = region.origin + region.size
