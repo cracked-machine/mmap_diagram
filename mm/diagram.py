@@ -1,24 +1,21 @@
 import argparse
 import itertools
-
 import PIL.Image
 import PIL.ImageDraw
 import PIL.ImageColor
 import PIL.ImageFont
 import PIL.ImageChops
 import PIL.ImageOps
-from typing import List, Dict
+import json
 import typeguard
-
 import sys
 import pathlib
 import logging
-import re
+
+from typing import List, Dict
+
 import mm.image
 import mm.metamodel
-
-import json
-from typing import Tuple
 
 root = logging.getLogger()
 root.setLevel(logging.DEBUG)
@@ -33,11 +30,6 @@ class MemoryMapDiagram:
 
     max_cropped_height = 0
     """Keep track of the tallest mm diagram so we can """
-
-    class DashedLine:
-        width: int = 1
-        gap: int = 4
-        len: int = gap // 2
 
     def __init__(self, memory_map_metadata: Dict[str, mm.metamodel.MemoryMap]):
 
