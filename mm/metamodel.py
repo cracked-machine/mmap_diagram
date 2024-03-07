@@ -104,11 +104,14 @@ class Diagram(ConfigParent):
     ]
     height: Annotated[
         int,
-        pydantic.Field(..., description="The height of the diagram.")
+        pydantic.Field(..., 
+                       description="""The height of the diagram in pixels. 
+                       If a region size exceeds this height value, 
+                       then the region size will be scaled to fit within the diagram height.""")
     ]
     width: Annotated[
         int,
-        pydantic.Field(..., description="The width of the diagram.")
+        pydantic.Field(..., description="The width of the diagram in pixels.")
     ]
     legend_width: Annotated[
         int,
@@ -229,6 +232,17 @@ class Diagram(ConfigParent):
         # process each memory map independently
         for memory_map in self.memory_maps.values():
             
+            # determine if drawing scale is needed by finding if the largest memoryregion exceeds the diagram height
+            # NOTE: for simplicities sake we calculate distances/freespace using the original 1:1 scale,
+            # we only scale values afterwards when they are recorded for stats purposes.
+            largest_region = 0
+            for region in memory_map.memory_regions.values():
+                if region.origin + region.size > largest_region:
+                    largest_region = region.origin + region.size
+            
+            memory_map.draw_scale = math.ceil(largest_region / memory_map.height)
+
+
             neighbour_region_list = memory_map.memory_regions.items()
             
             for memory_region_name, memory_region in memory_map.memory_regions.items(): 
@@ -237,15 +251,17 @@ class Diagram(ConfigParent):
                 logging.debug(f"Calculating nearest distances to {memory_region_name} region:")
                 this_region_end = 0
 
+                # examine all other region distances relative to this region position
                 other_region: Tuple[str, MemoryRegion]
                 for other_region in neighbour_region_list:
-                    # calc the end address of this and inspected region
+
+                    # calc the end address of this and the next other region
                     other_region_name = other_region[0]
                     other_region_origin = other_region[1].origin
                     other_region_size = other_region[1].size
 
                     this_region_end: int = memory_region.origin + memory_region.size
-                    other_region_end: int = other_region_origin + other_region_size
+                    other_region_end: int = other_region_origin + other_region_size                  
 
                     # skip calculating distance from yourself.
                     if memory_region_name == other_region_name:
@@ -274,37 +290,29 @@ class Diagram(ConfigParent):
                             pass
 
                     else:
-                        # record the distance for later
-                        non_collision_distances[other_region_name] = distance_to_other_region
+                        # record the distance for later (using scaled values)
+                        non_collision_distances[other_region_name] = distance_to_other_region // memory_map.draw_scale
                         # set a first value while we have it (in case there are no future collisions)
                         if not memory_region.freespace and not memory_region.collisions:
-                            memory_region.freespace = distance_to_other_region
+                            memory_region.freespace = distance_to_other_region // memory_map.draw_scale
                         # # if remain not already set to no distance left then set the positive remain distance
                         elif not memory_region.freespace:
-                            memory_region.freespace = distance_to_other_region
+                            memory_region.freespace = distance_to_other_region // memory_map.draw_scale
 
                 logging.debug(f"Non-collision distances - {non_collision_distances}")
 
-                # after probing each region we must now pick the lowest distance ()
+                # after probing each region we must now pick the lowest distance (using scaled values)
                 if not memory_region.collisions:
                     if non_collision_distances:
+                        # there are other regions ahead of this one, so find the nearest one
                         lowest = min(non_collision_distances, key=non_collision_distances.get)
                         memory_region.freespace = non_collision_distances[lowest]
                     else:
-                        memory_region.freespace = memory_map.height - this_region_end
+                        # there are no regions ahead of this one
+                        memory_region.freespace = memory_map.height - (this_region_end  // memory_map.draw_scale)
                 elif memory_region.collisions and not memory_region.freespace:
-                    memory_region.freespace = memory_map.height - this_region_end
-            largest = 0
+                    memory_region.freespace = memory_map.height - (this_region_end // memory_map.draw_scale)
 
-            # TODO move to top of function and use draw_scale to calc freespace
-            for region in memory_map.memory_regions.values():
-                if region.origin + region.size > largest:
-                    largest = region.origin + region.size
-            
-            # determine drawing scale ratio from the largest required memory address
-            memory_map.draw_scale = math.ceil(largest / memory_map.height)
-            
-            pass
 
     
 # helper functions
