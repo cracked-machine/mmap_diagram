@@ -28,9 +28,6 @@ root.addHandler(handler)
 @typeguard.typechecked
 class MemoryMapDiagram:
 
-    max_cropped_height = 0
-    """Keep track of the tallest mm diagram so we can """
-
     def __init__(self, memory_map_metadata: Dict[str, mm.metamodel.MemoryMap]):
 
         assert len(memory_map_metadata) == 1, "MemoryMapDiagram should omly be initialised with a single mm.metamodel.MemoryMap."
