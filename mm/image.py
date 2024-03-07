@@ -488,7 +488,7 @@ class DashedRectangle(Image):
             fill: mm.metamodel.ColourType, 
             line: mm.metamodel.ColourType = "black", 
             stroke: float = 1):
-        """dash is 4-tuple of top, right, bottom, left edges, set to 0 or 1 to disable.
+        """dash is 4-tuple of top, right, bottom, left edges, set to 0 or 1 for solid line.
         Fill is an RGBA tuple or colour string"""
 
         top_dash = dash[0] if dash[0] > 1 else 1

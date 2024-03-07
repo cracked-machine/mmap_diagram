@@ -31,10 +31,10 @@
           "title": "Width",
           "type": "integer"
         },
-        "scale": {
+        "draw_scale": {
           "default": 1,
           "description": "Drawing scale denominator. Internal use only.",
-          "title": "Scale",
+          "title": "Draw Scale",
           "type": "integer"
         }
       },
@@ -117,12 +117,12 @@
       "type": "string"
     },
     "height": {
-      "description": "The height of the diagram.",
+      "description": "The height of the diagram in pixels. \n                       If a region size exceeds this height value, \n                       then the region size will be scaled to fit within the diagram height.",
       "title": "Height",
       "type": "integer"
     },
     "width": {
-      "description": "The width of the diagram.",
+      "description": "The width of the diagram in pixels.",
       "title": "Width",
       "type": "integer"
     },

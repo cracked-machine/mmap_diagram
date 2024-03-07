@@ -138,7 +138,7 @@ def test_default_limit_arg_format(file_setup):
 
         assert file_setup["diagram_image"].exists()
         outimg = PIL.Image.open(str(file_setup["diagram_image"]))
-        assert outimg.height == 74
+        assert outimg.height == 65
 
         assert file_setup["table_image"].exists()
         

@@ -284,24 +284,23 @@ class Diagram(ConfigParent):
                             # higher so use their origin address as the collision point
                             memory_region.collisions[other_region_name] = other_region_origin
 
+                        # no distance left
                         if memory_region.origin < other_region_origin:
-                            # no distance left
                             memory_region.freespace = distance_to_other_region
-                            pass
 
                     else:
-                        # record the distance for later (using scaled values)
-                        non_collision_distances[other_region_name] = distance_to_other_region // memory_map.draw_scale
+                        # record the distance for later 
+                        non_collision_distances[other_region_name] = distance_to_other_region
                         # set a first value while we have it (in case there are no future collisions)
                         if not memory_region.freespace and not memory_region.collisions:
-                            memory_region.freespace = distance_to_other_region // memory_map.draw_scale
-                        # # if remain not already set to no distance left then set the positive remain distance
+                            memory_region.freespace = distance_to_other_region
+                        # if remain not already set to no distance left then set the positive remain distance
                         elif not memory_region.freespace:
-                            memory_region.freespace = distance_to_other_region // memory_map.draw_scale
+                            memory_region.freespace = distance_to_other_region
 
                 logging.debug(f"Non-collision distances - {non_collision_distances}")
 
-                # after probing each region we must now pick the lowest distance (using scaled values)
+                # after probing each region we must now pick the lowest distance
                 if not memory_region.collisions:
                     if non_collision_distances:
                         # there are other regions ahead of this one, so find the nearest one
@@ -309,9 +308,9 @@ class Diagram(ConfigParent):
                         memory_region.freespace = non_collision_distances[lowest]
                     else:
                         # there are no regions ahead of this one
-                        memory_region.freespace = memory_map.height - (this_region_end  // memory_map.draw_scale)
+                        memory_region.freespace = memory_map.height - (this_region_end // memory_map.draw_scale)
                 elif memory_region.collisions and not memory_region.freespace:
-                    memory_region.freespace = memory_map.height - (this_region_end // memory_map.draw_scale)
+                    memory_region.freespace = memory_map.height - (this_region_end)
 
 
     

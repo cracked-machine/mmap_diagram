@@ -49,16 +49,32 @@ def zynqmp() -> Dict:
         "height": 1000,
         "width": 1000,
         "memory_maps": {
-            "GlobalSystemAddressMap": {
+            "Global System Address Map": {
                 "memory_regions": 
                 {
-                    "DDRMemoryController": {
-                        "origin": "0x10",
-                        "size": hex(2000),
-       
+                    "DDR Memory Controller": {
+                        "origin": hex(16),
+                        "size": hex(1000),
+                    },
+                    "OCM": {
+                        "origin": hex(2016),
+                        "size": hex(2000)
                     }
                 }
             },
+            "Flash": {
+                "memory_regions":
+                {
+                    "Boot Image": {
+                        "origin": hex(0),
+                        "size": hex(2000),
+                        "links": [
+                            ["Global System Address Map", "OCM"]
+                        ]
+
+                    }
+                }
+            }
             # "DRAM": {
             #     "memory_regions": 
             #     {

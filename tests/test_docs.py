@@ -49,7 +49,7 @@ def test_generate_doc_example_normal(file_setup):
 
         assert file_setup["diagram_image"].exists()
         found_size = PIL.Image.open(str(file_setup["diagram_image"])).size
-        assert found_size == (400, 352)
+        assert found_size == (400, 318)
 
         # reduced void threshold, so empty section between rootfs and dtb should be voided, making the file smaller
         assert file_setup["table_image"].exists()
@@ -133,7 +133,7 @@ def test_generate_doc_example_two_maps(input, file_setup):
         assert file_setup["report"].exists()
 
         assert file_setup["diagram_image"].exists()
-        assert PIL.Image.open(str(file_setup["diagram_image"])).size == (1000, 272)
+        assert PIL.Image.open(str(file_setup["diagram_image"])).size == (1000, 190)
 
 
         assert file_setup["table_image"].exists()
@@ -225,7 +225,7 @@ def test_generate_doc_zynqmp_example(file_setup, zynqmp):
                 "mm.diagram",
                 "-f", str(input_file),
                 "-o", str(file_setup["report"]),
-                "-v", hex(200),
+                "-v", hex(100),
                 "-l", hex(1000),
             ],
         ):

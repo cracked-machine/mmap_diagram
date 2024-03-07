@@ -5,7 +5,8 @@ import PIL.Image
 import PIL.ImageDraw
 import PIL.ImageColor
 import PIL.ImageFont
-
+import PIL.ImageChops
+import PIL.ImageOps
 from typing import List, Dict
 import typeguard
 
@@ -83,6 +84,15 @@ class MemoryMapDiagram:
 
         self.image_list = self._create_image_list(memory_map_metadata)
 
+    def trim_whitespace(self, img: PIL.Image.Image) -> PIL.Image.Image:
+        """Detect and remove whitespace from img"""
+
+        img_inverted = PIL.ImageOps.invert(img.convert("RGB"))
+        bbox = img_inverted.getbbox()
+        adjusted_bbox = list(bbox)
+        adjusted_bbox[0] = adjusted_bbox[1] = 0
+        bbox = tuple(adjusted_bbox)
+        return img.crop(bbox)
 
     def _create_image_list(self, memory_map_metadata: Dict[str, mm.metamodel.MemoryMap]) -> List[mm.image.MemoryRegionImage]:
         
@@ -127,7 +137,7 @@ class MemoryMapDiagram:
         return image_list
     
 
-    def _add_label(self, dest: PIL.Image, xy: mm.image.Point, len: int, text: str, font_size: int):
+    def _add_label(self, dest: PIL.Image, xy: mm.image.Point, len: int, text: str, font_size: int) -> PIL.Image.Image:
         label = mm.image.TextLabelImage(self.name, text, font_size)
         dest = label.overlay(dest, xy)
         return dest
@@ -159,58 +169,59 @@ class MemoryMapDiagram:
         
         next_void_pos = 0
         last_void_pos = 0 
-        for x in range(0, len(redux_subgroup)):
+        for group_idx in range(0, len(redux_subgroup)):
 
             region: mm.image.MemoryRegionImage
-            for idx, region in enumerate(redux_subgroup[x]):
+            for region_idx, region in enumerate(redux_subgroup[group_idx]):
                 
+
                 if isinstance(region, mm.image.MemoryRegionImage):
+                    # adjusted values for drawing ypos - labels should use the original values
+                    region_origin_scaled  = region.origin_as_int // draw_scale
+
                     region._draw()
-                    # add memory region
+
+                    # add memory region after ypos of last voidregion - if any
                     map_img_redux = region.overlay(
                         dest=map_img_redux, 
-                        xy=mm.image.Point(0, region.origin_as_int - last_void_pos), 
+                        xy=mm.image.Point(0, last_void_pos if last_void_pos else region_origin_scaled), 
                         alpha=int(Diagram.model.region_alpha))
                     
                     
                     # add origin address text
                     map_img_redux = self._add_label(
                         dest=map_img_redux, 
-                        xy=mm.image.Point(region.img.width + 5, region.origin_as_int - last_void_pos), 
+                        xy=mm.image.Point(region.img.width + 5, (last_void_pos if last_void_pos else region_origin_scaled) - 2 ) , 
                         len=1, 
-                        text=region.origin_as_hex, 
+                        text=region.origin_as_hex + " (" + str(region.origin_as_int) + ")", 
                         font_size=10)
                     
-                    next_void_pos = (region.origin_as_int - last_void_pos) + region.size_as_int + 10
+                    # ready the ypos for drawing a void region - if any - after this memregion
+                    next_void_pos = (last_void_pos if last_void_pos else region_origin_scaled) + (region.img.height) + 10
 
                 if isinstance(region, mm.image.VoidRegionImage):
                     # add void region
                     map_img_redux.paste(region.img, (0, next_void_pos))
-                    last_void_pos = next_void_pos + region.img.height
+                    # reset the ypos for the next memregion
+                    last_void_pos = next_void_pos + region.img.height + 10
+                
 
         # TODO add for region if top most graphic block
-        if x == len(redux_subgroup) - 1 and idx == len(redux_subgroup[x]) - 1:
-            map_img_redux = self._add_label(
-                dest=map_img_redux, 
-                xy=mm.image.Point(region.img.width + 5, next_void_pos + region.img.height - 9), 
-                len=1, 
-                text=hex(Diagram.model.height), 
-                font_size=10)
-                                        
+        if group_idx == len(redux_subgroup) - 1 and region_idx == len(redux_subgroup[group_idx]) - 1:
 
-        # remove any white space at the top of the diagram
-        map_img_redux = map_img_redux.crop(
-            (
-                0,                                                  # left
-                0,                                                  # upper
-                map_img_redux.width,                                # right
-                last_void_pos // draw_scale if last_void_pos else next_void_pos // draw_scale   # lower
-            )
-        )
-        
+            if isinstance(region, mm.image.MemoryRegionImage):
+                map_img_redux = self._add_label(
+                    dest=map_img_redux, 
+                    xy=mm.image.Point(region.img.width + 5, next_void_pos - 20), 
+                    len=1, 
+                    text=hex(region.origin_as_int + region.size_as_int) + " (" + str(region.origin_as_int + region.size_as_int) + ")", 
+                    font_size=10)
+                                                
+        map_img_redux = self.trim_whitespace(map_img_redux)
+
         # flip back up the right way
-        map_img_redux.save("FUCK.png")
         self.final_map_img_redux = map_img_redux.transpose(PIL.Image.FLIP_TOP_BOTTOM)           
+        
 
 class Diagram:
     
@@ -329,7 +340,8 @@ class Diagram:
 
         # sort by ascending origin value (index 2) starting from the table bottom
         # assumes origin value format: hex (decimal)
-        table_data.sort(key=lambda x: x[2][ x[2].index('(') + 1 : x[2].index(')') ], reverse=True)
+        # TODO fix this
+        # table_data.sort(key=lambda x: int(x[2][ x[2].index('(') + 1 : x[2].index(')') ]), reverse=True)
 
         table_img = mm.image.Table().get_table_img(
             table=table_data,
