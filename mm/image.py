@@ -6,7 +6,6 @@ import PIL.ImageColor
 import PIL.ImageFont
 import PIL.ImageChops
 from typing import List, Dict, Tuple
-import typing
 import logging
 import mm.metamodel
 import math
@@ -404,8 +403,7 @@ class ArrowBlock(Image):
         # convert percentages to fraction denominator
         if tail_len <= 10: tail_len = 10
         if tail_len > 90: tail_len = 90
-        body_len_dec = (tail_len / 100)
-        body_len_denom = 1 / body_len_dec
+        body_len_dec = tail_len / 100
 
         if tail_width <= 10: tail_width = 10
         if tail_width > 90: tail_width = 90
@@ -423,11 +421,11 @@ class ArrowBlock(Image):
         canvas.polygon(
             [
                 (0, yzero + (max_arrow_head_width / 2) - (arrow_body_width / 2)), 
-                (self.l//body_len_denom, yzero + (max_arrow_head_width / 2) - (arrow_body_width / 2)), 
-                (self.l//body_len_denom, yzero), 
+                (self.l * body_len_dec, yzero + (max_arrow_head_width / 2) - (arrow_body_width / 2)), 
+                (self.l * body_len_dec, yzero), 
                 (self.l, yzero + (max_arrow_head_width / 2)),  # tip of arrow head
-                (self.l//body_len_denom, yzero + h), 
-                (self.l//body_len_denom, yzero + (max_arrow_head_width / 2) + (arrow_body_width / 2)), 
+                (self.l * body_len_dec, yzero + h), 
+                (self.l * body_len_dec, yzero + (max_arrow_head_width / 2) + (arrow_body_width / 2)), 
                 (0, yzero + (max_arrow_head_width / 2) + (arrow_body_width / 2))
             ], 
             fill=fill, 
