@@ -19,7 +19,7 @@ import mm.image
 import mm.metamodel
 
 root = logging.getLogger()
-root.setLevel(logging.DEBUG)
+root.setLevel(logging.INFO)
 
 handler = logging.StreamHandler(sys.stdout)
 formatter = logging.Formatter("%(levelname)s - %(message)s")
@@ -411,12 +411,20 @@ class Diagram:
             help="JSON input file for multiple memory maps (and links) support. Please see doc/example/input.json for help.",
             type=str,
         )
+        parser.add_argument(
+            "-v",
+            help="Enable debug output.",
+            action="store_true"
+        )        
 
         Diagram.pargs = parser.parse_args()
+        pass
 
     @classmethod
     def _validate_pargs(cls):
         """"Validate the command line arguments"""
+        if Diagram.pargs.v:
+            root.setLevel(logging.DEBUG)
         # parse hex/int inputs
         if not Diagram.pargs.file and not Diagram.pargs.limit:
             raise SystemExit("You must specify either: limit setting or JSON input file.")

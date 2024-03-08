@@ -10,8 +10,7 @@
             "module": "mm.diagram",
             "args": [
                 "-f", "doc/example/input.json",
-                "-l", "0x3e8",
-                "-v", "0x1f4"
+                "-v"
             ],
             "justMyCode": false
         },
