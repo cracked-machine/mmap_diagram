@@ -64,5 +64,6 @@
   "region_alpha": 192,
   "link_alpha": 96,
   "link_fill_colour": "red",
-  "link_line_colour": "red"
+  "link_line_colour": "red",
+  "void_threshold": 200
 }

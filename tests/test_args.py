@@ -211,14 +211,14 @@ def test_default_limit_arg_format(file_setup):
         default_limit = mm.diagram.Diagram.pargs.limit
 
         # this test assumes the default 'voidthreshold' is 0x3e8 (1000)
-        assert mm.diagram.Diagram.pargs.voidthreshold == hex(1000)
-        assert not mm.diagram.Diagram.pargs.voidthreshold == 1000
+        assert mm.diagram.Diagram.pargs.voidthreshold == hex(200)
+        assert not mm.diagram.Diagram.pargs.voidthreshold == 200
 
         assert file_setup["report"].exists()
 
         assert file_setup["diagram_image"].exists()
         outimg = PIL.Image.open(str(file_setup["diagram_image"]))
-        assert outimg.height == 67
+        assert outimg.height == 116
 
         assert file_setup["table_image"].exists()
         

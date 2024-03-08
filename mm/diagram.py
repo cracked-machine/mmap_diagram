@@ -19,7 +19,7 @@ import mm.image
 import mm.metamodel
 
 root = logging.getLogger()
-root.setLevel(logging.DEBUG)
+root.setLevel(logging.INFO)
 
 handler = logging.StreamHandler(sys.stdout)
 formatter = logging.Formatter("%(levelname)s - %(message)s")
@@ -35,9 +35,6 @@ class MemoryMapDiagram:
             "MemoryMapDiagram should omly be initialised with a single mm.metamodel.MemoryMap."
 
         self.name = next(iter(memory_map_metadata))
-
-        self.voidthreshold: int = int(Diagram.pargs.voidthreshold, 16)
-        """Void space threshold for adding VoidRegionImage objs"""
 
         self.img: PIL.Image.Image = None
         """Final image for this Memory Map"""
@@ -157,7 +154,7 @@ class MemoryMapDiagram:
             # start adding memregions to the current subgroup...
             redux_subgroup[redux_subgroup_idx].append(memregion)
             # until we hit a empty space larger than the threshold setting
-            if memregion.freespace_as_int > self.voidthreshold:
+            if memregion.freespace_as_int > Diagram.model.void_threshold:
                 # add a single void region subgroup at a new index...
                 redux_subgroup_idx = redux_subgroup_idx + 1
                 redux_subgroup[redux_subgroup_idx].append(self.voidregion)
@@ -239,6 +236,9 @@ class Diagram:
         Diagram._parse_args()
         Diagram._validate_pargs()
         Diagram.model = Diagram._create_model()
+
+        logging.info(f"Selected diagram height: {str(Diagram.model.height)}")
+        logging.info(f"Selected diagram void threshold: {str(Diagram.model.void_threshold)}")
 
         # Create the individual memory map diagrams (full and reduced)
         for mmap_name, mmap in Diagram.model.memory_maps.items():
@@ -395,9 +395,9 @@ class Diagram:
         parser.add_argument(
             "-v",
             "--voidthreshold",
-            help="The threshold for skipping void sections. Please use hex. Default: " + hex(1000) + " (1000)",
-            default=hex(1000),
+            help="The threshold for skipping void sections. Please use hex.",
             type=str,
+            default=hex(200)
         )
         parser.add_argument(
             "-n",
@@ -425,8 +425,9 @@ class Diagram:
                 raise SystemExit(f"'limit' argument should be in hex format: {str(Diagram.pargs.limit)} = {hex(int(Diagram.pargs.limit))}")
         if not Diagram.pargs.file and not Diagram.pargs.regions:
             raise SystemExit("You must provide either: region string or JSON input file.")
-        if not Diagram.pargs.voidthreshold[:2] == "0x":
-            raise SystemExit("'voidthreshold' argument should be in hex format: 0x")
+        if Diagram.pargs.voidthreshold:
+            if not Diagram.pargs.voidthreshold[:2] == "0x":
+                raise SystemExit(f"'voidthreshold' argument should be in hex format: {str(Diagram.pargs.voidthreshold)} = {hex(int(Diagram.pargs.voidthreshold))}")
 
         # make sure the output path is valid and parent dir exists
         if not pathlib.Path(Diagram.pargs.out).suffix == ".md":
@@ -460,6 +461,7 @@ class Diagram:
                 "name": "Diagram",
                 "height": int(Diagram.pargs.limit,16),
                 "width": 400,
+                "void_threshold": int(Diagram.pargs.voidthreshold, 16),
                 "memory_maps": { 
                     mmname : { 
                         "height": int(Diagram.pargs.limit,16),

@@ -218,7 +218,24 @@ class Diagram(ConfigParent):
             exclude=True
         )
     ]
+    void_threshold: Annotated[
+        int | str,
+        pydantic.Field(
+            hex(200),
+            description="The threshold for skipping void sections. Please use hex."            
+        )
+    ]
 
+    @pydantic.field_validator("void_threshold", mode="before")
+    @classmethod
+    def convert_str_to_int(cls, v: str):
+        if isinstance(v, str):
+            if v == "":
+                return 0
+            else:
+                return int(v, 16)
+        else:
+            return v
 
     @pydantic.field_validator("name")
     @classmethod

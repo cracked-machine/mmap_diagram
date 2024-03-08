@@ -400,6 +400,19 @@
       "description": "Arrow tail width (percentage, relative to arrow head) of the region link graphic.",
       "title": "Link Tail Width",
       "type": "integer"
+    },
+    "void_threshold": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "string"
+        }
+      ],
+      "default": "0xc8",
+      "description": "The threshold for skipping void sections. Please use hex.",
+      "title": "Void Threshold"
     }
   },
   "required": [
