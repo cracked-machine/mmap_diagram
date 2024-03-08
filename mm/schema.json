@@ -123,25 +123,10 @@
     }
   },
   "properties": {
-    "name": {
-      "description": "The name of the diagram.",
-      "title": "Name",
-      "type": "string"
-    },
-    "height": {
-      "description": "The height of the diagram in pixels. \n                       If a region size exceeds this height value, \n                       then the region size will be scaled to fit within the diagram height.",
-      "title": "Height",
-      "type": "integer"
-    },
-    "width": {
-      "description": "The width of the diagram in pixels.",
-      "title": "Width",
-      "type": "integer"
-    },
-    "legend_width": {
-      "default": 30,
-      "description": "The percentage width of the diagram legend",
-      "title": "Legend Width",
+    "address_text_size": {
+      "default": 12,
+      "description": "The text size for this region",
+      "title": "Address Text Size",
       "type": "integer"
     },
     "bgcolour": {
@@ -169,147 +154,6 @@
       "default": "white",
       "description": "The background colour used for the diagram",
       "title": "Bgcolour"
-    },
-    "void_fill_colour": {
-      "anyOf": [
-        {
-          "type": "string"
-        },
-        {
-          "maxItems": 3,
-          "minItems": 3,
-          "prefixItems": [
-            {
-              "type": "integer"
-            },
-            {
-              "type": "integer"
-            },
-            {
-              "type": "integer"
-            }
-          ],
-          "type": "array"
-        }
-      ],
-      "default": "white",
-      "description": "Fill colour for the void region blocks",
-      "title": "Void Fill Colour"
-    },
-    "void_line_colour": {
-      "anyOf": [
-        {
-          "type": "string"
-        },
-        {
-          "maxItems": 3,
-          "minItems": 3,
-          "prefixItems": [
-            {
-              "type": "integer"
-            },
-            {
-              "type": "integer"
-            },
-            {
-              "type": "integer"
-            }
-          ],
-          "type": "array"
-        }
-      ],
-      "default": [
-        192,
-        192,
-        192
-      ],
-      "description": "Line colour for the void region blocks",
-      "title": "Void Line Colour"
-    },
-    "title_fill_colour": {
-      "anyOf": [
-        {
-          "type": "string"
-        },
-        {
-          "maxItems": 3,
-          "minItems": 3,
-          "prefixItems": [
-            {
-              "type": "integer"
-            },
-            {
-              "type": "integer"
-            },
-            {
-              "type": "integer"
-            }
-          ],
-          "type": "array"
-        }
-      ],
-      "default": [
-        224,
-        224,
-        224
-      ],
-      "description": "Fill colour for the memory map title blocks",
-      "title": "Title Fill Colour"
-    },
-    "title_line_colour": {
-      "anyOf": [
-        {
-          "type": "string"
-        },
-        {
-          "maxItems": 3,
-          "minItems": 3,
-          "prefixItems": [
-            {
-              "type": "integer"
-            },
-            {
-              "type": "integer"
-            },
-            {
-              "type": "integer"
-            }
-          ],
-          "type": "array"
-        }
-      ],
-      "default": [
-        32,
-        32,
-        32
-      ],
-      "description": "Line colour for the memory map title blocks",
-      "title": "Title Line Colour"
-    },
-    "memory_maps": {
-      "additionalProperties": {
-        "$ref": "#/$defs/MemoryMap"
-      },
-      "description": "MemoryMap sub-diagram contents.",
-      "title": "Memory Maps",
-      "type": "object"
-    },
-    "indent_scheme": {
-      "allOf": [
-        {
-          "$ref": "#/$defs/IndentScheme"
-        }
-      ],
-      "default": "alternate",
-      "description": "Drawing indent for Memory Regions. Enabled for colliding regions only."
-    },
-    "region_alpha": {
-      "default": 192,
-      "description": "Transparency value for all region block images.",
-      "exclusiveMaximum": 256,
-      "exclusiveMinimum": -1,
-      "title": "Region Alpha",
-      "type": "integer"
     },
     "link_alpha": {
       "default": 96,
@@ -371,18 +215,6 @@
       "description": "Line colour for the link arrows",
       "title": "Link Line Colour"
     },
-    "text_size": {
-      "default": 14,
-      "description": "The text size used for entire diagram. \n            Region text size can be overridden",
-      "title": "Text Size",
-      "type": "integer"
-    },
-    "address_text_size": {
-      "default": 12,
-      "description": "The text size for this region",
-      "title": "Address Text Size",
-      "type": "integer"
-    },
     "link_head_width": {
       "default": 25,
       "description": "Arrow head width (pixels) of the region link graphic.",
@@ -401,6 +233,47 @@
       "title": "Link Tail Width",
       "type": "integer"
     },
+    "legend_width": {
+      "default": 30,
+      "description": "The percentage width of the diagram legend",
+      "title": "Legend Width",
+      "type": "integer"
+    },
+    "memory_maps": {
+      "additionalProperties": {
+        "$ref": "#/$defs/MemoryMap"
+      },
+      "description": "MemoryMap sub-diagram contents.",
+      "title": "Memory Maps",
+      "type": "object"
+    },
+    "name": {
+      "description": "The name of the diagram.",
+      "title": "Name",
+      "type": "string"
+    },
+    "height": {
+      "description": "The height of the diagram in pixels. \n                       If a region size exceeds this height value, \n                       then the region size will be scaled to fit within the diagram height.",
+      "title": "Height",
+      "type": "integer"
+    },
+    "indent_scheme": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/IndentScheme"
+        }
+      ],
+      "default": "alternate",
+      "description": "Drawing indent for Memory Regions. Enabled for colliding regions only."
+    },
+    "region_alpha": {
+      "default": 192,
+      "description": "Transparency value for all region block images.",
+      "exclusiveMaximum": 256,
+      "exclusiveMinimum": -1,
+      "title": "Region Alpha",
+      "type": "integer"
+    },
     "threshold": {
       "anyOf": [
         {
@@ -413,13 +286,140 @@
       "default": "0xc8",
       "description": "The threshold for skipping void sections. Please use hex.",
       "title": "Threshold"
+    },
+    "title_fill_colour": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "type": "array"
+        }
+      ],
+      "default": [
+        224,
+        224,
+        224
+      ],
+      "description": "Fill colour for the memory map title blocks",
+      "title": "Title Fill Colour"
+    },
+    "text_size": {
+      "default": 14,
+      "description": "The text size used for entire diagram. \n            Region text size can be overridden",
+      "title": "Text Size",
+      "type": "integer"
+    },
+    "title_line_colour": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "type": "array"
+        }
+      ],
+      "default": [
+        32,
+        32,
+        32
+      ],
+      "description": "Line colour for the memory map title blocks",
+      "title": "Title Line Colour"
+    },
+    "void_fill_colour": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "type": "array"
+        }
+      ],
+      "default": "white",
+      "description": "Fill colour for the void region blocks",
+      "title": "Void Fill Colour"
+    },
+    "void_line_colour": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "type": "array"
+        }
+      ],
+      "default": [
+        192,
+        192,
+        192
+      ],
+      "description": "Line colour for the void region blocks",
+      "title": "Void Line Colour"
+    },
+    "width": {
+      "description": "The width of the diagram in pixels.",
+      "title": "Width",
+      "type": "integer"
     }
   },
   "required": [
+    "memory_maps",
     "name",
     "height",
-    "width",
-    "memory_maps"
+    "width"
   ],
   "title": "Diagram",
   "type": "object"

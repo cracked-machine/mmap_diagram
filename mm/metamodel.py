@@ -116,60 +116,14 @@ class MemoryMap(ConfigParent):
 
 class Diagram(ConfigParent):
 
-    # name: str = pydantic.Field(description="The name of the diagram.")
-    name: Annotated[
-        str, 
-        pydantic.Field(..., description="The name of the diagram.")
-    ]
-    height: Annotated[
-        int,
-        pydantic.Field(..., 
-                       description="""The height of the diagram in pixels. 
-                       If a region size exceeds this height value, 
-                       then the region size will be scaled to fit within the diagram height.""")
-    ]
-    width: Annotated[
-        int,
-        pydantic.Field(..., description="The width of the diagram in pixels.")
-    ]
-    legend_width: Annotated[
-        int,
-        pydantic.Field(30, description="The percentage width of the diagram legend")
+    address_text_size: Annotated[
+        int, 
+        pydantic.Field(12, description="The text size for this region", exclude=True)
     ]
     bgcolour: Annotated[
         ColourType,
         pydantic.Field("white", description="The background colour used for the diagram")
     ] 
-    void_fill_colour: Annotated[
-        ColourType,
-        pydantic.Field("white", description="Fill colour for the void region blocks")
-    ]
-    void_line_colour: Annotated[
-        ColourType,
-        pydantic.Field((192,192,192), description="Line colour for the void region blocks")
-    ]
-    title_fill_colour: Annotated[
-        ColourType,
-        pydantic.Field((224,224,224), description="Fill colour for the memory map title blocks")
-    ]
-    title_line_colour: Annotated[
-        ColourType,
-        pydantic.Field((32,32,32), description="Line colour for the memory map title blocks")
-    ]
-    memory_maps: Annotated[
-        dict[str, MemoryMap],
-        pydantic.Field(..., description="MemoryMap sub-diagram contents.")
-    ]
-    indent_scheme: Annotated[
-        IndentScheme,
-        pydantic.Field(
-            IndentScheme.alternate, 
-            description="Drawing indent for Memory Regions. Enabled for colliding regions only.")
-    ]
-    region_alpha: Annotated[
-        int,
-        pydantic.Field(192, description="Transparency value for all region block images.", gt=-1, lt=256)
-    ]
     link_alpha: Annotated[
         int,
         pydantic.Field(96, description="Transparency value for all link arrow images.", gt=-1, lt=256)
@@ -181,18 +135,6 @@ class Diagram(ConfigParent):
     link_line_colour: Annotated[
         ColourType,
         pydantic.Field("red", description="Line colour for the link arrows")
-    ]
-    text_size: Annotated[
-        int, 
-        pydantic.Field(
-            14, 
-            description="""The text size used for entire diagram. 
-            Region text size can be overridden""", 
-            exclude=True)
-    ]
-    address_text_size: Annotated[
-        int, 
-        pydantic.Field(12, description="The text size for this region", exclude=True)
     ]
     link_head_width: Annotated[
         int, 
@@ -218,12 +160,69 @@ class Diagram(ConfigParent):
             exclude=True
         )
     ]
+    legend_width: Annotated[
+        int,
+        pydantic.Field(30, description="The percentage width of the diagram legend")
+    ]
+    memory_maps: Annotated[
+        dict[str, MemoryMap],
+        pydantic.Field(..., description="MemoryMap sub-diagram contents.")
+    ]
+    name: Annotated[
+        str, 
+        pydantic.Field(..., description="The name of the diagram.")
+    ]
+    height: Annotated[
+        int,
+        pydantic.Field(..., 
+                       description="""The height of the diagram in pixels. 
+                       If a region size exceeds this height value, 
+                       then the region size will be scaled to fit within the diagram height.""")
+    ]
+    indent_scheme: Annotated[
+        IndentScheme,
+        pydantic.Field(
+            IndentScheme.alternate, 
+            description="Drawing indent for Memory Regions. Enabled for colliding regions only.")
+    ]
+    region_alpha: Annotated[
+        int,
+        pydantic.Field(192, description="Transparency value for all region block images.", gt=-1, lt=256)
+    ]
     threshold: Annotated[
         int | str,
         pydantic.Field(
             hex(200),
             description="The threshold for skipping void sections. Please use hex."            
         )
+    ]
+    title_fill_colour: Annotated[
+        ColourType,
+        pydantic.Field((224,224,224), description="Fill colour for the memory map title blocks")
+    ]
+    text_size: Annotated[
+        int, 
+        pydantic.Field(
+            14, 
+            description="""The text size used for entire diagram. 
+            Region text size can be overridden""", 
+            exclude=True)
+    ]
+    title_line_colour: Annotated[
+        ColourType,
+        pydantic.Field((32,32,32), description="Line colour for the memory map title blocks")
+    ]
+    void_fill_colour: Annotated[
+        ColourType,
+        pydantic.Field("white", description="Fill colour for the void region blocks")
+    ]
+    void_line_colour: Annotated[
+        ColourType,
+        pydantic.Field((192,192,192), description="Line colour for the void region blocks")
+    ]
+    width: Annotated[
+        int,
+        pydantic.Field(..., description="The width of the diagram in pixels.")
     ]
 
     @pydantic.field_validator("threshold", mode="before")

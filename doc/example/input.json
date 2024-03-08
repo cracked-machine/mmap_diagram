@@ -1,25 +1,9 @@
 {
-  "name": "TestDiagram",
-  "height": 1000,
-  "width": 1000,
-  "legend_width": 30,
   "bgcolour": "white",
-  "void_fill_colour": "white",
-  "void_line_colour": [
-    192,
-    192,
-    192
-  ],
-  "title_fill_colour": [
-    224,
-    224,
-    224
-  ],
-  "title_line_colour": [
-    32,
-    32,
-    32
-  ],
+  "link_alpha": 96,
+  "link_fill_colour": "red",
+  "link_line_colour": "red",
+  "legend_width": 30,
   "memory_maps": {
     "eMMC": {
       "memory_regions": {
@@ -60,10 +44,26 @@
       }
     }
   },
+  "name": "TestDiagram",
+  "height": 1000,
   "indent_scheme": "alternate",
   "region_alpha": 192,
-  "link_alpha": 96,
-  "link_fill_colour": "red",
-  "link_line_colour": "red",
-  "threshold": 200
+  "threshold": 200,
+  "title_fill_colour": [
+    224,
+    224,
+    224
+  ],
+  "title_line_colour": [
+    32,
+    32,
+    32
+  ],
+  "void_fill_colour": "white",
+  "void_line_colour": [
+    192,
+    192,
+    192
+  ],
+  "width": 1000
 }
