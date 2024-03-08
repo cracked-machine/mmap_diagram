@@ -389,16 +389,9 @@ class Diagram:
         parser.add_argument(
             "-l",
             "--limit",
-            help="The maximum memory address for the diagram. Please use hex. Default: " + hex(1000) + " (1000)",
+            help="The height for the diagram. Please use hex. Memory regions exceeding this height will be scaled to fit. Default: " + hex(1000) + " (1000)",
             default=hex(1000),
             type=str,
-        )
-        parser.add_argument(
-            "-s",
-            "--scale",
-            help="The scale factor for the diagram. Default: 1",
-            default=1,
-            type=int,
         )
         parser.add_argument(
             "-v",
@@ -458,12 +451,12 @@ class Diagram:
             inputdict = {
                 "$schema": "../../mm/schema.json",
                 "name": "Diagram",
-                "height": int(Diagram.pargs.limit,16) * Diagram.pargs.scale,
-                "width": 400 * Diagram.pargs.scale,
+                "height": int(Diagram.pargs.limit,16),
+                "width": 400,
                 "memory_maps": { 
                     mmname : { 
-                        "height": int(Diagram.pargs.limit,16) * Diagram.pargs.scale,
-                        "width": 400 * Diagram.pargs.scale,
+                        "height": int(Diagram.pargs.limit,16),
+                        "width": 400,
                         "memory_regions": { } # regions added below
                     }
                 }

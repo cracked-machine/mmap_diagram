@@ -5,7 +5,7 @@ import pathlib
 @pytest.fixture
 def input() -> Dict:
     valid = {
-        "$schema": "../mm/schema.json",
+        "$schema": "../../mm/schema.json",
         "name": "TestDiagram",
         "height": 1000,
         "width": 1000,
@@ -44,7 +44,7 @@ def input() -> Dict:
 @pytest.fixture
 def zynqmp() -> Dict:
     data = {
-        "$schema": "../mm/schema.json",
+        "$schema": "../../mm/schema.json",
         "name": "ZynqMP",
         "height": 1000,
         "width": 1000,
@@ -75,19 +75,6 @@ def zynqmp() -> Dict:
                     }
                 }
             }
-            # "DRAM": {
-            #     "memory_regions": 
-            #     {
-            #         "Blob2": {
-            #             "origin": "0x10",
-            #             "size": "0x10"
-            #         },
-            #         "Blob3": {
-            #             "origin": "0x50",
-            #             "size": "0x10"
-            #         }
-            #     }
-            # }
         }
     }
 

@@ -28,9 +28,7 @@ options:
   -h, --help            show this help message and exit
   -o OUT, --out OUT     path to the markdown output report file. Default: "out/report.md"
   -l LIMIT, --limit LIMIT
-                        The maximum memory address for the diagram. Please use hex. Default: 0x3e8 (1000)
-  -s SCALE, --scale SCALE
-                        The scale factor for the diagram. Default: 1
+                        The maximum height for the diagram. Memory regions exceeding this height will be scaled to fit. Please use hex. Default: 0x3e8 (1000)
   -v VOIDTHRESHOLD, --voidthreshold VOIDTHRESHOLD
                         The threshold for skipping void sections. Please use hex. Default: 0x3e8 (1000)
 ```
@@ -41,6 +39,7 @@ options:
     python3 -m mm.diagram kernel 0x10 0x50 rootfs 0x50 0x30 dtb 0x90 0x30 uboot 0xD0 0x50 uboot-scr 0x110 0x30
     ```
 
+- Using JSON the same options (plus many others) can be set. See example files in [doc/example](doc/example) folder.
 
 
 

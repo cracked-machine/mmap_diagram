@@ -69,25 +69,6 @@ def test_invalid_duplicate_name_arg():
         memmap_name = list(d.model.memory_maps.keys())[0]
         assert len(d.model.memory_maps[memmap_name].memory_regions) == 1
 
-def test_scale_arg():
-    """Note: output for these test will default to  ./out"""
-    with unittest.mock.patch(
-        "sys.argv", 
-        ["mm.diagram", 
-         "a", "0x10", "0x10", 
-         "-s", "3"]):
-        
-        mm.diagram.Diagram()
-
-    with unittest.mock.patch(
-        "sys.argv", 
-        ["mm.diagram", 
-         "a", "0x10", "0x10", 
-         "-s", "0x3"]):
-        
-        with pytest.raises(SystemExit):
-            mm.diagram.Diagram()
-
 def test_voidthresh_arg():
     with unittest.mock.patch(
         "sys.argv", 
