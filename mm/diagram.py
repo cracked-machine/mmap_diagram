@@ -11,6 +11,7 @@ import typeguard
 import sys
 import pathlib
 import logging
+import collections
 
 from typing import List, Dict
 
@@ -38,7 +39,7 @@ class MemoryMapDiagram:
         self.voidthreshold: int = int(Diagram.pargs.voidthreshold, 16)
         """Void space threshold for adding VoidRegionImage objs"""
 
-        self.final_map_img_redux: PIL.Image.Image = None
+        self.img: PIL.Image.Image = None
         """Final image for this Memory Map"""
 
         self.width = next(iter(memory_map_metadata.values())).width
@@ -53,9 +54,9 @@ class MemoryMapDiagram:
         self.addr_col_width_percent = (self.width // 100) * Diagram.model.legend_width
         """width of the area used for text annotations/legend"""
 
-        self.name_lbl = mm.image.MapNameImage(
+        self.title = mm.image.MapTitleImage(
             self.name + " - scale " + str(self.draw_scale) + ":1", 
-            img_width=self.width, 
+            img_width=self.width,
             font_size=Diagram.model.text_size,
             fill_colour=Diagram.model.title_fill_colour,
             line_colour=Diagram.model.title_line_colour)
@@ -70,27 +71,34 @@ class MemoryMapDiagram:
         """The reusable object used to represent the void regions in the memory map"""       
 
         self.image_list = self._create_image_list(memory_map_metadata)
+        """image objects representing each region in the map. In no particular order."""
 
     def trim_whitespace(self, img: PIL.Image.Image) -> PIL.Image.Image:
         """Detect and remove whitespace from img"""
 
+        # getbbox only returns diff with black borders, not white
         img_inverted = PIL.ImageOps.invert(img.convert("RGB"))
         bbox = img_inverted.getbbox()
+
+        # bottom whitespace should be retained as part of the y-axis data
         adjusted_bbox = list(bbox)
         adjusted_bbox[0] = adjusted_bbox[1] = 0
         bbox = tuple(adjusted_bbox)
+
         return img.crop(bbox)
 
-    def _create_image_list(self, memory_map_metadata: Dict[str, mm.metamodel.MemoryMap]) -> List[mm.image.MemoryRegionImage]:
+    def _create_image_list(
+            self, 
+            memory_map_metadata: Dict[str, mm.metamodel.MemoryMap]) -> List[mm.image.MemoryRegionImage]:
         
         image_list: List[mm.image.MemoryRegionImage] = []
         
         mmap_name = next(iter(memory_map_metadata))
         for region_name, region in memory_map_metadata.get(mmap_name).memory_regions.items():
             new_mr_image = mm.image.MemoryRegionImage(
-                region_name,
-                self.name,
-                region,
+                name=region_name,
+                mmap_parent=self.name,
+                metadata=region,
                 img_width=(self.width - self.addr_col_width_percent - (self.width//5)),
                 font_size=region.text_size,
                 draw_scale=self.draw_scale
@@ -102,6 +110,7 @@ class MemoryMapDiagram:
         region_indent = 0
         if Diagram.model.indent_scheme == "inline":
             pass
+
         if Diagram.model.indent_scheme == "alternate":
             prev_indent = False
             for image in image_list:
@@ -113,6 +122,7 @@ class MemoryMapDiagram:
                     else:
                         region_indent = 0
                         prev_indent = False
+
         if Diagram.model.indent_scheme == "linear":
             for image in image_list:
                 if image.collisions:
@@ -124,18 +134,24 @@ class MemoryMapDiagram:
         return image_list
     
 
-    def _add_label(self, dest: PIL.Image, xy: mm.image.Point, len: int, text: str, font_size: int) -> PIL.Image.Image:
+    def _add_label(
+            self, 
+            dest: PIL.Image, 
+            xy: mm.image.Point, 
+            text: str, 
+            font_size: int) -> PIL.Image.Image:
+        """Add text to the dest image"""
+
         label = mm.image.TextLabelImage(self.name, text, font_size)
         dest = label.overlay(dest, xy)
         return dest
 
-    def _create_mmap(self, memregion_list: List[mm.image.MemoryRegionImage], draw_scale: int):
+    def _create_mmap(self, memregion_list: List[mm.image.MemoryRegionImage], draw_scale: int) -> None:
         """Create a dict of region groups, interleaved with void regions. 
         Then draw the regions onto a larger memory map image. """
 
         redux_subgroup_idx = 0
-        from collections import defaultdict
-        redux_subgroup = defaultdict(list)
+        redux_subgroup = collections.defaultdict(list)
 
         for memregion in memregion_list:
             # start adding memregions to the current subgroup...
@@ -147,7 +163,6 @@ class MemoryMapDiagram:
                 redux_subgroup[redux_subgroup_idx].append(self.voidregion)
                 # then increment again, ready for next memregion subgroup
                 redux_subgroup_idx = redux_subgroup_idx + 1
-
 
         map_img_redux = PIL.Image.new(
             "RGBA", 
@@ -178,7 +193,6 @@ class MemoryMapDiagram:
                     map_img_redux = self._add_label(
                         dest=map_img_redux, 
                         xy=mm.image.Point(region.img.width + 5, (last_void_pos if last_void_pos else region_origin_scaled) - 2 ) , 
-                        len=1, 
                         text=region.origin_as_hex + " (" + str(region.origin_as_int) + ")", 
                         font_size=region.metadata.address_text_size)
                     
@@ -192,21 +206,20 @@ class MemoryMapDiagram:
                     last_void_pos = next_void_pos + region.img.height + 10
                 
 
-        # TODO add for region if top most graphic block
+        # TODO add for voidregion if top most graphic block
         if group_idx == len(redux_subgroup) - 1 and region_idx == len(redux_subgroup[group_idx]) - 1:
 
             if isinstance(region, mm.image.MemoryRegionImage):
                 map_img_redux = self._add_label(
                     dest=map_img_redux, 
                     xy=mm.image.Point(region.img.width + 5, next_void_pos - 20), 
-                    len=1, 
                     text=hex(region.origin_as_int + region.size_as_int) + " (" + str(region.origin_as_int + region.size_as_int) + ")", 
                     font_size=10)
                                                 
         map_img_redux = self.trim_whitespace(map_img_redux)
 
         # flip back up the right way
-        self.final_map_img_redux = map_img_redux.transpose(PIL.Image.FLIP_TOP_BOTTOM)           
+        self.img = map_img_redux.transpose(PIL.Image.FLIP_TOP_BOTTOM)           
         
 
 class Diagram:
@@ -238,16 +251,15 @@ class Diagram:
         self._create_table_image(self.mmd_list)
         self._create_markdown(self.mmd_list)        
 
-    def draw_diagram_img_redux(self):
+    def draw_diagram_img_redux(self) -> None:
         """add each memory map to the complete diagram image"""
-        # self.mmd_list.sort(key=lambda x: x.final_map_img_redux.height, reverse=True)
 
-        max_diagram_height = max(self.mmd_list, key=lambda mmd: mmd.final_map_img_redux.height).final_map_img_redux.height
-        max_name_lbl_height = max(self.mmd_list, key=lambda mmd: mmd.name_lbl.img.height).name_lbl.img.height
+        max_map_img_height = max(self.mmd_list, key=lambda mmd: mmd.img.height).img.height
+        max_title_img_height = max(self.mmd_list, key=lambda mmd: mmd.title.img.height).title.img.height
         
         final_diagram_img = PIL.Image.new(
             "RGBA", 
-            (Diagram.model.width, max_diagram_height + max_name_lbl_height + 10), 
+            (Diagram.model.width, max_map_img_height + max_title_img_height + 10), 
             color=Diagram.model.bgcolour)       
         
         # add region and labels first
@@ -255,16 +267,16 @@ class Diagram:
             
             # add the mem map diagram image
             final_diagram_img.paste(
-                mmd.final_map_img_redux.transpose(PIL.Image.FLIP_TOP_BOTTOM), 
+                mmd.img.transpose(PIL.Image.FLIP_TOP_BOTTOM), 
                 ( (mmd_idx * mmd.width), 0))
             
             # add the mem map name label at this stage so all titles line up at the "top"
-            final_diagram_img = mmd.name_lbl.overlay(
+            final_diagram_img = mmd.title.overlay(
                 final_diagram_img,
-                mm.image.Point( (mmd_idx * mmd.width), final_diagram_img.height - max_name_lbl_height),
+                mm.image.Point( (mmd_idx * mmd.width), final_diagram_img.height - max_title_img_height),
                 alpha=255)    
 
-        # overlay links on top of everything else
+        # iterate each memory map -> memory region -> link
         for source_mmd_idx, mmd in enumerate(self.mmd_list):    
             for region_image in mmd.image_list:
                 source_region_mid_pos_x = region_image.abs_mid_pos.x
@@ -272,7 +284,7 @@ class Diagram:
                 for link in region_image.metadata.links:
                     mmd_parent_name = link[0]
                     region_child_name = link[1]
-                    # search for the matching parent/child memmap/memregion
+                    # search for the memory map/memory region pair that matches this link
                     for target_mmd_idx, mmd in enumerate(self.mmd_list):
                         if mmd.name == mmd_parent_name:
                             for target_region in mmd.image_list:
@@ -289,22 +301,24 @@ class Diagram:
                                     else:
                                         target_justify = -(target_region.img.width // 2) - padding                       
 
-                                               
+                                    # create the link image for the src/dst vector (calc length and angle)           
                                     arrow = mm.image.ArrowBlock(
-                                        src=mm.image.Point(
+                                        src = mm.image.Point(
                                             (source_mmd_idx * mmd.width) + source_region_mid_pos_x + source_justify,
                                             source_region_mid_pos_y
                                         ),
-                                        dst=mm.image.Point(
+                                        dst = mm.image.Point(
                                             (target_mmd_idx * mmd.width) + target_region.abs_mid_pos.x + target_justify, 
                                             target_region.abs_mid_pos.y
                                         ),
-                                        head_width=25,
-                                        tail_len=75,
-                                        tail_width=20,
-                                        fill=Diagram.model.link_fill_colour,
-                                        line=Diagram.model.link_line_colour
+                                        head_width = Diagram.model.link_head_width,
+                                        tail_len = Diagram.model.link_tail_len,
+                                        tail_width = Diagram.model.link_tail_width,
+                                        fill = Diagram.model.link_fill_colour,
+                                        line = Diagram.model.link_line_colour
                                     )
+
+                                    # add it to the memory map diagram image
                                     final_diagram_img = arrow.overlay(final_diagram_img, mm.image.Point(arrow.pos.x, arrow.pos.y), Diagram.model.link_alpha)
      
 
@@ -313,7 +327,7 @@ class Diagram:
         img_file_path = pathlib.Path(Diagram.pargs.out).stem + "_redux.png"
         final_diagram_img.save(pathlib.Path(Diagram.pargs.out).parent / img_file_path)
 
-    def _create_table_image(self, mmd_list: List[MemoryMapDiagram]):
+    def _create_table_image(self, mmd_list: List[MemoryMapDiagram]) -> None:
         """Create a png image of the summary table"""
 
         table_data = []
@@ -336,7 +350,7 @@ class Diagram:
         tableimg_file_path = pathlib.Path(Diagram.pargs.out).stem + "_table.png"
         table_img.save(pathlib.Path(Diagram.pargs.out).parent / tableimg_file_path)
 
-    def _create_markdown(self,  mmd_list: List[MemoryMapDiagram]):
+    def _create_markdown(self,  mmd_list: List[MemoryMapDiagram]) -> None:
         """Create markdown doc containing the diagram image """
         """and text-base summary table"""
         table_list: List[mm.image.MemoryRegionImage] = []

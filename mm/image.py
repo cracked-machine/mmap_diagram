@@ -36,7 +36,7 @@ class Image():
         """Identifying name of the the parent, if any"""
 
         self.name: str = name
-        """Identifying name of the image block"""
+        """Identifying name of the image block. Also used as display text."""
 
         self.line = "black"
         """The border colour to use for the region"""
@@ -103,7 +103,7 @@ class Image():
         return (r, g, b)
 
 @typeguard.typechecked
-class MapNameImage(Image):
+class MapTitleImage(Image):
     """Wrapper class for PIL.Image.Image object. Represents a MemoryMap sub diagram."""
 
     def __init__(self, name: str, img_width: int, font_size: int, fill_colour: mm.metamodel.ColourType, line_colour: mm.metamodel.ColourType):

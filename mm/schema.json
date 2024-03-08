@@ -21,13 +21,13 @@
         },
         "height": {
           "default": 0,
-          "description": "Internal Use. This will be automically adjusted depending on the diagram size and number of memory maps.",
+          "description": "Internal Use. \n            This will be automically adjusted depending on the diagram size and number of memory maps.",
           "title": "Height",
           "type": "integer"
         },
         "width": {
           "default": 0,
-          "description": "Internal Use. This will be automically adjusted depending on the diagram size and number of memory maps.",
+          "description": "Internal Use. \n            This will be automically adjusted depending on the diagram size and number of memory maps.",
           "title": "Width",
           "type": "integer"
         },
@@ -301,7 +301,7 @@
         }
       ],
       "default": "alternate",
-      "description": "Drawing indent for Memory Regions"
+      "description": "Drawing indent for Memory Regions. Enabled for colliding regions only."
     },
     "region_alpha": {
       "default": 192,
@@ -373,7 +373,7 @@
     },
     "text_size": {
       "default": 14,
-      "description": "The text size used for entire diagram. Region text size can be overridden",
+      "description": "The text size used for entire diagram. \n            Region text size can be overridden",
       "title": "Text Size",
       "type": "integer"
     },
@@ -381,6 +381,24 @@
       "default": 12,
       "description": "The text size for this region",
       "title": "Address Text Size",
+      "type": "integer"
+    },
+    "link_head_width": {
+      "default": 25,
+      "description": "Arrow head width (pixels) of the region link graphic.",
+      "title": "Link Head Width",
+      "type": "integer"
+    },
+    "link_tail_len": {
+      "default": 75,
+      "description": "Arrow tail length (percentage, relative to arrow head) of the region link graphic.",
+      "title": "Link Tail Len",
+      "type": "integer"
+    },
+    "link_tail_width": {
+      "default": 20,
+      "description": "Arrow tail width (percentage, relative to arrow head) of the region link graphic.",
+      "title": "Link Tail Width",
       "type": "integer"
     }
   },

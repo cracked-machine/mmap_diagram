@@ -92,15 +92,26 @@ class MemoryMap(ConfigParent):
     ]
     height: Annotated[
         int,
-        pydantic.Field(0, description="Internal Use. This will be automically adjusted depending on the diagram size and number of memory maps.", exclude=True)
+        pydantic.Field(
+            0, 
+            description="""Internal Use. 
+            This will be automically adjusted depending on the diagram size and number of memory maps.""", 
+            exclude=True)
     ]
     width: Annotated[
         int,
-        pydantic.Field(0, description="Internal Use. This will be automically adjusted depending on the diagram size and number of memory maps.", exclude=True)
+        pydantic.Field(
+            0, 
+            description="""Internal Use. 
+            This will be automically adjusted depending on the diagram size and number of memory maps.""", 
+            exclude=True)
     ]
     draw_scale:Annotated [
         int,
-        pydantic.Field(1, description="Drawing scale denominator. Internal use only.", exclude=True)
+        pydantic.Field(
+            1, 
+            description="Drawing scale denominator. Internal use only.", 
+            exclude=True)
     ]
 
 class Diagram(ConfigParent):
@@ -151,7 +162,9 @@ class Diagram(ConfigParent):
     ]
     indent_scheme: Annotated[
         IndentScheme,
-        pydantic.Field(IndentScheme.alternate, description="Drawing indent for Memory Regions")
+        pydantic.Field(
+            IndentScheme.alternate, 
+            description="Drawing indent for Memory Regions. Enabled for colliding regions only.")
     ]
     region_alpha: Annotated[
         int,
@@ -171,12 +184,41 @@ class Diagram(ConfigParent):
     ]
     text_size: Annotated[
         int, 
-        pydantic.Field(14, description="The text size used for entire diagram. Region text size can be overridden", exclude=True)
+        pydantic.Field(
+            14, 
+            description="""The text size used for entire diagram. 
+            Region text size can be overridden""", 
+            exclude=True)
     ]
     address_text_size: Annotated[
         int, 
         pydantic.Field(12, description="The text size for this region", exclude=True)
     ]
+    link_head_width: Annotated[
+        int, 
+        pydantic.Field(
+            25,
+            description="Arrow head width (pixels) of the region link graphic.",
+            exclude=True
+        )
+    ]
+    link_tail_len: Annotated[
+        int, 
+        pydantic.Field(
+            75,
+            description="Arrow tail length (percentage, relative to arrow head) of the region link graphic.",
+            exclude=True
+        )
+    ]
+    link_tail_width: Annotated[
+        int, 
+        pydantic.Field(
+            20,
+            description="Arrow tail width (percentage, relative to arrow head) of the region link graphic.",
+            exclude=True
+        )
+    ]
+
 
     @pydantic.field_validator("name")
     @classmethod
