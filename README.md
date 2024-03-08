@@ -5,8 +5,8 @@ Tool for generating diagrams that show the mapping of regions in memory, specifc
 
 ||
 |:-:|
-|![](doc/example/test_generate_doc_example_normal_redux.png)|
-|![](doc/example/test_generate_doc_example_normal_table.png)|
+|![](doc/example/test_generate_doc_example_three_maps.png)|
+|![](doc/example/test_generate_doc_example_three_maps_table.png)|
 
 As well as the `png` format diagram image, a `markdown` report is also created:
 - inline image of the diagram
