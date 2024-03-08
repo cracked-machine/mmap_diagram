@@ -30,7 +30,8 @@ class MemoryMapDiagram:
 
     def __init__(self, memory_map_metadata: Dict[str, mm.metamodel.MemoryMap]):
 
-        assert len(memory_map_metadata) == 1, "MemoryMapDiagram should omly be initialised with a single mm.metamodel.MemoryMap."
+        assert len(memory_map_metadata) == 1, \
+            "MemoryMapDiagram should omly be initialised with a single mm.metamodel.MemoryMap."
 
         self.name = next(iter(memory_map_metadata))
 
@@ -40,14 +41,11 @@ class MemoryMapDiagram:
         self.final_map_img_redux: PIL.Image.Image = None
         """Final image for this Memory Map"""
 
-        
         self.width = next(iter(memory_map_metadata.values())).width
         self.height = next(iter(memory_map_metadata.values())).height
         self.draw_scale = next(iter(memory_map_metadata.values())).draw_scale
 
-
-        legend_width_pixels = (self.width // 100) * Diagram.model.legend_width
-        self._legend_width = legend_width_pixels
+        self.addr_col_width_percent = (self.width // 100) * Diagram.model.legend_width
         """width of the area used for text annotations/legend"""
 
         self.name_lbl = mm.image.MapNameImage(self.name + " - scale " + str(self.draw_scale) + ":1", 
@@ -59,7 +57,7 @@ class MemoryMapDiagram:
         
         self.voidregion = mm.image.VoidRegionImage(
             self.name,
-            img_width=(self.width - self._legend_width - (self.width//5)), 
+            img_width=(self.width - self.addr_col_width_percent - (self.width//5)), 
             font_size=Diagram.model.text_size,
             fill_colour=Diagram.model.void_fill_colour,
             line_colour=Diagram.model.void_line_colour)
@@ -87,7 +85,7 @@ class MemoryMapDiagram:
                 region_name,
                 self.name,
                 region,
-                img_width=(self.width - self._legend_width - (self.width//5)),
+                img_width=(self.width - self.addr_col_width_percent - (self.width//5)),
                 font_size=region.text_size,
                 draw_scale=self.draw_scale
             )
