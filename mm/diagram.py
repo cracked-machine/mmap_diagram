@@ -34,12 +34,6 @@ class MemoryMapDiagram:
 
         self.name = next(iter(memory_map_metadata))
 
-        self.default_region_text_size: int = 12
-        """Default size for memregion text"""
-
-        self.fixed_legend_text_size = 12
-        """Fixed size for legend text"""
-
         self.voidthreshold: int = int(Diagram.pargs.voidthreshold, 16)
         """Void space threshold for adding VoidRegionImage objs"""
 
@@ -58,7 +52,7 @@ class MemoryMapDiagram:
 
         self.name_lbl = mm.image.MapNameImage(self.name + " - scale " + str(self.draw_scale) + ":1", 
                                               img_width=self.width, 
-                                              font_size=self.default_region_text_size,
+                                              font_size=Diagram.model.text_size,
                                               fill_colour=Diagram.model.title_fill_colour,
                                               line_colour=Diagram.model.title_line_colour)
         """Title graphic for this memory map"""
@@ -66,7 +60,7 @@ class MemoryMapDiagram:
         self.voidregion = mm.image.VoidRegionImage(
             self.name,
             img_width=(self.width - self._legend_width - (self.width//5)), 
-            font_size=self.default_region_text_size,
+            font_size=Diagram.model.text_size,
             fill_colour=Diagram.model.void_fill_colour,
             line_colour=Diagram.model.void_line_colour)
         """The reusable object used to represent the void regions in the memory map"""       
@@ -94,7 +88,7 @@ class MemoryMapDiagram:
                 self.name,
                 region,
                 img_width=(self.width - self._legend_width - (self.width//5)),
-                font_size=self.default_region_text_size,
+                font_size=region.text_size,
                 draw_scale=self.draw_scale
             )
             image_list.append(new_mr_image)

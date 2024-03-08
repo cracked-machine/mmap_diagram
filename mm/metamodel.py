@@ -55,6 +55,10 @@ class MemoryRegion(ConfigParent):
         dict,
         pydantic.Field({}, Description="Internal Use")
     ]
+    text_size: Annotated[
+        int, 
+        pydantic.Field(0, description="The text size for this region", exclude=True)
+    ]
 
     @pydantic.field_validator("freespace", mode="before")
     @classmethod
@@ -161,6 +165,10 @@ class Diagram(ConfigParent):
         ColourType,
         pydantic.Field("red", description="Line colour for the link arrows")
     ]
+    text_size: Annotated[
+        int, 
+        pydantic.Field(14, description="The text size used for entire diagram. Region text size can be overridden", exclude=True)
+    ]
 
     @pydantic.field_validator("name")
     @classmethod
@@ -225,6 +233,18 @@ class Diagram(ConfigParent):
 
         return self
 
+    @pydantic.model_validator(mode="after")
+    def set_region_text_size(self):
+        """If user did not set memregion text size (default is 0) then use the diagram-wide setting"""
+        memmap: MemoryMap
+        for memmap in self.memory_maps.values():
+            memregion: MemoryRegion
+            for memregion in memmap.memory_regions.values():
+                if  memregion.text_size == 0:
+                    memregion.text_size = self.text_size
+
+        return self
+    
     @pydantic.model_validator(mode="after")
     def calc_nearest_region(self):
         """Find the nearest neighbour region and if they have collided"""
@@ -312,6 +332,7 @@ class Diagram(ConfigParent):
                 elif memory_region.collisions and not memory_region.freespace:
                     memory_region.freespace = memory_map.height - (this_region_end)
 
+        return self
 
     
 # helper functions

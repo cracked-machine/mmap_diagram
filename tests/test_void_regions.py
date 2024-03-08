@@ -47,7 +47,7 @@ def test_void_region_default(file_setup):
 
         assert file_setup["diagram_image"].exists()
         found_size = PIL.Image.open(str(file_setup["diagram_image"])).size
-        assert found_size == (400, 530)
+        assert found_size == (400, 532)
 
         assert file_setup["table_image"].exists()
 
@@ -93,7 +93,7 @@ def test_void_region_uservalue_500(file_setup):
 
         assert file_setup["diagram_image"].exists()
         found_size = PIL.Image.open(str(file_setup["diagram_image"])).size
-        assert found_size == (400, 530)
+        assert found_size == (400, 532)
 
         assert file_setup["table_image"].exists()
 
@@ -139,6 +139,6 @@ def test_void_region_uservalue_200(file_setup):
 
         assert file_setup["diagram_image"].exists()
         found_size = PIL.Image.open(str(file_setup["diagram_image"])).size
-        assert found_size == (400, 318)
+        assert found_size == (400, 320)
 
         assert file_setup["table_image"].exists()

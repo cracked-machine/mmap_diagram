@@ -100,6 +100,12 @@
           "default": {},
           "title": "Collisions",
           "type": "object"
+        },
+        "text_size": {
+          "default": 0,
+          "description": "The text size for this region",
+          "title": "Text Size",
+          "type": "integer"
         }
       },
       "required": [
@@ -358,6 +364,12 @@
       "default": "red",
       "description": "Line colour for the link arrows",
       "title": "Link Line Colour"
+    },
+    "text_size": {
+      "default": 14,
+      "description": "The text size used for entire diagram. Region text size can be overridden",
+      "title": "Text Size",
+      "type": "integer"
     }
   },
   "required": [

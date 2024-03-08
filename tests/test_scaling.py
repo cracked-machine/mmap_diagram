@@ -53,7 +53,7 @@ def test_scaling_x1(file_setup):
         assert mm.diagram.Diagram.pargs.scale == 1
 
         assert file_setup["diagram_image"].exists()
-        assert PIL.Image.open(str(file_setup["diagram_image"])).size == (400, 274)
+        assert PIL.Image.open(str(file_setup["diagram_image"])).size == (400, 276)
 
         assert file_setup["table_image"].exists()
         
@@ -94,7 +94,7 @@ def test_scaling_x2(file_setup):
         assert Diagram.pargs.voidthreshold == hex(1000)
 
         assert file_setup["diagram_image"].exists()
-        assert PIL.Image.open(str(file_setup["diagram_image"])).size == (800, 274)
+        assert PIL.Image.open(str(file_setup["diagram_image"])).size == (800, 276)
 
         assert file_setup["table_image"].exists()
 
