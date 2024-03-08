@@ -59,6 +59,10 @@ class MemoryRegion(ConfigParent):
         int, 
         pydantic.Field(0, description="The text size for this region", exclude=True)
     ]
+    address_text_size: Annotated[
+        int, 
+        pydantic.Field(0, description="The text size for this region", exclude=True)
+    ]
 
     @pydantic.field_validator("freespace", mode="before")
     @classmethod
@@ -169,6 +173,10 @@ class Diagram(ConfigParent):
         int, 
         pydantic.Field(14, description="The text size used for entire diagram. Region text size can be overridden", exclude=True)
     ]
+    address_text_size: Annotated[
+        int, 
+        pydantic.Field(12, description="The text size for this region", exclude=True)
+    ]
 
     @pydantic.field_validator("name")
     @classmethod
@@ -242,6 +250,8 @@ class Diagram(ConfigParent):
             for memregion in memmap.memory_regions.values():
                 if  memregion.text_size == 0:
                     memregion.text_size = self.text_size
+                if  memregion.address_text_size == 0:
+                    memregion.address_text_size = self.address_text_size
 
         return self
     

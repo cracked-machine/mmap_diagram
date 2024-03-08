@@ -170,14 +170,13 @@ class MemoryMapDiagram:
                         xy=mm.image.Point(0, last_void_pos if last_void_pos else region_origin_scaled), 
                         alpha=int(Diagram.model.region_alpha))
                     
-                    
                     # add origin address text
                     map_img_redux = self._add_label(
                         dest=map_img_redux, 
                         xy=mm.image.Point(region.img.width + 5, (last_void_pos if last_void_pos else region_origin_scaled) - 2 ) , 
                         len=1, 
                         text=region.origin_as_hex + " (" + str(region.origin_as_int) + ")", 
-                        font_size=10)
+                        font_size=region.metadata.address_text_size)
                     
                     # ready the ypos for drawing a void region - if any - after this memregion
                     next_void_pos = (last_void_pos if last_void_pos else region_origin_scaled) + (region.img.height) + 10

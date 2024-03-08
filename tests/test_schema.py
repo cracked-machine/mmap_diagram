@@ -170,13 +170,14 @@ def test_schema_memregion_text_size_is_respected(input):
     # default test_data contains non-empty string - should pass
     mm.metamodel.Diagram(**test_data)
     
-    # invalidate test_data - override the default, should not be overwritten with diagram text size (12) - should fail
+    # verify that user input schema overrides the default (0), should not be overwritten with diagram text size (12)
     test_data['memory_maps']['eMMC']['memory_regions']['Blob1']['text_size'] = "20"
+    test_data['memory_maps']['eMMC']['memory_regions']['Blob1']['address_text_size'] = "20"
 
     d = mm.metamodel.Diagram(**test_data)       
     for mmaps in d.memory_maps.values():
         for name, mregion in mmaps.memory_regions.items():
             if name == "Blob1":
-                assert not mregion.text_size == 12
                 assert mregion.text_size == 20
+                assert mregion.address_text_size == 20
 

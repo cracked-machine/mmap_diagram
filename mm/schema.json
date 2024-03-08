@@ -106,6 +106,12 @@
           "description": "The text size for this region",
           "title": "Text Size",
           "type": "integer"
+        },
+        "address_text_size": {
+          "default": 0,
+          "description": "The text size for this region",
+          "title": "Address Text Size",
+          "type": "integer"
         }
       },
       "required": [
@@ -369,6 +375,12 @@
       "default": 14,
       "description": "The text size used for entire diagram. Region text size can be overridden",
       "title": "Text Size",
+      "type": "integer"
+    },
+    "address_text_size": {
+      "default": 12,
+      "description": "The text size for this region",
+      "title": "Address Text Size",
       "type": "integer"
     }
   },
