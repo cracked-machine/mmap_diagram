@@ -419,11 +419,12 @@ class Diagram:
         """"Validate the command line arguments"""
         # parse hex/int inputs
         if not Diagram.pargs.file and not Diagram.pargs.limit:
-            raise SystemExit("You must specify either limit or JSON input file.")
+            raise SystemExit("You must specify either: limit setting or JSON input file.")
         if not Diagram.pargs.file and Diagram.pargs.limit:
             if not Diagram.pargs.limit[:2] == "0x":
-                raise SystemExit("'limit' argument should be in hex format: 0x")
- 
+                raise SystemExit(f"'limit' argument should be in hex format: {str(Diagram.pargs.limit)} = {hex(int(Diagram.pargs.limit))}")
+        if not Diagram.pargs.file and not Diagram.pargs.regions:
+            raise SystemExit("You must provide either: region string or JSON input file.")
         if not Diagram.pargs.voidthreshold[:2] == "0x":
             raise SystemExit("'voidthreshold' argument should be in hex format: 0x")
 
@@ -439,14 +440,16 @@ class Diagram:
             if len(Diagram.pargs.regions) % 3:
                 raise SystemExit("command line input data should be in multiples of three") 
         else:
-            assert pathlib.Path(Diagram.pargs.file).resolve().exists()
+            json_file = pathlib.Path(Diagram.pargs.file).resolve()
+            if not json_file.exists():
+                raise SystemExit(f"File not found: {json_file}")
     
     @classmethod
     def _create_model(cls) -> mm.metamodel.Diagram:
         
         if Diagram.pargs.file:
             if Diagram.pargs.limit:
-                logging.warning("Limit flag is ignore when using JSON input. Please set the diagram height in the JSON file.")
+                logging.warning("Limit flag is ignore when using JSON input. Using the JSON file Diagram -> height field instead.")
             with pathlib.Path(Diagram.pargs.file).resolve().open("r") as fp:
                 inputdict = json.load(fp)
         else:

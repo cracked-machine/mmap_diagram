@@ -25,6 +25,16 @@ def test_missing_required_args():
         with pytest.raises(SystemExit):
             mm.diagram.Diagram()
 
+    with unittest.mock.patch(
+        "sys.argv", 
+        [
+            "mm.diagram", 
+            "-l", hex(1000),
+        ]
+    ):
+        with pytest.raises(SystemExit):
+            mm.diagram.Diagram()
+
 
 def test_arg_tuple():
     with unittest.mock.patch(
@@ -247,6 +257,21 @@ def test_input_file(caplog):
         "sys.argv", 
         [
             "mm.diagram", 
+            "-f", "input.json",
+            "-l", hex(1000),
+            "-v", hex(500)
+        ]
+    ):        
+        with pytest.raises(SystemExit):
+            mm.diagram.Diagram()
+            
+    caplog.clear()
+
+    # Check you get warning with -f and -l
+    with unittest.mock.patch(
+        "sys.argv", 
+        [
+            "mm.diagram", 
             "-f", "doc/example/input.json",
             "-l", hex(1000),
             "-v", hex(500)
@@ -254,7 +279,7 @@ def test_input_file(caplog):
     ):        
         with caplog.at_level(logging.WARNING):
             d = mm.diagram.Diagram()
-            assert 'Limit flag is ignore when using JSON input. Please set the diagram height in the JSON file.' in caplog.text
+            assert 'Limit flag is ignore when using JSON input. Using the JSON file Diagram -> height field instead.' in caplog.text
 
     caplog.clear()
 
@@ -271,4 +296,4 @@ def test_input_file(caplog):
 
         with caplog.at_level(logging.WARNING):
             d = mm.diagram.Diagram()
-            assert not 'Limit flag is ignore when using JSON input. Please set the diagram height in the JSON file.' in caplog.text
+            assert not 'Limit flag is ignore when using JSON input. Using the JSON file Diagram -> height field instead.' in caplog.text
