@@ -229,7 +229,10 @@ def test_generate_doc_zynqmp_example(file_setup, zynqmp):
 
         mm.diagram.Diagram()
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "doc/example/test_generate_doc_zynqmp_example"}], indirect=True)
+        assert file_setup["diagram_image"].exists()
+        assert PIL.Image.open(str(file_setup["diagram_image"])).size == (1000, 1000)
+
+@pytest.mark.parametrize("file_setup", [{"file_path": "doc/example/test_generate_doc_zynqmp_large_example"}], indirect=True)
 def test_generate_doc_zynqmp_large_example(file_setup, zynqmp_large):
     """ """
     
@@ -248,3 +251,6 @@ def test_generate_doc_zynqmp_large_example(file_setup, zynqmp_large):
         ):
 
         mm.diagram.Diagram()
+
+        assert file_setup["diagram_image"].exists()
+        assert PIL.Image.open(str(file_setup["diagram_image"])).size == (3508, 2480)

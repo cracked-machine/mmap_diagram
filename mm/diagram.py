@@ -324,6 +324,9 @@ class Diagram:
 
         # finalise diagram                                                 
         final_diagram_img = final_diagram_img.transpose(PIL.Image.FLIP_TOP_BOTTOM)
+        # make sure we don't go over the requested height
+        if final_diagram_img.height > Diagram.model.height:
+            final_diagram_img = final_diagram_img.resize((Diagram.model.width, Diagram.model.height), PIL.Image.Resampling.BICUBIC)
         img_file_path = pathlib.Path(Diagram.pargs.out).stem + "_redux.png"
         final_diagram_img.save(pathlib.Path(Diagram.pargs.out).parent / img_file_path)
 
@@ -418,7 +421,6 @@ class Diagram:
         )        
 
         Diagram.pargs = parser.parse_args()
-        pass
 
     @classmethod
     def _validate_pargs(cls):

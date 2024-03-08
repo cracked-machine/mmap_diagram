@@ -106,10 +106,7 @@ def zynqmp_large() -> Dict:
                 {
                     "Boot Image": {
                         "origin": hex(0),
-                        "size": hex(2000),
-                        "links": [
-                            ["Global System Address Map", "OCM"]
-                        ]
+                        "size": "0xFFFFFFFF",
 
                     }
                 }
