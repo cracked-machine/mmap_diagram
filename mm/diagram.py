@@ -19,7 +19,7 @@ import mm.image
 import mm.metamodel
 
 root = logging.getLogger()
-root.setLevel(logging.INFO)
+root.setLevel(logging.DEBUG)
 
 handler = logging.StreamHandler(sys.stdout)
 formatter = logging.Formatter("%(levelname)s - %(message)s")

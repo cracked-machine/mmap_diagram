@@ -268,7 +268,7 @@ class MemoryRegionImage(Image):
     def _draw(self):
         """Create the image for the region rectangle and its inset name label"""
 
-        logging.info(self)
+        logging.debug(self.get_data_as_list())
 
         if self.freespace_as_int < 0:
             region_img = DashedRectangle(
@@ -296,8 +296,6 @@ class VoidRegionImage(Image):
         self._draw(img_width, font_size, fill_colour, line_colour)
 
     def _draw(self, img_width: int, font_size: int, fill_colour: mm.metamodel.ColourType, line_colour: mm.metamodel.ColourType):
-
-        logging.info(self)
 
         self.img = DashedRectangle(img_width, 
                                    self.size_as_int, 
