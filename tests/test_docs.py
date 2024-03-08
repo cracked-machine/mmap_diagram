@@ -21,7 +21,7 @@ def test_generate_doc_example_normal(file_setup):
             "dtb", "0x190", "0x30",
             "-o", str(file_setup["report"]),
             "-l", hex(height),
-            "-v", hex(200),
+            "-t", hex(200),
         ],
     ):
 
@@ -64,7 +64,7 @@ def test_generate_doc_example_collisions(file_setup):
             "dtb", "0x90", "0x30",
             "-o", str(file_setup["report"]),
             "-l", height,
-            "-v", hex(200),
+            "-t", hex(200),
         ],
     ):
 
@@ -119,7 +119,7 @@ def test_generate_doc_example_two_maps(input, file_setup):
                 "-f", str(input_file),
                 "-o", str(file_setup["report"]),
                 "-l", hex(height),
-                "-v", hex(200),
+                "-t", hex(200),
             ],
         ):
 
@@ -195,7 +195,7 @@ def test_generate_doc_example_three_maps(input, file_setup):
                 "-f", str(input_file),
                 "-o", str(file_setup["report"]),
                 "-l", hex(height),
-                "-v", hex(200),
+                "-t", hex(200),
             ],
         ):
 
@@ -222,7 +222,7 @@ def test_generate_doc_zynqmp_example(file_setup, zynqmp):
                 "mm.diagram",
                 "-f", str(input_file),
                 "-o", str(file_setup["report"]),
-                "-v", hex(100),
+                "-t", hex(100),
                 "-l", hex(1000),
             ],
         ):
@@ -243,7 +243,7 @@ def test_generate_doc_zynqmp_large_example(file_setup, zynqmp_large):
                 "mm.diagram",
                 "-f", str(input_file),
                 "-o", str(file_setup["report"]),
-                "-v", hex(100)
+                "-t", hex(100)
             ],
         ):
 

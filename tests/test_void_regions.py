@@ -26,7 +26,7 @@ def test_void_region_default(file_setup):
         d = mm.diagram.Diagram()
 
         # assumes the defaults haven't changed
-        assert mm.diagram.Diagram.pargs.voidthreshold == hex(200)
+        assert mm.diagram.Diagram.pargs.threshold == hex(200)
 
         for region_image in d.mmd_list[0].image_list:
             if region_image.name == "kernel":
@@ -64,7 +64,7 @@ def test_void_region_uservalue_500(file_setup):
             "dtb", "0x190", "0x30",
             "-o", str(file_setup["report"]),
             "-l", hex(height),
-            "-v", hex(500),
+            "-t", hex(500),
         ],
     ):
 
@@ -107,7 +107,7 @@ def test_void_region_uservalue_1000(file_setup):
             "dtb", "0x190", "0x30",
             "-o", str(file_setup["report"]),
             "-l", hex(height),
-            "-v", hex(1000),
+            "-t", hex(1000),
         ],
     ):
 

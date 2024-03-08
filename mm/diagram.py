@@ -154,7 +154,7 @@ class MemoryMapDiagram:
             # start adding memregions to the current subgroup...
             redux_subgroup[redux_subgroup_idx].append(memregion)
             # until we hit a empty space larger than the threshold setting
-            if memregion.freespace_as_int > Diagram.model.void_threshold:
+            if memregion.freespace_as_int > Diagram.model.threshold:
                 # add a single void region subgroup at a new index...
                 redux_subgroup_idx = redux_subgroup_idx + 1
                 redux_subgroup[redux_subgroup_idx].append(self.voidregion)
@@ -238,7 +238,7 @@ class Diagram:
         Diagram.model = Diagram._create_model()
 
         logging.info(f"Selected diagram height: {str(Diagram.model.height)}")
-        logging.info(f"Selected diagram void threshold: {str(Diagram.model.void_threshold)}")
+        logging.info(f"Selected diagram void threshold: {str(Diagram.model.threshold)}")
 
         # Create the individual memory map diagrams (full and reduced)
         for mmap_name, mmap in Diagram.model.memory_maps.items():
@@ -393,8 +393,8 @@ class Diagram:
             type=str
         )
         parser.add_argument(
-            "-v",
-            "--voidthreshold",
+            "-t",
+            "--threshold",
             help="The threshold for skipping void sections. Please use hex.",
             type=str,
             default=hex(200)
@@ -425,9 +425,9 @@ class Diagram:
                 raise SystemExit(f"'limit' argument should be in hex format: {str(Diagram.pargs.limit)} = {hex(int(Diagram.pargs.limit))}")
         if not Diagram.pargs.file and not Diagram.pargs.regions:
             raise SystemExit("You must provide either: region string or JSON input file.")
-        if Diagram.pargs.voidthreshold:
-            if not Diagram.pargs.voidthreshold[:2] == "0x":
-                raise SystemExit(f"'voidthreshold' argument should be in hex format: {str(Diagram.pargs.voidthreshold)} = {hex(int(Diagram.pargs.voidthreshold))}")
+        if Diagram.pargs.threshold:
+            if not Diagram.pargs.threshold[:2] == "0x":
+                raise SystemExit(f"'threshold' argument should be in hex format: {str(Diagram.pargs.threshold)} = {hex(int(Diagram.pargs.threshold))}")
 
         # make sure the output path is valid and parent dir exists
         if not pathlib.Path(Diagram.pargs.out).suffix == ".md":
@@ -461,7 +461,7 @@ class Diagram:
                 "name": "Diagram",
                 "height": int(Diagram.pargs.limit,16),
                 "width": 400,
-                "void_threshold": int(Diagram.pargs.voidthreshold, 16),
+                "threshold": int(Diagram.pargs.threshold, 16),
                 "memory_maps": { 
                     mmname : { 
                         "height": int(Diagram.pargs.limit,16),

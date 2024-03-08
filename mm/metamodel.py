@@ -218,7 +218,7 @@ class Diagram(ConfigParent):
             exclude=True
         )
     ]
-    void_threshold: Annotated[
+    threshold: Annotated[
         int | str,
         pydantic.Field(
             hex(200),
@@ -226,7 +226,7 @@ class Diagram(ConfigParent):
         )
     ]
 
-    @pydantic.field_validator("void_threshold", mode="before")
+    @pydantic.field_validator("threshold", mode="before")
     @classmethod
     def convert_str_to_int(cls, v: str):
         if isinstance(v, str):

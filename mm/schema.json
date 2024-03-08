@@ -401,7 +401,7 @@
       "title": "Link Tail Width",
       "type": "integer"
     },
-    "void_threshold": {
+    "threshold": {
       "anyOf": [
         {
           "type": "integer"
@@ -412,7 +412,7 @@
       ],
       "default": "0xc8",
       "description": "The threshold for skipping void sections. Please use hex.",
-      "title": "Void Threshold"
+      "title": "Threshold"
     }
   },
   "required": [

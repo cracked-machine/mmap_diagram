@@ -3,7 +3,7 @@ import unittest
 import mm.image
 
 # These tests only check the distance between adjacent regions
-# They don't check the output image sizes so we don't care what value we set to the voidthreshold.
+# They don't check the output image sizes so we don't care what value we set to the threshold.
 
 
 def test_distance_three_regions_same_size_no_collisions():

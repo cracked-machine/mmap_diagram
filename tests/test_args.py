@@ -162,7 +162,7 @@ def test_voidthresh_arg():
         ["mm.diagram", 
          "a", "0x10", "0x10", 
          "-l", hex(1000),
-         "-v", "1000"
+         "-t", "1000"
         ]
     ):
         
@@ -174,7 +174,7 @@ def test_voidthresh_arg():
         ["mm.diagram", 
          "a", "0x10", "0x10", 
          "-l", hex(1000),
-         "-v", "0x3e8"
+         "-t", "0x3e8"
         ]
     ):
         
@@ -210,9 +210,9 @@ def test_default_limit_arg_format(file_setup):
         mm.diagram.Diagram()
         default_limit = mm.diagram.Diagram.pargs.limit
 
-        # this test assumes the default 'voidthreshold' is 0x3e8 (1000)
-        assert mm.diagram.Diagram.pargs.voidthreshold == hex(200)
-        assert not mm.diagram.Diagram.pargs.voidthreshold == 200
+        # this test assumes the default 'threshold' is 0x3e8 (1000)
+        assert mm.diagram.Diagram.pargs.threshold == hex(200)
+        assert not mm.diagram.Diagram.pargs.threshold == 200
 
         assert file_setup["report"].exists()
 
@@ -259,7 +259,7 @@ def test_input_file(caplog):
             "mm.diagram", 
             "-f", "input.json",
             "-l", hex(1000),
-            "-v", hex(500)
+            "-t", hex(500)
         ]
     ):        
         with pytest.raises(SystemExit):
@@ -274,7 +274,7 @@ def test_input_file(caplog):
             "mm.diagram", 
             "-f", "doc/example/input.json",
             "-l", hex(1000),
-            "-v", hex(500)
+            "-t", hex(500)
         ]
     ):        
         with caplog.at_level(logging.WARNING):
@@ -290,7 +290,7 @@ def test_input_file(caplog):
             "mm.diagram", 
             "a", "0x10", "0x10",
             "-l", hex(1000),
-            "-v", hex(500)
+            "-t", hex(500)
         ]
     ):
 
