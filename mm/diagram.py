@@ -42,17 +42,23 @@ class MemoryMapDiagram:
         """Final image for this Memory Map"""
 
         self.width = next(iter(memory_map_metadata.values())).width
+        """Map sub-diagram width in pixels. Pre-calculated by pydantic model"""
+
         self.height = next(iter(memory_map_metadata.values())).height
+        """Map sub-diagram height in pixels. Pre-calculated by pydantic model"""
+
         self.draw_scale = next(iter(memory_map_metadata.values())).draw_scale
+        """Map sub-diagram drawing scale denominator. Pre-calculated by pydantic model"""
 
         self.addr_col_width_percent = (self.width // 100) * Diagram.model.legend_width
         """width of the area used for text annotations/legend"""
 
-        self.name_lbl = mm.image.MapNameImage(self.name + " - scale " + str(self.draw_scale) + ":1", 
-                                              img_width=self.width, 
-                                              font_size=Diagram.model.text_size,
-                                              fill_colour=Diagram.model.title_fill_colour,
-                                              line_colour=Diagram.model.title_line_colour)
+        self.name_lbl = mm.image.MapNameImage(
+            self.name + " - scale " + str(self.draw_scale) + ":1", 
+            img_width=self.width, 
+            font_size=Diagram.model.text_size,
+            fill_colour=Diagram.model.title_fill_colour,
+            line_colour=Diagram.model.title_line_colour)
         """Title graphic for this memory map"""
         
         self.voidregion = mm.image.VoidRegionImage(
