@@ -389,9 +389,8 @@ class Diagram:
         parser.add_argument(
             "-l",
             "--limit",
-            help="The height for the diagram. Please use hex. Memory regions exceeding this height will be scaled to fit. Default: " + hex(1000) + " (1000)",
-            default=hex(1000),
-            type=str,
+            help="The height for the diagram. Please use hex. Memory regions exceeding this height will be scaled to fit. Ignored when using JSON file input.",
+            type=str
         )
         parser.add_argument(
             "-v",
@@ -419,8 +418,11 @@ class Diagram:
     def _validate_pargs(cls):
         """"Validate the command line arguments"""
         # parse hex/int inputs
-        if not Diagram.pargs.limit[:2] == "0x":
-            raise SystemExit("'limit' argument should be in hex format: 0x")
+        if not Diagram.pargs.file and not Diagram.pargs.limit:
+            raise SystemExit("You must specify either limit or JSON input file.")
+        if not Diagram.pargs.file and Diagram.pargs.limit:
+            if not Diagram.pargs.limit[:2] == "0x":
+                raise SystemExit("'limit' argument should be in hex format: 0x")
  
         if not Diagram.pargs.voidthreshold[:2] == "0x":
             raise SystemExit("'voidthreshold' argument should be in hex format: 0x")
@@ -443,6 +445,8 @@ class Diagram:
     def _create_model(cls) -> mm.metamodel.Diagram:
         
         if Diagram.pargs.file:
+            if Diagram.pargs.limit:
+                logging.warning("Limit flag is ignore when using JSON input. Please set the diagram height in the JSON file.")
             with pathlib.Path(Diagram.pargs.file).resolve().open("r") as fp:
                 inputdict = json.load(fp)
         else:

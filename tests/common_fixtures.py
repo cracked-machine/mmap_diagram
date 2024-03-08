@@ -81,6 +81,46 @@ def zynqmp() -> Dict:
     return data
 
 @pytest.fixture
+def zynqmp_large() -> Dict:
+    data = {
+        "$schema": "../../mm/schema.json",
+        "name": "ZynqMP",
+        "height": 2480,
+        "width": 3508,
+        "memory_maps": {
+            "Global System Address Map": {
+                "memory_regions": 
+                {
+                    "DDR Memory Controller": {
+                        "origin": hex(16),
+                        "size": hex(1000),
+                    },
+                    "OCM": {
+                        "origin": hex(2016),
+                        "size": hex(2000)
+                    }
+                }
+            },
+            "Flash": {
+                "memory_regions":
+                {
+                    "Boot Image": {
+                        "origin": hex(0),
+                        "size": hex(2000),
+                        "links": [
+                            ["Global System Address Map", "OCM"]
+                        ]
+
+                    }
+                }
+            }
+        }
+    }
+
+    return data
+
+
+@pytest.fixture
 def file_setup(request):
 
     report = pathlib.Path(f"{request.param['file_path']}.md")

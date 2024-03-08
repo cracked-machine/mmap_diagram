@@ -1,6 +1,6 @@
 ![memory map diagram](test_generate_doc_zynqmp_example_redux.png)
 |map|region|origin|size|free Space|collisions|links|draw scale|
 |:-|:-|:-|:-|:-|:-|:-|:-|
-|Global System Address Map|<span style='color:(37, 63, 35)'>OCM</span>|0x7e0 (2016)|0x7d0 (2000)|0xc5 (197)|||5:1|
-|Global System Address Map|<span style='color:(11, 9, 60)'>DDR Memory Controller</span>|0x10 (16)|0x3e8 (1000)|0x3e8 (1000)|||5:1|
-|Flash|<span style='color:(28, 65, 6)'>Boot Image</span>|0x0 (0)|0x7d0 (2000)|0x0 (0)||('Global System Address Map', 'OCM')|2:1|
+|Global System Address Map|<span style='color:(35, 37, 46)'>OCM</span>|0x7e0 (2016)|0x7d0 (2000)|0x1d8 (472)|||2:1|
+|Global System Address Map|<span style='color:(22, 27, 66)'>DDR Memory Controller</span>|0x10 (16)|0x3e8 (1000)|0x3e8 (1000)|||2:1|
+|Flash|<span style='color:(27, 46, 26)'>Boot Image</span>|0x0 (0)|0x7d0 (2000)|0x1e0 (480)||('Global System Address Map', 'OCM')|1:1|
