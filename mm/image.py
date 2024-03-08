@@ -287,18 +287,26 @@ class MemoryRegionImage(Image):
 @typeguard.typechecked
 class VoidRegionImage(Image):
 
-    def __init__(self, mmap_parent: str, img_width: int, font_size: int, fill_colour: mm.metamodel.ColourType, line_colour: mm.metamodel.ColourType):
+    def __init__(
+            self, 
+            mmap_parent: str, 
+            w: int, 
+            h: int,
+            font_size: int, 
+            fill_colour: mm.metamodel.ColourType, 
+            line_colour: mm.metamodel.ColourType
+    ):
         super().__init__("SKIPPED", mmap_parent)
         
-        self.size_as_hex: str = hex(40)
+        self.size_as_hex: str = hex(h)
         self.size_as_int: int = int(self.size_as_hex,16)
         
-        self._draw(img_width, font_size, fill_colour, line_colour)
+        self._draw(w, font_size, fill_colour, line_colour)
 
-    def _draw(self, img_width: int, font_size: int, fill_colour: mm.metamodel.ColourType, line_colour: mm.metamodel.ColourType):
+    def _draw(self, w: int, font_size: int, fill_colour: mm.metamodel.ColourType, line_colour: mm.metamodel.ColourType):
 
-        self.img = DashedRectangle(img_width, 
-                                   self.size_as_int, 
+        self.img = DashedRectangle(w=w, 
+                                   h=self.size_as_int, 
                                    dash=(8,0,8,0), 
                                    stroke=2, 
                                    fill=fill_colour, 
@@ -308,7 +316,7 @@ class VoidRegionImage(Image):
         txt_img = TextLabelImage(self.name, text=self.name, font_size=font_size, font_colour="grey", fill_colour=fill_colour).img
         self.img.paste(
             txt_img,
-            ((img_width - txt_img.width) // 2, (self.size_as_int - txt_img.height) // 2),
+            ((w - txt_img.width) // 2, (self.size_as_int - txt_img.height) // 2),
         )
 
 
@@ -569,7 +577,6 @@ class Table:
         table,
         header=[],
         font=PIL.ImageFont.load_default(),
-        caption: str = "",
         cell_pad=(20, 10),
         margin=[10, 10],
         align=None,
@@ -599,22 +606,8 @@ class Table:
             "green": "green",
         }
         _color.update(colors)
-
-        # shift the table top margin downwards to fit the caption text
-        left, top, right, bottom = PIL.ImageDraw.Draw(PIL.Image.new("RGBA", (0,0))).multiline_textbbox(
-            (0,0),
-            text=caption,
-            font=font
-        )        
-        caption_height = bottom - top
-        # explicitly set the bottom margin to be the original top margin
-        if len(margin) > 2: margin[2] = margin[0]
-        else: margin.append(margin[0])
-        # now change the top margin to fit in our text caption
-        margin[0] = margin[0] + caption_height  
         _margin = self._position_tuple(*margin)
         
-
         table = table.copy()
         if header:
             table.insert(0, header)
@@ -644,7 +637,6 @@ class Table:
             _color["bg"],
         )
         draw = PIL.ImageDraw.Draw(tab)
-        draw.text(text=caption, xy=(_margin.left,0), font=font, fill="black")
         draw.rectangle(
             [
                 (_margin.left, _margin.top),

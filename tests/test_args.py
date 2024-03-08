@@ -202,7 +202,7 @@ def test_default_limit_arg_format(file_setup):
         [
             "mm.diagram", 
             "a", "0x10", "0x10", 
-            "-l", hex(1000),
+            "-l", hex(2000),
             "-o", str(file_setup["report"])
         ]
     ):
@@ -218,7 +218,7 @@ def test_default_limit_arg_format(file_setup):
 
         assert file_setup["diagram_image"].exists()
         outimg = PIL.Image.open(str(file_setup["diagram_image"]))
-        assert outimg.height == 116
+        assert outimg.height == 100
 
         assert file_setup["table_image"].exists()
         
@@ -246,7 +246,7 @@ def test_valid_2000_limit_arg_format(file_setup):
 
         assert file_setup["diagram_image"].exists()
         outimg = PIL.Image.open(str(file_setup["diagram_image"]))
-        assert outimg.size[1] == 116
+        assert outimg.size[1] == 100
 
         assert file_setup["table_image"].exists()
 

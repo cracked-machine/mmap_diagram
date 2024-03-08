@@ -3,7 +3,7 @@ import mm.diagram
 import pathlib
 import pytest
 import PIL.Image
-from tests.common_fixtures import input, file_setup, zynqmp, zynqmp_large
+from tests.common_fixtures import input, file_setup, zynqmp, zynqmp_large, zynqmp_max_address_exceeds_regions
 import json
 
 
@@ -46,7 +46,7 @@ def test_generate_doc_example_normal(file_setup):
 
         assert file_setup["diagram_image"].exists()
         found_size = PIL.Image.open(str(file_setup["diagram_image"])).size
-        assert found_size == (400, 320)
+        assert found_size == (400, 288)
 
         # reduced void threshold, so empty section between rootfs and dtb should be voided, making the file smaller
         assert file_setup["table_image"].exists()
@@ -88,7 +88,7 @@ def test_generate_doc_example_collisions(file_setup):
         assert file_setup["report"].exists()
 
         assert file_setup["diagram_image"].exists()
-        assert PIL.Image.open(str(file_setup["diagram_image"])).size == (400, 276)
+        assert PIL.Image.open(str(file_setup["diagram_image"])).size == (400, 260)
 
         assert file_setup["table_image"].exists()
 
@@ -130,7 +130,7 @@ def test_generate_doc_example_two_maps(input, file_setup):
         assert file_setup["report"].exists()
 
         assert file_setup["diagram_image"].exists()
-        assert PIL.Image.open(str(file_setup["diagram_image"])).size == (1000, 192)
+        assert PIL.Image.open(str(file_setup["diagram_image"])).size == (1000, 130)
 
 
         assert file_setup["table_image"].exists()
@@ -204,7 +204,7 @@ def test_generate_doc_example_three_maps(input, file_setup):
         assert file_setup["report"].exists()
 
         assert file_setup["diagram_image"].exists()
-        assert PIL.Image.open(str(file_setup["diagram_image"])).size == (1000, 236)
+        assert PIL.Image.open(str(file_setup["diagram_image"])).size == (1000, 186)
         assert file_setup["table_image"].exists()
 
 
@@ -254,3 +254,26 @@ def test_generate_doc_zynqmp_large_example(file_setup, zynqmp_large):
 
         assert file_setup["diagram_image"].exists()
         assert PIL.Image.open(str(file_setup["diagram_image"])).size == (3508, 2480)
+
+@pytest.mark.parametrize("file_setup", [{"file_path": "doc/example/test_generate_doc_zynqmp_max_address_exceeds_regions"}], indirect=True)
+def test_generate_doc_zynqmp_max_address_exceeds_regions(file_setup, zynqmp_max_address_exceeds_regions):
+    """ """
+    
+    input_file = pathlib.Path("./doc/example/zynqmp_large.json")
+    with input_file.open("w") as fp:
+        fp.write(json.dumps(zynqmp_max_address_exceeds_regions, indent=2))
+
+    with unittest.mock.patch(
+        "sys.argv",
+            [
+                "mm.diagram",
+                "-f", str(input_file),
+                "-o", str(file_setup["report"]),
+                "-t", hex(100)
+            ],
+        ):
+
+        mm.diagram.Diagram()
+
+        assert file_setup["diagram_image"].exists()
+        assert PIL.Image.open(str(file_setup["diagram_image"])).size == (3508, 1119)

@@ -89,6 +89,7 @@ def zynqmp_large() -> Dict:
         "width": 3508,
         "memory_maps": {
             "Global System Address Map": {
+                
                 "memory_regions": 
                 {
                     "DDR Memory Controller": {
@@ -102,11 +103,50 @@ def zynqmp_large() -> Dict:
                 }
             },
             "Flash": {
+                
                 "memory_regions":
                 {
                     "Boot Image": {
                         "origin": hex(0),
-                        "size": "0xFFFFFFFF",
+                        "size": "0xFFFFFF",
+
+                    }
+                }
+            }
+        }
+    }
+
+    return data
+
+@pytest.fixture
+def zynqmp_max_address_exceeds_regions() -> Dict:
+    data = {
+        "$schema": "../../mm/schema.json",
+        "name": "ZynqMP",
+        "height": 2480,
+        "width": 3508,
+        "memory_maps": {
+            "Global System Address Map": {
+                "max_address": hex(5000),
+                "memory_regions": 
+                {
+                    "DDR Memory Controller": {
+                        "origin": hex(16),
+                        "size": hex(1000),
+                    },
+                    "OCM": {
+                        "origin": hex(2016),
+                        "size": hex(2000)
+                    }
+                }
+            },
+            "Flash": {
+                "max_address": hex(5000),
+                "memory_regions":
+                {
+                    "Boot Image": {
+                        "origin": hex(0),
+                        "size": hex(2000),
 
                     }
                 }

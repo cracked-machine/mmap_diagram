@@ -36,6 +36,18 @@
           "description": "Drawing scale denominator. Internal use only.",
           "title": "Draw Scale",
           "type": "integer"
+        },
+        "max_address": {
+          "default": 0,
+          "description": "Max address for the map. Use hex. \n            If not defined, max_address will be determined by the region data.",
+          "title": "Max Address",
+          "type": "integer"
+        },
+        "max_address_calculated": {
+          "default": false,
+          "description": "Internal Use",
+          "title": "Max Address Calculated",
+          "type": "boolean"
         }
       },
       "required": [

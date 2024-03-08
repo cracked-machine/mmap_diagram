@@ -48,6 +48,12 @@ class MemoryMapDiagram:
         self.draw_scale = next(iter(memory_map_metadata.values())).draw_scale
         """Map sub-diagram drawing scale denominator. Pre-calculated by pydantic model"""
 
+        self.max_address = next(iter(memory_map_metadata.values())).max_address
+        """User-defined (via JSON) or calculated from region data if undefined or smaller than region data"""
+        
+        self.max_address_calculated = next(iter(memory_map_metadata.values())).max_address_calculated
+        """The max address value was calculated from region data"""
+
         self.addr_col_width_percent = (self.width // 100) * Diagram.model.legend_width
         """width of the area used for text annotations/legend"""
 
@@ -61,10 +67,11 @@ class MemoryMapDiagram:
         
         self.voidregion = mm.image.VoidRegionImage(
             self.name,
-            img_width=(self.width - self.addr_col_width_percent - (self.width//5)), 
-            font_size=Diagram.model.text_size,
-            fill_colour=Diagram.model.void_fill_colour,
-            line_colour=Diagram.model.void_line_colour)
+            w = (self.width - self.addr_col_width_percent - (self.width//5)), 
+            h = Diagram.model.text_size + 10,
+            font_size = Diagram.model.text_size,
+            fill_colour = Diagram.model.void_fill_colour,
+            line_colour = Diagram.model.void_line_colour)
         """The reusable object used to represent the void regions in the memory map"""       
 
         self.image_list = self._create_image_list(memory_map_metadata)
@@ -222,7 +229,7 @@ class MemoryMapDiagram:
                 map_img_redux = self._add_label(
                     dest=map_img_redux, 
                     xy=mm.image.Point(region.img.width + 5, next_void_pos + region.img.height), 
-                    text=f"0x{Diagram.model.height:X}" + " (" + f"{Diagram.model.height:,}" + ")", 
+                    text=f"0x{self.max_address:X}" + " (" + f"{self.max_address:,}" + ")", 
                     font_size=Diagram.model.address_text_size,
                     y_origin="bottom")
                 
@@ -230,7 +237,7 @@ class MemoryMapDiagram:
                 map_img_redux = self._add_label(
                     dest=map_img_redux, 
                     xy=mm.image.Point(region.img.width + 5, next_void_pos - void_padding), 
-                    text=f"0x{region.origin_as_int + region.size_as_int:X}" + " (" + f"{region.origin_as_int + region.size_as_int:,}" + ")", 
+                    text=f"0x{self.max_address:X}" + " (" + f"{self.max_address:,}" + ")", 
                     font_size=region.metadata.address_text_size,
                     y_origin="bottom")
                                                 
@@ -363,6 +370,7 @@ class Diagram:
         table_data.sort(key=lambda x: x.origin_as_int, reverse=True)
         table_data = [d.get_data_as_list() for d in table_data]
 
+        # Create the table image
         table_img = mm.image.Table().get_table_img(
             table=table_data,
             header=["Map", "Region", "Origin", "Size", "Free Space", "Collisions", "links", "Drawing Scale"],
@@ -371,8 +379,25 @@ class Diagram:
             colors={"red": "green", "green": "red"},
         )
 
+        # create the caption image
+        caption = "\n".join(
+            f"{mmd.name} \n           max address = 0x{mmd.max_address:X} ({mmd.max_address:,}) \n          User-defined:{str(not mmd.max_address_calculated)}"
+                for mmd in mmd_list)
+        _, ctop, _, cbottom = PIL.ImageDraw.Draw(PIL.Image.new("RGBA", (0,0))).multiline_textbbox(
+            (0,0),
+            text=caption,
+            font=PIL.ImageFont.load_default(15)
+        )              
+        caption_img = PIL.Image.new("RGBA", (table_img.width, cbottom - ctop), color="white")
+        PIL.ImageDraw.Draw(caption_img).text((0,0), caption, fill="black")
+
+        # composite the table and cpation images together
+        final_table_img = PIL.Image.new("RGBA", (max(caption_img.width, table_img.width), caption_img.height + table_img.height), color="white")
+        final_table_img.paste(caption_img, (10,10))
+        final_table_img.paste(table_img, (0,caption_img.height))
+
         tableimg_file_path = pathlib.Path(Diagram.pargs.out).stem + "_table.png"
-        table_img.save(pathlib.Path(Diagram.pargs.out).parent / tableimg_file_path)
+        final_table_img.save(pathlib.Path(Diagram.pargs.out).parent / tableimg_file_path)
 
     def _create_markdown(self,  mmd_list: List[MemoryMapDiagram]) -> None:
         """Create markdown doc containing the diagram image """
@@ -495,6 +520,7 @@ class Diagram:
                 "threshold": int(Diagram.pargs.threshold, 16),
                 "memory_maps": { 
                     mmname : { 
+                        "max_address": int(Diagram.pargs.limit,16),
                         "height": int(Diagram.pargs.limit,16),
                         "width": 400,
                         "memory_regions": { } # regions added below

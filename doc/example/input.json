@@ -20,10 +20,11 @@
               "Blob3"
             ]
           ],
-          "freespace": 968,
+          "freespace": 0,
           "collisions": {}
         }
-      }
+      },
+      "max_address": 32
     },
     "DRAM": {
       "memory_regions": {
@@ -38,10 +39,11 @@
           "origin": 80,
           "size": 16,
           "links": [],
-          "freespace": 904,
+          "freespace": 0,
           "collisions": {}
         }
-      }
+      },
+      "max_address": 96
     }
   },
   "name": "TestDiagram",

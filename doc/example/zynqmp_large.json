@@ -5,6 +5,7 @@
   "width": 3508,
   "memory_maps": {
     "Global System Address Map": {
+      "max_address": "0x1388",
       "memory_regions": {
         "DDR Memory Controller": {
           "origin": "0x10",
@@ -17,10 +18,11 @@
       }
     },
     "Flash": {
+      "max_address": "0x1388",
       "memory_regions": {
         "Boot Image": {
           "origin": "0x0",
-          "size": "0xFFFFFFFF"
+          "size": "0x7d0"
         }
       }
     }

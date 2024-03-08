@@ -113,6 +113,33 @@ class MemoryMap(ConfigParent):
             description="Drawing scale denominator. Internal use only.", 
             exclude=True)
     ]
+    max_address: Annotated[
+        int,
+        pydantic.Field(
+            0,
+            description="""Max address for the map. Use hex. 
+            If not defined, max_address will be determined by the region data."""
+        )
+    ]
+    max_address_calculated: Annotated[
+        bool,
+        pydantic.Field(
+            False,
+            description="Internal Use",
+            exclude=True
+        )
+    ]
+
+    @pydantic.field_validator("max_address", mode="before")
+    @classmethod
+    def convert_str_to_int(cls, v: str):
+        if isinstance(v, str):
+            if v == "":
+                return 0
+            else:
+                return int(v, 16)
+        else:
+            return v
 
 class Diagram(ConfigParent):
 
@@ -328,7 +355,14 @@ class Diagram(ConfigParent):
                 if region.origin + region.size > largest_region:
                     largest_region = region.origin + region.size
             
-            memory_map.draw_scale = math.ceil(largest_region / memory_map.height)
+            # max address should be at least equal to the region data or greater
+            if not memory_map.max_address or memory_map.max_address < largest_region:
+                memory_map.max_address_calculated = True
+                memory_map.max_address = largest_region
+            
+            # calc the drawing scale from whichever is the greatest: max address or the region data
+            memory_map.draw_scale = math.ceil(
+                max(largest_region, memory_map.max_address) / memory_map.height)
 
 
             neighbour_region_list = memory_map.memory_regions.items()
@@ -396,9 +430,9 @@ class Diagram(ConfigParent):
                         memory_region.freespace = non_collision_distances[lowest]
                     else:
                         # there are no regions ahead of this one
-                        memory_region.freespace = memory_map.height - (this_region_end // memory_map.draw_scale)
+                        memory_region.freespace = memory_map.max_address - (this_region_end)
                 elif memory_region.collisions and not memory_region.freespace:
-                    memory_region.freespace = memory_map.height - (this_region_end)
+                    memory_region.freespace = memory_map.max_address - (this_region_end)
 
         return self
 
