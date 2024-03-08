@@ -381,20 +381,23 @@ class Diagram:
 
         # create the caption image
         caption = "\n".join(
-            f"{mmd.name} \n           max address = 0x{mmd.max_address:X} ({mmd.max_address:,}) \n          User-defined:{str(not mmd.max_address_calculated)}"
+            f"""{mmd.name}: 
+                       Max Address = 0x{mmd.max_address:X} ({mmd.max_address:,}) 
+                      { 'Calculated from region data' if mmd.max_address_calculated else 'User-defined'} """
                 for mmd in mmd_list)
+        
         _, ctop, _, cbottom = PIL.ImageDraw.Draw(PIL.Image.new("RGBA", (0,0))).multiline_textbbox(
             (0,0),
             text=caption,
             font=PIL.ImageFont.load_default(15)
         )              
-        caption_img = PIL.Image.new("RGBA", (table_img.width, cbottom - ctop), color="white")
-        PIL.ImageDraw.Draw(caption_img).text((0,0), caption, fill="black")
+        caption_img = PIL.Image.new("RGBA", (table_img.width, cbottom - ctop + 15), color="lightgrey")
+        PIL.ImageDraw.Draw(caption_img).text((5,5), caption, fill="black", font=PIL.ImageFont.load_default(15))
 
         # composite the table and cpation images together
-        final_table_img = PIL.Image.new("RGBA", (max(caption_img.width, table_img.width), caption_img.height + table_img.height), color="white")
+        final_table_img = PIL.Image.new("RGBA", (max(caption_img.width, table_img.width), caption_img.height + table_img.height + 30), color="white")
         final_table_img.paste(caption_img, (10,10))
-        final_table_img.paste(table_img, (0,caption_img.height))
+        final_table_img.paste(table_img, (0,caption_img.height + 20))
 
         tableimg_file_path = pathlib.Path(Diagram.pargs.out).stem + "_table.png"
         final_table_img.save(pathlib.Path(Diagram.pargs.out).parent / tableimg_file_path)

@@ -260,7 +260,7 @@ class MemoryRegionImage(Image):
             str(self.origin_as_hex) + " (" +  str(self.origin_as_int) + ")",
             str(self.size_as_hex) + " (" +  str(self.size_as_int) + ")",
             str(self.freespace_as_hex) + " (" +  str(self.freespace_as_int) + ")",
-            "+" + str(None) if not self.collisions else str(self.splitdata(self.collisions_as_hex, mid="@")),
+            "+" + str(None) if not self.collisions else str(self.splitdata(self.collisions_as_hex, pre="-", mid="@")),
             str(self.splitdata(self.metadata.links)),
             str(self.draw_scale) + ":1"
         ]
@@ -690,10 +690,10 @@ class Table:
                 if stock:
                     if table[i][j].startswith("+"):
                         color = _color["red"]
-                        table[i][j] = table[i][j][1:]   # remove the '+'
+                        table[i][j] = table[i][j].replace("+", "")   # remove the '+'
                     elif table[i][j].startswith("-"):
                         color = _color["green"]
-                        table[i][j] = table[i][j][1:]   # remove the '-'
+                        table[i][j] = table[i][j].replace("-", "")   # remove the '-'
                 _left = left
                 if (align and align[j] == "c") or (header and i == 0):
                     _left += (col_max_wid[j] - font.getlength(table[i][j])) // 2
