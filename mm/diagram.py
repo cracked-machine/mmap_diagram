@@ -13,7 +13,7 @@ import pathlib
 import logging
 import collections
 
-from typing import List, Dict
+from typing import List, Dict, Literal
 
 import mm.image
 import mm.metamodel
@@ -136,12 +136,23 @@ class MemoryMapDiagram:
             dest: PIL.Image, 
             xy: mm.image.Point, 
             text: str, 
-            font_size: int) -> PIL.Image.Image:
-        """Add text to the dest image"""
+            font_size: int,
+            y_origin: Literal["top", "bottom"] = "top"
+            ) -> PIL.Image.Image:
+        """
+        Add text to the dest image
+        
+        - y_origin: draw label with the y-axis origin at the 'top' or 'bottom' edge of the image.
+        """
 
         label = mm.image.TextLabelImage(self.name, text, font_size)
-        dest = label.overlay(dest, xy)
-        return dest
+
+        if y_origin == "bottom":
+            xy.y = xy.y - label.height
+            return label.overlay(dest, xy)
+        else:
+            return label.overlay(dest, xy)
+        
 
     def _create_mmap(self, memregion_list: List[mm.image.MemoryRegionImage], draw_scale: int) -> None:
         """Create a dict of region groups, interleaved with void regions. 
@@ -168,6 +179,7 @@ class MemoryMapDiagram:
         
         next_void_pos = 0
         last_void_pos = 0 
+        void_padding = 10
         for group_idx in range(0, len(redux_subgroup)):
 
             region: mm.image.MemoryRegionImage
@@ -190,28 +202,37 @@ class MemoryMapDiagram:
                     map_img_redux = self._add_label(
                         dest=map_img_redux, 
                         xy=mm.image.Point(region.img.width + 5, (last_void_pos if last_void_pos else region_origin_scaled) - 2 ) , 
-                        text=region.origin_as_hex + " (" + str(region.origin_as_int) + ")", 
+                        text=f"0x{region.origin_as_int:X}" + " (" + f"{region.origin_as_int:,}" + ")", 
                         font_size=region.metadata.address_text_size)
                     
                     # ready the ypos for drawing a void region - if any - after this memregion
-                    next_void_pos = (last_void_pos if last_void_pos else region_origin_scaled) + (region.img.height) + 10
+                    next_void_pos = (last_void_pos if last_void_pos else region_origin_scaled) + (region.img.height) + void_padding
 
                 if isinstance(region, mm.image.VoidRegionImage):
                     # add void region
                     map_img_redux.paste(region.img, (0, next_void_pos))
                     # reset the ypos for the next memregion
-                    last_void_pos = next_void_pos + region.img.height + 10
+                    last_void_pos = next_void_pos + region.img.height + void_padding
                 
 
         # TODO add for voidregion if top most graphic block
         if group_idx == len(redux_subgroup) - 1 and region_idx == len(redux_subgroup[group_idx]) - 1:
 
+            if isinstance(region, mm.image.VoidRegionImage):
+                map_img_redux = self._add_label(
+                    dest=map_img_redux, 
+                    xy=mm.image.Point(region.img.width + 5, next_void_pos + region.img.height), 
+                    text=f"0x{Diagram.model.height:X}" + " (" + f"{Diagram.model.height:,}" + ")", 
+                    font_size=Diagram.model.address_text_size,
+                    y_origin="bottom")
+                
             if isinstance(region, mm.image.MemoryRegionImage):
                 map_img_redux = self._add_label(
                     dest=map_img_redux, 
-                    xy=mm.image.Point(region.img.width + 5, next_void_pos - 20), 
-                    text=hex(region.origin_as_int + region.size_as_int) + " (" + str(region.origin_as_int + region.size_as_int) + ")", 
-                    font_size=10)
+                    xy=mm.image.Point(region.img.width + 5, next_void_pos - void_padding), 
+                    text=f"0x{region.origin_as_int + region.size_as_int:X}" + " (" + f"{region.origin_as_int + region.size_as_int:,}" + ")", 
+                    font_size=region.metadata.address_text_size,
+                    y_origin="bottom")
                                                 
         map_img_redux = self.trim_whitespace(map_img_redux)
 

@@ -132,6 +132,6 @@ def test_void_region_uservalue_1000(file_setup):
 
         assert file_setup["diagram_image"].exists()
         found_size = PIL.Image.open(str(file_setup["diagram_image"])).size
-        assert found_size == (400, 483)
+        assert found_size == (400, 482)
 
         assert file_setup["table_image"].exists()
