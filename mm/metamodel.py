@@ -343,9 +343,11 @@ class Diagram(ConfigParent):
     @pydantic.model_validator(mode="after")
     def calc_nearest_region(self):
         """Find the nearest neighbour region and if they have collided"""
-
+        logging.debug("")
+        logging.debug("Calculating distances")
+        logging.debug("---------------------")
         # process each memory map independently
-        for memory_map in self.memory_maps.values():
+        for mname, memory_map in self.memory_maps.items():
             
             # determine if drawing scale is needed by finding if the largest memoryregion exceeds the diagram height
             # NOTE: for simplicities sake we calculate distances/freespace using the original 1:1 scale,
@@ -370,7 +372,7 @@ class Diagram(ConfigParent):
             for memory_region_name, memory_region in memory_map.memory_regions.items(): 
                 non_collision_distances = {}
 
-                logging.debug(f"Calculating nearest distances to {memory_region_name} region:")
+                logging.debug(f"{memory_region_name} region:")
                 this_region_end = 0
 
                 # examine all other region distances relative to this region position
@@ -420,7 +422,7 @@ class Diagram(ConfigParent):
                         elif not memory_region.freespace:
                             memory_region.freespace = distance_to_other_region
 
-                logging.debug(f"Non-collision distances - {non_collision_distances}")
+                logging.debug(f"\tCollisions - {memory_region.collisions}")
 
                 # after probing each region we must now pick the lowest distance
                 if not memory_region.collisions:
@@ -433,6 +435,14 @@ class Diagram(ConfigParent):
                         memory_region.freespace = memory_map.max_address - (this_region_end)
                 elif memory_region.collisions and not memory_region.freespace:
                     memory_region.freespace = memory_map.max_address - (this_region_end)
+
+                # the user-defined max_address field has created an excessive amount of empty space, clamp it to the region data usage instead
+                if memory_region.freespace > self.height:
+                    logging.warning(f"'{mname}' Region freespace exceeds diagram height: {memory_region.freespace} > {self.height}.")
+                    logging.warning(f"You have set your 'max_address' to {memory_map.max_address} but none of your regions are using the excessive empty space this has created.")
+                    logging.warning(f"Drawing ratio (1:{str(memory_map.draw_scale)}) will be readjusted.")
+                    memory_map.draw_scale = math.ceil(largest_region / memory_map.height)
+                    logging.warning(f"Recalculating drawing ratio: (1:{str(memory_map.draw_scale)})")
 
         return self
 

@@ -13,7 +13,7 @@ import pathlib
 import logging
 import collections
 
-from typing import List, Dict, Literal
+from typing import List, Dict, Literal, Tuple
 
 import mm.image
 import mm.metamodel
@@ -68,7 +68,7 @@ class MemoryMapDiagram:
         self.voidregion = mm.image.VoidRegionImage(
             self.name,
             w = (self.width - self.addr_col_width_percent - (self.width//5)), 
-            h = Diagram.model.text_size + 10,
+            h = (Diagram.model.text_size + 10) // self.draw_scale,
             font_size = Diagram.model.text_size,
             fill_colour = Diagram.model.void_fill_colour,
             line_colour = Diagram.model.void_line_colour)
@@ -77,19 +77,30 @@ class MemoryMapDiagram:
         self.image_list = self._create_image_list(memory_map_metadata)
         """image objects representing each region in the map. In no particular order."""
 
-    def trim_whitespace(self, img: PIL.Image.Image) -> PIL.Image.Image:
+    def trim_whitespace(self, img: PIL.Image.Image, max: mm.image.Bbox | None = None, min: mm.image.Bbox | None = None) -> PIL.Image.Image:
         """Detect and remove whitespace from img"""
 
         # getbbox only returns diff with black borders, not white
         img_inverted = PIL.ImageOps.invert(img.convert("RGB"))
-        bbox = img_inverted.getbbox()
+        _bbox = mm.image.Bbox(img_inverted.getbbox())
+        
+        # keep the left/top whitespace by default
+        _bbox.left = _bbox.top = 0
 
-        # bottom whitespace should be retained as part of the y-axis data
-        adjusted_bbox = list(bbox)
-        adjusted_bbox[0] = adjusted_bbox[1] = 0
-        bbox = tuple(adjusted_bbox)
+        # override the default trim here
+        if max:
+            if _bbox.left > max.left: _bbox.left = max.left
+            if _bbox.top > max.top: _bbox.top = max.top
+            if _bbox.right > max.right: _bbox.right = max.right
+            if _bbox.bottom > max.bottom: _bbox.bottom = max.bottom
 
-        return img.crop(bbox)
+        if min:
+            if _bbox.left < min.left: _bbox.left = min.left
+            if _bbox.top < min.top: _bbox.top = min.top
+            if _bbox.right < min.right: _bbox.right = min.right
+            if _bbox.bottom < min.bottom: _bbox.bottom = min.bottom
+
+        return img.crop(_bbox.tuple())
 
     def _create_image_list(
             self, 
@@ -240,8 +251,14 @@ class MemoryMapDiagram:
                     text=f"0x{self.max_address:X}" + " (" + f"{self.max_address:,}" + ")", 
                     font_size=region.metadata.address_text_size,
                     y_origin="bottom")
-                                                
-        map_img_redux = self.trim_whitespace(map_img_redux)
+
+        min_bbox = None
+        if not Diagram.pargs.trim_whitespace:
+            min_bbox = mm.image.Bbox((0,0, Diagram.model.width,Diagram.model.height))             
+        map_img_redux = self.trim_whitespace(
+            map_img_redux, 
+            min=min_bbox
+        )
 
         # flip back up the right way
         self.img = map_img_redux.transpose(PIL.Image.FLIP_TOP_BOTTOM)           
@@ -466,6 +483,11 @@ class Diagram:
         parser.add_argument(
             "-v",
             help="Enable debug output.",
+            action="store_true"
+        )        
+        parser.add_argument(
+            "--trim_whitespace",
+            help="Force whitespace trim in diagram images.",
             action="store_true"
         )        
 

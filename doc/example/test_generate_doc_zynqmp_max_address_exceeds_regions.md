@@ -1,6 +1,0 @@
-![memory map diagram](test_generate_doc_zynqmp_max_address_exceeds_regions_redux.png)
-|map|region|origin|size|free Space|collisions|links|draw scale|
-|:-|:-|:-|:-|:-|:-|:-|:-|
-|Global System Address Map|<span style='color:(1, 14, 3)'>OCM</span>|0x7e0 (2016)|0x7d0 (2000)|0x3d8 (984)|||3:1|
-|Global System Address Map|<span style='color:(45, 64, 36)'>DDR Memory Controller</span>|0x10 (16)|0x3e8 (1000)|0x3e8 (1000)|||3:1|
-|Flash|<span style='color:(5, 40, 36)'>Boot Image</span>|0x0 (0)|0x7d0 (2000)|0xbb8 (3000)|||3:1|

@@ -180,7 +180,7 @@ def test_voidthresh_arg():
         
         mm.diagram.Diagram()
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "out/tmp/test_invalid_2000_limit_arg_format"}], indirect=True)
+@pytest.mark.parametrize("file_setup", [{"file_path": "out/tmp/invalid_2000_limit_arg_format"}], indirect=True)
 def test_invalid_2000_limit_arg_format(file_setup):
     with unittest.mock.patch(
         "sys.argv", 
@@ -193,7 +193,7 @@ def test_invalid_2000_limit_arg_format(file_setup):
         with pytest.raises(SystemExit):
             mm.diagram.Diagram()
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "out/tmp/test_default_limit_arg_format"}], indirect=True)
+@pytest.mark.parametrize("file_setup", [{"file_path": "out/tmp/default_limit_arg_format"}], indirect=True)
 def test_default_limit_arg_format(file_setup):
     """should create custom report dir/files"""
 
@@ -203,7 +203,8 @@ def test_default_limit_arg_format(file_setup):
             "mm.diagram", 
             "a", "0x10", "0x10", 
             "-l", hex(2000),
-            "-o", str(file_setup["report"])
+            "-o", str(file_setup["report"]),
+            "--trim_whitespace",
         ]
     ):
 
@@ -222,7 +223,7 @@ def test_default_limit_arg_format(file_setup):
 
         assert file_setup["table_image"].exists()
         
-@pytest.mark.parametrize("file_setup", [{"file_path": "out/tmp/test_valid_2000_limit_arg_format"}], indirect=True)
+@pytest.mark.parametrize("file_setup", [{"file_path": "out/tmp/valid_2000_limit_arg_format"}], indirect=True)
 def test_valid_2000_limit_arg_format(file_setup):
     """should create custom report dir/files"""
 
@@ -232,7 +233,8 @@ def test_valid_2000_limit_arg_format(file_setup):
             "mm.diagram", 
             "a", "0x10", "0x10", 
             "-o", str(file_setup["report"]), 
-            "-l", hex(2000)
+            "-l", hex(2000),
+            "--trim_whitespace",
         ]
     ):
 

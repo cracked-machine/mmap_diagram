@@ -1,8 +1,8 @@
 {
   "$schema": "../../mm/schema.json",
   "name": "ZynqMP",
-  "height": 1000,
-  "width": 1000,
+  "height": 2480,
+  "width": 3508,
   "memory_maps": {
     "Global System Address Map": {
       "memory_regions": {
@@ -14,21 +14,18 @@
           "origin": "0x7e0",
           "size": "0x7d0"
         }
-      }
+      },
+      "max_address": "0xFFFFFFFF"
     },
     "Flash": {
       "memory_regions": {
         "Boot Image": {
           "origin": "0x0",
-          "size": "0x7d0",
-          "links": [
-            [
-              "Global System Address Map",
-              "OCM"
-            ]
-          ]
+          "size": "0xFFFFFF",
+          "links": []
         }
-      }
+      },
+      "max_address": "0xFFFFFFFF"
     }
   }
 }

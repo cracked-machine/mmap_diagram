@@ -1,14 +1,14 @@
 |description|diagram|
 |:-:|:-:|
-|No overlapping memory regions|![](test_generate_doc_example_normal_redux.png)|
-||![](test_generate_doc_example_normal_table.png)|
-|Overlapping memory regions|![](test_generate_doc_example_collisions_redux.png)|
-||![](test_generate_doc_example_collisions_table.png)|
-|Two Memory Maps|![](test_generate_doc_example_two_maps_redux.png)|
-||![](test_generate_doc_example_two_maps_table.png)|
-|Three Memory Maps|![](test_generate_doc_example_three_maps_redux.png)|
-||![](test_generate_doc_example_three_maps_table.png)|
-|Drawing ratios (1000x1000)|![](test_generate_doc_zynqmp_example_redux.png)|
-||![](test_generate_doc_zynqmp_example_table.png)|
-|A4 Drawing ratios (3508x2480)|![](test_generate_doc_zynqmp_large_example_redux.png)|
-||![](test_generate_doc_zynqmp_large_example_table.png)|
+|No overlapping memory regions|![](example_normal_redux.png)|
+||![](example_normal_table.png)|
+|Overlapping memory regions|![](example_collisions_redux.png)|
+||![](example_collisions_table.png)|
+|Two Memory Maps|![](example_two_maps_redux.png)|
+||![](example_two_maps_table.png)|
+|Three Memory Maps|![](example_three_maps_redux.png)|
+||![](example_three_maps_table.png)|
+|Drawing ratios (1000x1000)|![](zynqmp_example_redux.png)|
+||![](zynqmp_example_table.png)|
+|A4 Drawing ratios (3508x2480)|![](zynqmp_large_example_redux.png)|
+||![](zynqmp_large_example_table.png)|

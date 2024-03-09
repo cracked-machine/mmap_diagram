@@ -11,7 +11,22 @@ import mm.metamodel
 import math
 import dataclasses
 
+@dataclasses.dataclass
+class Bbox:
+    
+    left: int
+    top: int
+    right: int
+    bottom: int
 
+    def __init__(self, args):
+        
+        self.left = args[0]
+        self.top = args[1]
+        self.right = args[2]
+        self.bottom = args[3]
+    def tuple(self):
+        return (self.left, self.top, self.right, self.bottom)
 
 @dataclasses.dataclass
 class Point:

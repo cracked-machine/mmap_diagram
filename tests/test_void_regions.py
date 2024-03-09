@@ -6,7 +6,7 @@ import PIL.Image
 import pytest
 from tests.common_fixtures import file_setup
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "out/tmp/test_void_region_default"}], indirect=True)
+@pytest.mark.parametrize("file_setup", [{"file_path": "out/tmp/void_region_default"}], indirect=True)
 def test_void_region_default(file_setup):
     """ """
 
@@ -20,6 +20,7 @@ def test_void_region_default(file_setup):
             "dtb", "0x190", "0x30",
             "-o", str(file_setup["report"]),
             "-l", hex(height),
+            "--trim_whitespace",
         ],
     ):
 
@@ -50,7 +51,7 @@ def test_void_region_default(file_setup):
 
         assert file_setup["table_image"].exists()
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "out/tmp/test_void_region_uservalue_500"}], indirect=True)
+@pytest.mark.parametrize("file_setup", [{"file_path": "out/tmp/void_region_uservalue_500"}], indirect=True)
 def test_void_region_uservalue_500(file_setup):
     """ """
 
@@ -65,6 +66,7 @@ def test_void_region_uservalue_500(file_setup):
             "-o", str(file_setup["report"]),
             "-l", hex(height),
             "-t", hex(500),
+            "--trim_whitespace",
         ],
     ):
 
@@ -93,7 +95,7 @@ def test_void_region_uservalue_500(file_setup):
 
         assert file_setup["table_image"].exists()
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "out/tmp/test_void_region_uservalue_1000"}], indirect=True)
+@pytest.mark.parametrize("file_setup", [{"file_path": "out/tmp/void_region_uservalue_1000"}], indirect=True)
 def test_void_region_uservalue_1000(file_setup):
     """ """
 
@@ -108,6 +110,7 @@ def test_void_region_uservalue_1000(file_setup):
             "-o", str(file_setup["report"]),
             "-l", hex(height),
             "-t", hex(1000),
+            "--trim_whitespace",
         ],
     ):
 
