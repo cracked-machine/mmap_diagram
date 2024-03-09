@@ -51,7 +51,7 @@ class MemoryMapDiagram:
         self.max_address = next(iter(memory_map_metadata.values())).max_address
         """User-defined (via JSON) or calculated from region data if undefined or smaller than region data"""
         
-        self.max_address_calculated = next(iter(memory_map_metadata.values())).max_address_calculated
+        self.max_address_calculated: bool = next(iter(memory_map_metadata.values())).max_address_calculated
         """The max address value was calculated from region data"""
 
         self.addr_col_width_percent = (self.width // 100) * Diagram.model.legend_width

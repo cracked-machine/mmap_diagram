@@ -356,7 +356,11 @@ class Diagram(ConfigParent):
             for region in memory_map.memory_regions.values():
                 if region.origin + region.size > largest_region:
                     largest_region = region.origin + region.size
-            
+
+            # # in case there is a voidregion at the top of the diagram
+            # largest_region = largest_region + (self.text_size + 10)
+            # memory_map.max_address = memory_map.max_address + (self.text_size + 10)
+
             # max address should be at least equal to the region data or greater
             if not memory_map.max_address or memory_map.max_address < largest_region:
                 memory_map.max_address_calculated = True
@@ -445,7 +449,8 @@ class Diagram(ConfigParent):
                     # if the 'draw_scale' means we end up close to the diagram top edge 
                     # then add some space for a voidregion (if any)
                     if math.ceil(largest_region / memory_map.draw_scale) >= memory_map.height:
-                        memory_map.draw_scale = memory_map.draw_scale + 100
+                        memory_map.draw_scale = math.ceil((largest_region + (800000)) / memory_map.height)
+                    
                     logging.warning(f"Recalculating drawing ratio: (1:{str(memory_map.draw_scale)})")
 
         return self
