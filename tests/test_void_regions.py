@@ -6,7 +6,7 @@ import PIL.Image
 import pytest
 from tests.common_fixtures import file_setup
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "out/tmp/test_void_region_default"}], indirect=True)
+@pytest.mark.parametrize("file_setup", [{"file_path": "out/tmp/void_region_default"}], indirect=True)
 def test_void_region_default(file_setup):
     """ """
 
@@ -20,14 +20,14 @@ def test_void_region_default(file_setup):
             "dtb", "0x190", "0x30",
             "-o", str(file_setup["report"]),
             "-l", hex(height),
+            "--trim_whitespace",
         ],
     ):
 
         d = mm.diagram.Diagram()
 
         # assumes the defaults haven't changed
-        assert mm.diagram.Diagram.pargs.scale == 1
-        assert mm.diagram.Diagram.pargs.voidthreshold == hex(1000)
+        assert mm.diagram.Diagram.pargs.threshold == hex(200)
 
         for region_image in d.mmd_list[0].image_list:
             if region_image.name == "kernel":
@@ -47,11 +47,11 @@ def test_void_region_default(file_setup):
 
         assert file_setup["diagram_image"].exists()
         found_size = PIL.Image.open(str(file_setup["diagram_image"])).size
-        assert found_size == (400, 530)
+        assert found_size == (400, 288)
 
         assert file_setup["table_image"].exists()
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "out/tmp/test_void_region_uservalue_500"}], indirect=True)
+@pytest.mark.parametrize("file_setup", [{"file_path": "out/tmp/void_region_uservalue_500"}], indirect=True)
 def test_void_region_uservalue_500(file_setup):
     """ """
 
@@ -65,14 +65,12 @@ def test_void_region_uservalue_500(file_setup):
             "dtb", "0x190", "0x30",
             "-o", str(file_setup["report"]),
             "-l", hex(height),
-            "-v", hex(500),
+            "-t", hex(500),
+            "--trim_whitespace",
         ],
     ):
 
         d = mm.diagram.Diagram()
-
-        # assumes the defaults haven't changed
-        assert mm.diagram.Diagram.pargs.scale == 1
 
         for region_image in d.mmd_list[0].image_list:
             
@@ -93,12 +91,12 @@ def test_void_region_uservalue_500(file_setup):
 
         assert file_setup["diagram_image"].exists()
         found_size = PIL.Image.open(str(file_setup["diagram_image"])).size
-        assert found_size == (400, 530)
+        assert found_size == (400, 516)
 
         assert file_setup["table_image"].exists()
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "out/tmp/test_void_region_uservalue_200"}], indirect=True)
-def test_void_region_uservalue_200(file_setup):
+@pytest.mark.parametrize("file_setup", [{"file_path": "out/tmp/void_region_uservalue_1000"}], indirect=True)
+def test_void_region_uservalue_1000(file_setup):
     """ """
 
     height = 1000
@@ -111,14 +109,12 @@ def test_void_region_uservalue_200(file_setup):
             "dtb", "0x190", "0x30",
             "-o", str(file_setup["report"]),
             "-l", hex(height),
-            "-v", hex(200),
+            "-t", hex(1000),
+            "--trim_whitespace",
         ],
     ):
 
         d = mm.diagram.Diagram()
-
-        # assumes the defaults haven't changed
-        assert mm.diagram.Diagram.pargs.scale == 1
 
         for region_image in d.mmd_list[0].image_list:
             
@@ -139,6 +135,6 @@ def test_void_region_uservalue_200(file_setup):
 
         assert file_setup["diagram_image"].exists()
         found_size = PIL.Image.open(str(file_setup["diagram_image"])).size
-        assert found_size == (400, 352)
+        assert found_size == (400, 482)
 
         assert file_setup["table_image"].exists()

@@ -6,13 +6,27 @@ import PIL.ImageColor
 import PIL.ImageFont
 import PIL.ImageChops
 from typing import List, Dict, Tuple
-import typing
 import logging
 import mm.metamodel
 import math
 import dataclasses
 
+@dataclasses.dataclass
+class Bbox:
+    
+    left: int
+    top: int
+    right: int
+    bottom: int
 
+    def __init__(self, args):
+        
+        self.left = args[0]
+        self.top = args[1]
+        self.right = args[2]
+        self.bottom = args[3]
+    def tuple(self):
+        return (self.left, self.top, self.right, self.bottom)
 
 @dataclasses.dataclass
 class Point:
@@ -37,7 +51,7 @@ class Image():
         """Identifying name of the the parent, if any"""
 
         self.name: str = name
-        """Identifying name of the image block"""
+        """Identifying name of the image block. Also used as display text."""
 
         self.line = "black"
         """The border colour to use for the region"""
@@ -104,7 +118,7 @@ class Image():
         return (r, g, b)
 
 @typeguard.typechecked
-class MapNameImage(Image):
+class MapTitleImage(Image):
     """Wrapper class for PIL.Image.Image object. Represents a MemoryMap sub diagram."""
 
     def __init__(self, name: str, img_width: int, font_size: int, fill_colour: mm.metamodel.ColourType, line_colour: mm.metamodel.ColourType):
@@ -137,7 +151,13 @@ class MapNameImage(Image):
 class MemoryRegionImage(Image):
     """Wrapper class for PIL.Image.Image object. Represents a MemoryRegion block."""
 
-    def __init__(self, name: str, mmap_parent: str, metadata: mm.metamodel.MemoryRegion, img_width: int, font_size: int):
+    def __init__(self, 
+                 name: str, 
+                 mmap_parent: str, 
+                 metadata: mm.metamodel.MemoryRegion, 
+                 img_width: int, 
+                 font_size: int,
+                 draw_scale: int):
 
         super().__init__(name, mmap_parent)
 
@@ -153,7 +173,8 @@ class MemoryRegionImage(Image):
         self.fill = self._pick_random_colour()
         
         self.img_width = img_width
-        self.font_size = font_size     
+        self.font_size = font_size  
+        self.draw_scale = draw_scale  
 
     @property
     def origin_as_hex(self):
@@ -232,52 +253,44 @@ class MemoryRegionImage(Image):
             + "'>"
             + str(self.name)
             + "</span>|"
-            + str(self.origin_as_hex)
+            + str(self.origin_as_hex) + " (" +  str(self.origin_as_int) + ")"
             + "|"
-            + str(self.size_as_hex)
+            + str(self.size_as_hex) + " (" +  str(self.size_as_int) + ")"
             + "|"
-            + str(self.freespace_as_hex)
+            + str(self.freespace_as_hex) + " (" +  str(self.freespace_as_int) + ")"
             + "|"
             + str(self.splitdata(self.collisions_as_hex, newline="<BR>", mid="@"))
             + "|"
             + str(self.splitdata(self.metadata.links, newline="<BR>"))
             + "|"
+            + str(self.draw_scale) + ":1"
+            + "|"
         )
 
     def get_data_as_list(self) -> List:
         """Get selected instance attributes"""
-        if self.collisions:
-            return [
-                str(self.parent),
-                str(self.name),
-                str(self.origin_as_hex),
-                str(self.size_as_hex),
-                str(self.freespace_as_hex),
-                "-" + str(self.splitdata(self.collisions_as_hex, mid="@")),
-                str(self.splitdata(self.metadata.links))
-            ]
-        else:
-            return [
-                str(self.parent),
-                str(self.name),
-                str(self.origin_as_hex),
-                str(self.size_as_hex),
-                str(self.freespace_as_hex),
-                "+" + str(None),
-                str(self.splitdata(self.metadata.links))
-            ]
+        return [
+            str(self.parent),
+            str(self.name),
+            str(self.origin_as_hex) + " (" +  str(self.origin_as_int) + ")",
+            str(self.size_as_hex) + " (" +  str(self.size_as_int) + ")",
+            str(self.freespace_as_hex) + " (" +  str(self.freespace_as_int) + ")",
+            "+" + str(None) if not self.collisions else str(self.splitdata(self.collisions_as_hex, pre="-", mid="@")),
+            str(self.splitdata(self.metadata.links)),
+            str(self.draw_scale) + ":1"
+        ]
     
     def _draw(self):
         """Create the image for the region rectangle and its inset name label"""
 
-        logging.info(self)
+        logging.debug(self.get_data_as_list())
 
         if self.freespace_as_int < 0:
             region_img = DashedRectangle(
-                self.img_width, int(self.size_as_hex,16), fill=self.fill, line=self.line, dash=(0,0,8,0), stroke=2).img
+                self.img_width, int(self.size_as_hex,16) // self.draw_scale, fill=self.fill, line=self.line, dash=(0,0,8,0), stroke=2).img
         else:
             region_img = DashedRectangle(
-                self.img_width, int(self.size_as_hex,16), fill=self.fill, line=self.line, dash=(0,0,0,0), stroke=2).img
+                self.img_width, int(self.size_as_hex,16) // self.draw_scale, fill=self.fill, line=self.line, dash=(0,0,0,0), stroke=2).img
 
         # draw name text
         txt_lbl =  TextLabelImage(self.name, text=f"{self.name}", font_size=self.font_size, fill_colour="white", padding_width=10)
@@ -289,20 +302,26 @@ class MemoryRegionImage(Image):
 @typeguard.typechecked
 class VoidRegionImage(Image):
 
-    def __init__(self, mmap_parent: str, img_width: int, font_size: int, fill_colour: mm.metamodel.ColourType, line_colour: mm.metamodel.ColourType):
+    def __init__(
+            self, 
+            mmap_parent: str, 
+            w: int, 
+            h: int,
+            font_size: int, 
+            fill_colour: mm.metamodel.ColourType, 
+            line_colour: mm.metamodel.ColourType
+    ):
         super().__init__("SKIPPED", mmap_parent)
         
-        self.size_as_hex: str = hex(40)
+        self.size_as_hex: str = hex(h)
         self.size_as_int: int = int(self.size_as_hex,16)
         
-        self._draw(img_width, font_size, fill_colour, line_colour)
+        self._draw(w, font_size, fill_colour, line_colour)
 
-    def _draw(self, img_width: int, font_size: int, fill_colour: mm.metamodel.ColourType, line_colour: mm.metamodel.ColourType):
+    def _draw(self, w: int, font_size: int, fill_colour: mm.metamodel.ColourType, line_colour: mm.metamodel.ColourType):
 
-        logging.info(self)
-
-        self.img = DashedRectangle(img_width, 
-                                   self.size_as_int, 
+        self.img = DashedRectangle(w=w, 
+                                   h=self.size_as_int, 
                                    dash=(8,0,8,0), 
                                    stroke=2, 
                                    fill=fill_colour, 
@@ -312,7 +331,7 @@ class VoidRegionImage(Image):
         txt_img = TextLabelImage(self.name, text=self.name, font_size=font_size, font_colour="grey", fill_colour=fill_colour).img
         self.img.paste(
             txt_img,
-            ((img_width - txt_img.width) // 2, (self.size_as_int - txt_img.height) // 2),
+            ((w - txt_img.width) // 2, (self.size_as_int - txt_img.height) // 2),
         )
 
 
@@ -405,8 +424,7 @@ class ArrowBlock(Image):
         # convert percentages to fraction denominator
         if tail_len <= 10: tail_len = 10
         if tail_len > 90: tail_len = 90
-        body_len_dec = (tail_len / 100)
-        body_len_denom = 1 / body_len_dec
+        body_len_dec = tail_len / 100
 
         if tail_width <= 10: tail_width = 10
         if tail_width > 90: tail_width = 90
@@ -424,11 +442,11 @@ class ArrowBlock(Image):
         canvas.polygon(
             [
                 (0, yzero + (max_arrow_head_width / 2) - (arrow_body_width / 2)), 
-                (self.l//body_len_denom, yzero + (max_arrow_head_width / 2) - (arrow_body_width / 2)), 
-                (self.l//body_len_denom, yzero), 
+                (self.l * body_len_dec, yzero + (max_arrow_head_width / 2) - (arrow_body_width / 2)), 
+                (self.l * body_len_dec, yzero), 
                 (self.l, yzero + (max_arrow_head_width / 2)),  # tip of arrow head
-                (self.l//body_len_denom, yzero + h), 
-                (self.l//body_len_denom, yzero + (max_arrow_head_width / 2) + (arrow_body_width / 2)), 
+                (self.l * body_len_dec, yzero + h), 
+                (self.l * body_len_dec, yzero + (max_arrow_head_width / 2) + (arrow_body_width / 2)), 
                 (0, yzero + (max_arrow_head_width / 2) + (arrow_body_width / 2))
             ], 
             fill=fill, 
@@ -489,7 +507,7 @@ class DashedRectangle(Image):
             fill: mm.metamodel.ColourType, 
             line: mm.metamodel.ColourType = "black", 
             stroke: float = 1):
-        """dash is 4-tuple of top, right, bottom, left edges, set to 0 or 1 to disable.
+        """dash is 4-tuple of top, right, bottom, left edges, set to 0 or 1 for solid line.
         Fill is an RGBA tuple or colour string"""
 
         top_dash = dash[0] if dash[0] > 1 else 1
@@ -575,7 +593,7 @@ class Table:
         header=[],
         font=PIL.ImageFont.load_default(),
         cell_pad=(20, 10),
-        margin=(10, 10),
+        margin=[10, 10],
         align=None,
         colors={},
         stock=False,
@@ -591,6 +609,7 @@ class Table:
         colors:   dict, as follows
         stock:    bool, set red/green font color for cells start with +/-
         """
+
         _color = {
             "bg": "white",
             "cell_bg": "white",
@@ -603,7 +622,7 @@ class Table:
         }
         _color.update(colors)
         _margin = self._position_tuple(*margin)
-
+        
         table = table.copy()
         if header:
             table.insert(0, header)
@@ -622,6 +641,7 @@ class Table:
                 row_max_hei[i] = max(bottom - top, row_max_hei[i])
         tab_width = sum(col_max_wid) + len(col_max_wid) * 2 * cell_pad[0]
         tab_heigh = sum(row_max_hei) + len(row_max_hei) * 2 * cell_pad[1]
+        
 
         tab = PIL.Image.new(
             "RGBA",
@@ -632,7 +652,6 @@ class Table:
             _color["bg"],
         )
         draw = PIL.ImageDraw.Draw(tab)
-
         draw.rectangle(
             [
                 (_margin.left, _margin.top),
@@ -686,10 +705,10 @@ class Table:
                 if stock:
                     if table[i][j].startswith("+"):
                         color = _color["red"]
-                        table[i][j] = table[i][j][1:]
+                        table[i][j] = table[i][j].replace("+", "")   # remove the '+'
                     elif table[i][j].startswith("-"):
                         color = _color["green"]
-                        table[i][j] = table[i][j][1:]
+                        table[i][j] = table[i][j].replace("-", "")   # remove the '-'
                 _left = left
                 if (align and align[j] == "c") or (header and i == 0):
                     _left += (col_max_wid[j] - font.getlength(table[i][j])) // 2

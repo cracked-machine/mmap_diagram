@@ -1,13 +1,16 @@
 import unittest
 import mm.diagram
+import mm.metamodel
 import pathlib
 import pytest
 import PIL.Image
-from tests.common_fixtures import input, file_setup
+from tests.common_fixtures import input, file_setup, zynqmp
 import json
 
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "doc/example/test_generate_doc_example_normal"}], indirect=True)
+
+
+@pytest.mark.parametrize("file_setup", [{"file_path": "doc/example/example_normal"}], indirect=True)
 def test_generate_doc_example_normal(file_setup):
     """ """
 
@@ -19,16 +22,14 @@ def test_generate_doc_example_normal(file_setup):
             "kernel", "0x10", "0x30",
             "rootfs", "0x50", "0x30",
             "dtb", "0x190", "0x30",
-            "-o", str(file_setup["report"]),
+            "--out", str(file_setup["report"]),
             "-l", hex(height),
-            "-v", hex(200),
+            "--threshold", hex(200),
+            "--trim_whitespace"
         ],
     ):
 
         d = mm.diagram.Diagram()
-
-        # assumes the defaults haven't changed
-        assert mm.diagram.Diagram.pargs.scale == 1
 
         # we only have a single mmd in mmd_list for this test
         for region_image in d.mmd_list[0].image_list:
@@ -49,12 +50,12 @@ def test_generate_doc_example_normal(file_setup):
 
         assert file_setup["diagram_image"].exists()
         found_size = PIL.Image.open(str(file_setup["diagram_image"])).size
-        assert found_size == (400, 352)
+        assert found_size == (400, 288)
 
         # reduced void threshold, so empty section between rootfs and dtb should be voided, making the file smaller
         assert file_setup["table_image"].exists()
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "doc/example/test_generate_doc_example_collisions"}], indirect=True)
+@pytest.mark.parametrize("file_setup", [{"file_path": "doc/example/example_collisions"}], indirect=True)
 def test_generate_doc_example_collisions(file_setup):
     """ """
     height = hex(1000)
@@ -65,9 +66,10 @@ def test_generate_doc_example_collisions(file_setup):
             "kernel", "0x10", "0x60",
             "rootfs", "0x50", "0x50",
             "dtb", "0x90", "0x30",
-            "-o", str(file_setup["report"]),
-            "-l", height,
-            "-v", hex(200),
+            "--out", str(file_setup["report"]),
+            "--limit", height,
+            "--threshold", hex(200),
+            "--trim_whitespace"
         ],
     ):
 
@@ -91,11 +93,11 @@ def test_generate_doc_example_collisions(file_setup):
         assert file_setup["report"].exists()
 
         assert file_setup["diagram_image"].exists()
-        assert PIL.Image.open(str(file_setup["diagram_image"])).size == (400, 274)
+        assert PIL.Image.open(str(file_setup["diagram_image"])).size == (400, 260)
 
         assert file_setup["table_image"].exists()
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "doc/example/test_generate_doc_example_two_maps"}], indirect=True)
+@pytest.mark.parametrize("file_setup", [{"file_path": "doc/example/example_two_maps"}], indirect=True)
 def test_generate_doc_example_two_maps(input, file_setup):
     """ """
 
@@ -119,10 +121,11 @@ def test_generate_doc_example_two_maps(input, file_setup):
         "sys.argv",
             [
                 "mm.diagram",
-                "-f", str(input_file),
-                "-o", str(file_setup["report"]),
-                "-l", hex(height),
-                "-v", hex(200),
+                "--file", str(input_file),
+                "--out", str(file_setup["report"]),
+                "--limit", hex(height),
+                "--threshold", hex(200),
+                "--trim_whitespace"
             ],
         ):
 
@@ -133,12 +136,12 @@ def test_generate_doc_example_two_maps(input, file_setup):
         assert file_setup["report"].exists()
 
         assert file_setup["diagram_image"].exists()
-        assert PIL.Image.open(str(file_setup["diagram_image"])).size == (1000, 272)
+        assert PIL.Image.open(str(file_setup["diagram_image"])).size == (1000, 130)
 
 
         assert file_setup["table_image"].exists()
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "doc/example/test_generate_doc_example_three_maps"}], indirect=True)
+@pytest.mark.parametrize("file_setup", [{"file_path": "doc/example/example_three_maps"}], indirect=True)
 def test_generate_doc_example_three_maps(input, file_setup):
     
     """ """
@@ -195,10 +198,11 @@ def test_generate_doc_example_three_maps(input, file_setup):
         "sys.argv",
             [
                 "mm.diagram",
-                "-f", str(input_file),
-                "-o", str(file_setup["report"]),
-                "-l", hex(height),
-                "-v", hex(200),
+                "--file", str(input_file),
+                "--out", str(file_setup["report"]),
+                "--limit", hex(height),
+                "--threshold", hex(200),
+                "--trim_whitespace"
             ],
         ):
 
@@ -207,5 +211,8 @@ def test_generate_doc_example_three_maps(input, file_setup):
         assert file_setup["report"].exists()
 
         assert file_setup["diagram_image"].exists()
-        assert PIL.Image.open(str(file_setup["diagram_image"])).size == (1000, 234)
+        assert PIL.Image.open(str(file_setup["diagram_image"])).size == (1000, 186)
         assert file_setup["table_image"].exists()
+
+######################################
+        

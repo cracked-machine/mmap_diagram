@@ -1,5 +1,5 @@
 {
-  "$schema": "/home/chris/projects/python/mmdiagram/mm/schema.json",
+  "$schema": "../../mm/schema.json",
   "name": "TestDiagram",
   "height": 1000,
   "width": 1000,

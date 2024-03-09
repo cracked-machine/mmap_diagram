@@ -1,0 +1,29 @@
+{
+  "$schema": "../../mm/schema.json",
+  "name": "ZynqMP",
+  "height": 3508,
+  "width": 2480,
+  "memory_maps": {
+    "Global System Address Map": {
+      "memory_regions": {
+        "DDR Memory Controller": {
+          "origin": "0x10",
+          "size": "0x3e8"
+        },
+        "OCM": {
+          "origin": "0x7e0",
+          "size": "0x7d0"
+        }
+      }
+    },
+    "Flash": {
+      "memory_regions": {
+        "Boot Image": {
+          "origin": "0x0",
+          "size": "0xFFFFFF",
+          "links": []
+        }
+      }
+    }
+  }
+}
