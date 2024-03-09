@@ -275,7 +275,7 @@ def test_generate_doc_region_exceeds_height_no_maxaddress_set(file_setup, zynqmp
                 assert mmap.max_address == 4016
                 assert mmap.max_address_calculated == True
                 assert mmap.draw_scale == 2
-            if mname == 'Boot Image':
+            if mname == 'Flash':
                 # only one region so this is simply "Boot Image" size
                 assert mmap.max_address == int("0xFFFFFF", 16)
                 assert mmap.max_address_calculated == True
@@ -331,11 +331,12 @@ def test_generate_doc_region_freespace_exceeds_height_higher_maxaddress_set(file
                     assert mmap.max_address == int("0xFFFFFFFF", 16)
                     assert mmap.max_address_calculated == False
                     assert mmap.draw_scale == 2
-                if mname == 'Boot Image':
+                if mname == 'Flash':
                     # overridden by user
                     assert mmap.max_address == int("0xFFFFFFFF", 16)
                     assert mmap.max_address_calculated == False
-                    assert mmap.draw_scale == 6766
+                    # NOTE: draw_scale has been adjusted because it didn't allow space for a void region
+                    assert mmap.draw_scale == 6866
 
             
 

@@ -13,7 +13,7 @@ import pathlib
 import logging
 import collections
 
-from typing import List, Dict, Literal, Tuple
+from typing import List, Dict, Literal, Tuple, DefaultDict
 
 import mm.image
 import mm.metamodel
@@ -68,7 +68,7 @@ class MemoryMapDiagram:
         self.voidregion = mm.image.VoidRegionImage(
             self.name,
             w = (self.width - self.addr_col_width_percent - (self.width//5)), 
-            h = (Diagram.model.text_size + 10) // self.draw_scale,
+            h = (Diagram.model.text_size + 10),
             font_size = Diagram.model.text_size,
             fill_colour = Diagram.model.void_fill_colour,
             line_colour = Diagram.model.void_line_colour)
@@ -177,7 +177,7 @@ class MemoryMapDiagram:
         Then draw the regions onto a larger memory map image. """
 
         redux_subgroup_idx = 0
-        redux_subgroup = collections.defaultdict(list)
+        redux_subgroup: DefaultDict = collections.defaultdict(list)
 
         for memregion in memregion_list:
             # start adding memregions to the current subgroup...
@@ -233,24 +233,23 @@ class MemoryMapDiagram:
                     last_void_pos = next_void_pos + region.img.height + void_padding
                 
 
-        # TODO add for voidregion if top most graphic block
-        if group_idx == len(redux_subgroup) - 1 and region_idx == len(redux_subgroup[group_idx]) - 1:
 
-            if isinstance(region, mm.image.VoidRegionImage):
-                map_img_redux = self._add_label(
-                    dest=map_img_redux, 
-                    xy=mm.image.Point(region.img.width + 5, next_void_pos + region.img.height), 
-                    text=f"0x{self.max_address:X}" + " (" + f"{self.max_address:,}" + ")", 
-                    font_size=Diagram.model.address_text_size,
-                    y_origin="bottom")
-                
-            if isinstance(region, mm.image.MemoryRegionImage):
-                map_img_redux = self._add_label(
-                    dest=map_img_redux, 
-                    xy=mm.image.Point(region.img.width + 5, next_void_pos - void_padding), 
-                    text=f"0x{self.max_address:X}" + " (" + f"{self.max_address:,}" + ")", 
-                    font_size=region.metadata.address_text_size,
-                    y_origin="bottom")
+        last_region = redux_subgroup[len(redux_subgroup) - 1][-1]
+        if isinstance(last_region, mm.image.VoidRegionImage):
+            map_img_redux = self._add_label(
+                dest=map_img_redux, 
+                xy=mm.image.Point(last_region.img.width + 5, next_void_pos + last_region.img.height), 
+                text=f"0x{self.max_address:X}" + " (" + f"{self.max_address:,}" + ")", 
+                font_size=Diagram.model.address_text_size,
+                y_origin="bottom")
+            
+        if isinstance(last_region, mm.image.MemoryRegionImage):
+            map_img_redux = self._add_label(
+                dest=map_img_redux, 
+                xy=mm.image.Point(last_region.img.width + 5, next_void_pos - void_padding), 
+                text=f"0x{self.max_address:X}" + " (" + f"{self.max_address:,}" + ")", 
+                font_size=last_region.metadata.address_text_size,
+                y_origin="bottom")
 
         min_bbox = None
         if not Diagram.pargs.trim_whitespace:

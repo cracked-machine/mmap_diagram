@@ -441,7 +441,11 @@ class Diagram(ConfigParent):
                     logging.warning(f"'{mname}' Region freespace exceeds diagram height: {memory_region.freespace} > {self.height}.")
                     logging.warning(f"You have set your 'max_address' to {memory_map.max_address} but none of your regions are using the excessive empty space this has created.")
                     logging.warning(f"Drawing ratio (1:{str(memory_map.draw_scale)}) will be readjusted.")
-                    memory_map.draw_scale = math.ceil(largest_region / memory_map.height)
+                    memory_map.draw_scale = math.ceil((largest_region) / memory_map.height)
+                    # if the 'draw_scale' means we end up close to the diagram top edge 
+                    # then add some space for a voidregion (if any)
+                    if math.ceil(largest_region / memory_map.draw_scale) >= memory_map.height:
+                        memory_map.draw_scale = memory_map.draw_scale + 100
                     logging.warning(f"Recalculating drawing ratio: (1:{str(memory_map.draw_scale)})")
 
         return self
