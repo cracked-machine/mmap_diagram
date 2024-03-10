@@ -172,23 +172,23 @@ class MemoryMapDiagram:
             return label.overlay(dest, xy)
         
 
-    def _create_mmap(self, memregion_list: List[mm.image.MemoryRegionImage], draw_scale: int) -> None:
+    def _create_mmap(self, only_memregion_list: List[mm.image.MemoryRegionImage], draw_scale: int) -> None:
         """Create a dict of region groups, interleaved with void regions. 
         Then draw the regions onto a larger memory map image. """
 
-        redux_subgroup_idx = 0
-        redux_subgroup: DefaultDict = collections.defaultdict(list)
+        mixed_region_dict_idx = 0
+        mixed_region_dict: DefaultDict = collections.defaultdict(list)
 
-        for memregion in memregion_list:
+        for memregion in only_memregion_list:
             # start adding memregions to the current subgroup...
-            redux_subgroup[redux_subgroup_idx].append(memregion)
+            mixed_region_dict[mixed_region_dict_idx].append(memregion)
             # until we hit a empty space larger than the threshold setting
             if memregion.freespace_as_int > Diagram.model.threshold:
                 # add a single void region subgroup at a new index...
-                redux_subgroup_idx = redux_subgroup_idx + 1
-                redux_subgroup[redux_subgroup_idx].append(self.voidregion)
+                mixed_region_dict_idx = mixed_region_dict_idx + 1
+                mixed_region_dict[mixed_region_dict_idx].append(self.voidregion)
                 # then increment again, ready for next memregion subgroup
-                redux_subgroup_idx = redux_subgroup_idx + 1
+                mixed_region_dict_idx = mixed_region_dict_idx + 1
 
         map_img = PIL.Image.new(
             "RGBA", 
@@ -198,10 +198,10 @@ class MemoryMapDiagram:
         next_void_pos = 0
         last_void_pos = 0 
         void_padding = 10
-        for group_idx in range(0, len(redux_subgroup)):
+        for group_idx in range(0, len(mixed_region_dict)):
 
             region: mm.image.MemoryRegionImage
-            for region_idx, region in enumerate(redux_subgroup[group_idx]):
+            for region_idx, region in enumerate(mixed_region_dict[group_idx]):
                 
 
                 if isinstance(region, mm.image.MemoryRegionImage):
@@ -232,7 +232,7 @@ class MemoryMapDiagram:
                     # reset the ypos for the next memregion
                     last_void_pos = next_void_pos + region.img.height + void_padding
 
-        last_region = redux_subgroup[len(redux_subgroup) - 1][-1]
+        last_region = mixed_region_dict[len(mixed_region_dict) - 1][-1]
         if isinstance(last_region, mm.image.VoidRegionImage):
             map_img = self._add_label(
                 dest=map_img, 
