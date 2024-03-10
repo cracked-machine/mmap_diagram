@@ -7,6 +7,7 @@ import pytest
 import json
 from tests.common_fixtures import file_setup, input
 from typing import List
+import logging
 
 @pytest.mark.parametrize("file_setup", [{"file_path": "out/tmp/void_region_cli_defaults"}], indirect=True)
 def test_void_region_cli_defaults(file_setup):
@@ -157,7 +158,7 @@ def test_void_region_cli_A5_no_voids(file_setup):
 
 
 @pytest.mark.parametrize("file_setup", [{"file_path": "out/tmp/void_region_uservalue_file_no_voids"}], indirect=True)
-def test_void_region_uservalue_file_no_voids(file_setup, input):
+def test_void_region_uservalue_file_no_voids(file_setup, input, caplog):
     """ Same as 'test_void_region_cli_A5_no_voids' but with json file input"""
 
     input_file = pathlib.Path("./out/tmp/void_region_uservalue_file_no_voids.json")
