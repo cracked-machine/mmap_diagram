@@ -35,7 +35,6 @@ Tool for generating diagrams that show the mapping of regions in memory, specifc
 - Many additional settings are available in the JSON input. Please see the [schema](mm/schema.json) for more information. 
 
 
-More examples can be found in [docs/example/main.md](docs/example/main.md)
 
 ### Usage:
 
@@ -75,7 +74,7 @@ options:
     python3 -m mm.diagram kernel 0x10 0x50 rootfs 0x50 0x30 dtb 0x90 0x30 uboot 0xD0 0x50 uboot-scr 0x110 0x30 -l 0x3e8
     ```
 
-- Using JSON many other options can be set. See json files in [docs/example](docs/example) folder.
+- Using JSON many other options can be set. 
 
     ```
     python3 -m mm.diagram -f docs/example/input.json
