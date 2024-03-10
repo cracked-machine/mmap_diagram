@@ -43,10 +43,10 @@
           "title": "Max Address",
           "type": "integer"
         },
-        "max_address_calculated": {
+        "max_address_taken_from_diagram_height": {
           "default": false,
           "description": "Internal Use",
-          "title": "Max Address Calculated",
+          "title": "Max Address Taken From Diagram Height",
           "type": "boolean"
         }
       },

@@ -13,10 +13,25 @@ import pathlib
 import logging
 import collections
 
-from typing import List, Dict, Literal, Tuple, DefaultDict
+from typing import List, Dict, Literal, Tuple, DefaultDict, NamedTuple
 
 import mm.image
 import mm.metamodel
+
+class APageSize(NamedTuple):
+    width: int
+    height: int
+
+A1 = APageSize(7016, 9933)
+A2 = APageSize(4961, 7016)
+A3 = APageSize(3508, 4961)
+A4 = APageSize(2480, 3508)
+A5 = APageSize(1748, 2480)
+A6 = APageSize(1240, 1748)
+A7 = APageSize(874, 1240)
+A8 = APageSize(614, 874)
+A9 = APageSize(437, 614)
+A10 = APageSize(307, 437)
 
 root = logging.getLogger()
 root.setLevel(logging.INFO)
@@ -51,7 +66,7 @@ class MemoryMapDiagram:
         self.max_address = next(iter(memory_map_metadata.values())).max_address
         """User-defined (via JSON) or calculated from region data if undefined or smaller than region data"""
         
-        self.max_address_calculated: bool = next(iter(memory_map_metadata.values())).max_address_calculated
+        self.max_address_taken_from_diagram_height: bool = next(iter(memory_map_metadata.values())).max_address_taken_from_diagram_height
         """The max address value was calculated from region data"""
 
         self.addr_col_width_percent = (self.width // 100) * Diagram.model.legend_width
@@ -177,16 +192,16 @@ class MemoryMapDiagram:
         Then draw the regions onto a larger memory map image. """
 
         mixed_region_dict_idx = 0
-        mixed_region_dict: DefaultDict = collections.defaultdict(list)
+        self.mixed_region_dict: DefaultDict = collections.defaultdict(list)
 
         for memregion in only_memregion_list:
             # start adding memregions to the current subgroup...
-            mixed_region_dict[mixed_region_dict_idx].append(memregion)
+            self.mixed_region_dict[mixed_region_dict_idx].append(memregion)
             # until we hit a empty space larger than the threshold setting
             if memregion.freespace_as_int > Diagram.model.threshold:
                 # add a single void region subgroup at a new index...
                 mixed_region_dict_idx = mixed_region_dict_idx + 1
-                mixed_region_dict[mixed_region_dict_idx].append(self.voidregion)
+                self.mixed_region_dict[mixed_region_dict_idx].append(self.voidregion)
                 # then increment again, ready for next memregion subgroup
                 mixed_region_dict_idx = mixed_region_dict_idx + 1
 
@@ -198,10 +213,10 @@ class MemoryMapDiagram:
         next_void_pos = 0
         last_void_pos = 0 
         void_padding = 10
-        for group_idx in range(0, len(mixed_region_dict)):
+        for group_idx in range(0, len(self.mixed_region_dict)):
 
             region: mm.image.MemoryRegionImage
-            for region in mixed_region_dict[group_idx]:
+            for region in self.mixed_region_dict[group_idx]:
                 
                 if isinstance(region, mm.image.MemoryRegionImage):
                     # adjusted values for drawing ypos - labels should use the original values
@@ -229,7 +244,7 @@ class MemoryMapDiagram:
                     # reset the ypos for the next memregion
                     last_void_pos = next_void_pos + region.img.height + void_padding
 
-        last_region = mixed_region_dict[len(mixed_region_dict) - 1][-1]
+        last_region = self.mixed_region_dict[len(self.mixed_region_dict) - 1][-1]
         if isinstance(last_region, mm.image.VoidRegionImage):
             map_img = self._add_label(
                 dest=map_img, 
@@ -246,12 +261,13 @@ class MemoryMapDiagram:
                 font_size=last_region.metadata.address_text_size,
                 y_origin="bottom")
 
-        max_bbox = mm.image.Bbox((0,0, Diagram.model.width,Diagram.model.height))             
+        bbox = mm.image.Bbox((0,0, Diagram.model.width,Diagram.model.height))             
         if Diagram.pargs.no_whitespace_trim:
-            max_bbox = None
+            bbox = None
         map_img = self.trim_whitespace(
             map_img, 
-            max=max_bbox
+            max=bbox,
+            min=bbox
         )
 
         # flip back up the right way
@@ -397,7 +413,7 @@ class Diagram:
             max_address_hex = f"0x{mmd.max_address:X}"
             caption += f"{mmd.name}:"
             caption += f"\n{'':10}max address = 0x{mmd.max_address:X} ({mmd.max_address:,})"
-            caption += f"\n{'':10}{'Calculated from region data' if mmd.max_address_calculated else 'User-defined input'}\n"
+            caption += f"\n{'':10}{'Diagram height used' if mmd.max_address_taken_from_diagram_height else 'User-defined input'}\n"
          
         _, ctop, _, cbottom = PIL.ImageDraw.Draw(PIL.Image.new("RGBA", (0,0))).multiline_textbbox(
             (0,0),
@@ -437,7 +453,7 @@ class Diagram:
             for mmd in mmd_list:
                 f.write(f"\n#### {mmd.name}:")
                 f.write(f"\n- max address = 0x{mmd.max_address:X} ({mmd.max_address:,})")
-                f.write(f"\n- {'Calculated from region data' if mmd.max_address_calculated else 'User-defined input'}")
+                f.write(f"\n- {'Calculated from region data' if mmd.max_address_taken_from_diagram_height else 'User-defined input'}")
 
     @classmethod
     def _parse_args(cls):
@@ -547,7 +563,7 @@ class Diagram:
                 "$schema": "../../mm/schema.json",
                 "name": "Diagram",
                 "height": int(Diagram.pargs.limit,16),
-                "width": 400,
+                "width": A8.width,  # width is fixed when using the command line
                 "threshold": int(Diagram.pargs.threshold, 16),
                 "memory_maps": { 
                     mmname : { 

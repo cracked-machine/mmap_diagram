@@ -1,8 +1,8 @@
 {
   "$schema": "../../mm/schema.json",
   "name": "TestDiagram",
-  "height": 874,
-  "width": 614,
+  "height": 1000,
+  "width": 1000,
   "memory_maps": {
     "eMMC": {
       "memory_regions": {
@@ -19,10 +19,6 @@
               "Blob3"
             ]
           ]
-        },
-        "Blob4": {
-          "origin": "0x100",
-          "size": "0x10"
         }
       }
     },
@@ -34,10 +30,6 @@
         },
         "Blob3": {
           "origin": "0x50",
-          "size": "0x10"
-        },
-        "Blob5": {
-          "origin": "0x30",
           "size": "0x10"
         }
       }

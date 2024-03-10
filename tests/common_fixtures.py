@@ -1,14 +1,16 @@
 import pytest
 from typing import Dict
 import pathlib
+import mm.diagram
+
 
 @pytest.fixture
 def input() -> Dict:
     valid = {
         "$schema": "../../mm/schema.json",
         "name": "TestDiagram",
-        "height": 1000,
-        "width": 1000,
+        "height": mm.diagram.A8.height,
+        "width": mm.diagram.A8.width,
         "memory_maps": {
             "eMMC": {
                 "memory_regions": 

@@ -20,11 +20,11 @@
               "Blob3"
             ]
           ],
-          "freespace": 0,
+          "freespace": 842,
           "collisions": {}
         }
       },
-      "max_address": 32
+      "max_address": 874
     },
     "DRAM": {
       "memory_regions": {
@@ -39,15 +39,15 @@
           "origin": 80,
           "size": 16,
           "links": [],
-          "freespace": 0,
+          "freespace": 778,
           "collisions": {}
         }
       },
-      "max_address": 96
+      "max_address": 874
     }
   },
   "name": "TestDiagram",
-  "height": 1000,
+  "height": 874,
   "indent_scheme": "alternate",
   "region_alpha": 192,
   "threshold": 200,
@@ -67,5 +67,5 @@
     192,
     192
   ],
-  "width": 1000
+  "width": 614
 }

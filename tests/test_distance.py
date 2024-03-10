@@ -1,6 +1,10 @@
 import mm.diagram
 import unittest
 import mm.image
+import pytest 
+from tests.common_fixtures import file_setup
+import pathlib
+import json
 
 # These tests only check the distance between adjacent regions
 # They don't check the output image sizes so we don't care what value we set to the threshold.
@@ -212,3 +216,57 @@ def test_distance_five_regions_bottom_top_collision():
                 assert region_image.origin_as_hex == "0x110"
                 assert region_image.size_as_hex == "0x30"
                 assert region_image.freespace_as_hex == "0x2a8"
+
+@pytest.mark.parametrize("file_setup", [{"file_path": "out/tmp/distance_collision_with_limit"}], indirect=True)
+def test_distance_collision_with_limit(file_setup):
+    """ """
+    data = {
+        "$schema": "../../mm/schema.json",
+        "name": "TestDiagram",
+        "height": mm.diagram.A10.width,
+        "width": mm.diagram.A10.height,
+        "memory_maps": {
+            "test": {
+                "max_address": hex(mm.diagram.A10.height),
+                "memory_regions": 
+                {
+                    "kernel": {
+                        "origin": "0x10",
+                        "size": hex(mm.diagram.A10.height + 64),
+                    }
+                }
+            }
+        }        
+    }
+
+    input_file = pathlib.Path("out/tmp/distance_collision_with_limit.json")
+    with input_file.open("w") as fp:
+        fp.write(json.dumps(data, indent=2))
+
+    with unittest.mock.patch(
+        "sys.argv",
+        [
+            "mm.diagram", 
+            "--file", str(input_file),
+            "-o", f"out/tmp/distance_collision_with_limit.md",
+            "-v"
+        ],
+    ):
+
+        d = mm.diagram.Diagram()
+
+        # we only have a single mmd in mmd_list for this test
+        for region_image in d.mmd_list[0].image_list:
+            if region_image.name == "kernel":
+                assert region_image.origin_as_hex == "0x10"
+                assert region_image.size_as_hex == hex(mm.diagram.A10.height + 64)
+                assert region_image.freespace_as_hex == "-0x50"
+
+
+        assert file_setup["report"].exists()
+
+        assert file_setup["diagram_image"].exists()
+        # outimg = PIL.Image.open(str(file_setup["diagram_image"]))
+        # assert outimg.size[1] == 2000
+
+        assert file_setup["table_image"].exists()

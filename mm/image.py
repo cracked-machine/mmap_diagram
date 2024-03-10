@@ -10,6 +10,7 @@ import logging
 import mm.metamodel
 import math
 import dataclasses
+import re
 
 @dataclasses.dataclass
 class Bbox:
@@ -707,7 +708,9 @@ class Table:
                         table[i][j] = table[i][j].replace("+", "")   # remove the '+'
                     elif table[i][j].startswith("-"):
                         color = _color["green"]
-                        table[i][j] = table[i][j].replace("-", "")   # remove the '-'
+                        table[i][j] = re.sub(r'-(?![0-9])', '', table[i][j])
+                        # if not table[i][j][0].isdigit():
+                        #     table[i][j] = table[i][j].replace("-", "")   # remove the '-'
                 _left = left
                 if (align and align[j] == "c") or (header and i == 0):
                     _left += (col_max_wid[j] - font.getlength(table[i][j])) // 2

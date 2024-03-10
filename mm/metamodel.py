@@ -121,7 +121,7 @@ class MemoryMap(ConfigParent):
             If not defined, max_address will be determined by the region data."""
         )
     ]
-    max_address_calculated: Annotated[
+    max_address_taken_from_diagram_height: Annotated[
         bool,
         pydantic.Field(
             False,
@@ -357,14 +357,10 @@ class Diagram(ConfigParent):
                 if region.origin + region.size > largest_region:
                     largest_region = region.origin + region.size
 
-            # # in case there is a voidregion at the top of the diagram
-            # largest_region = largest_region + (self.text_size + 10)
-            # memory_map.max_address = memory_map.max_address + (self.text_size + 10)
-
-            # max address should be at least equal to the region data or greater
-            if not memory_map.max_address or memory_map.max_address < largest_region:
-                memory_map.max_address_calculated = True
-                memory_map.max_address = largest_region
+            # only override the max_address if its not set, then use the diagram height (because that's the only metric available)
+            if not memory_map.max_address:
+                memory_map.max_address = self.height
+                memory_map.max_address_taken_from_diagram_height = True
             
             # calc the drawing scale from whichever is the greatest: max address or the region data
             memory_map.draw_scale = math.ceil(
@@ -389,7 +385,7 @@ class Diagram(ConfigParent):
                     other_region_size = other_region[1].size
 
                     this_region_end: int = memory_region.origin + memory_region.size
-                    other_region_end: int = other_region_origin + other_region_size                  
+                    other_region_end: int = other_region_origin + other_region_size 
 
                     # skip calculating distance from yourself.
                     if memory_region_name == other_region_name:
@@ -426,6 +422,7 @@ class Diagram(ConfigParent):
                         elif not memory_region.freespace:
                             memory_region.freespace = distance_to_other_region
 
+
                 logging.debug(f"\tCollisions - {memory_region.collisions}")
 
                 # after probing each region we must now pick the lowest distance
@@ -439,6 +436,12 @@ class Diagram(ConfigParent):
                         memory_region.freespace = memory_map.max_address - (this_region_end)
                 elif memory_region.collisions and not memory_region.freespace:
                     memory_region.freespace = memory_map.max_address - (this_region_end)
+
+                # if this region collides with diagram max address then add it and override the freespace variable
+                if memory_region.origin + memory_region.size > memory_map.max_address:
+                    memory_region.collisions['end'] = memory_map.max_address
+                    memory_region.freespace = memory_map.max_address - (memory_region.origin + memory_region.size)
+
 
                 # the user-defined max_address field has created an excessive amount of empty space, clamp it to the region data usage instead
                 if memory_region.freespace > self.height:
