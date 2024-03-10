@@ -441,7 +441,7 @@ class Diagram(ConfigParent):
                 if memory_region.origin + memory_region.size > memory_map.max_address:
                     memory_region.collisions['end'] = memory_map.max_address
                     memory_region.freespace = memory_map.max_address - (memory_region.origin + memory_region.size)
-
+                    
 
                 # the user-defined max_address field has created an excessive amount of empty space, clamp it to the region data usage instead
                 if memory_region.freespace > self.height:

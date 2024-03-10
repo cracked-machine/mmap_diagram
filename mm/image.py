@@ -171,6 +171,9 @@ class MemoryRegionImage(Image):
         self.draw_indent = 0
         """Index counter for incrementally shrinking the drawing indent"""
         
+        if self.metadata.collisions:
+            self.line = "red"
+        
         self.fill = self._pick_random_colour()
         
         self.img_width = img_width
