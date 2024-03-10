@@ -176,6 +176,8 @@ class MemoryRegionImage(Image):
         self.font_size = font_size  
         self.draw_scale = draw_scale  
 
+        self._draw()
+
     @property
     def origin_as_hex(self):
         """ lookup origin from metamodel  """

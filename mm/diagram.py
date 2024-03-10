@@ -201,14 +201,11 @@ class MemoryMapDiagram:
         for group_idx in range(0, len(mixed_region_dict)):
 
             region: mm.image.MemoryRegionImage
-            for region_idx, region in enumerate(mixed_region_dict[group_idx]):
+            for region in mixed_region_dict[group_idx]:
                 
-
                 if isinstance(region, mm.image.MemoryRegionImage):
                     # adjusted values for drawing ypos - labels should use the original values
                     region_origin_scaled  = region.origin_as_int // draw_scale
-
-                    region._draw()
 
                     # add memory region after ypos of last voidregion - if any
                     map_img = region.overlay(
