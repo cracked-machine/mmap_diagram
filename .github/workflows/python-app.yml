@@ -25,13 +25,13 @@ jobs:
     - name: Test with pytest
       run: |
         make test
+    - name: 'Tar files'
+      run: tar -cvf examples.tar examples.md docs
     - name: upload examples
       uses: actions/upload-artifact@v4
       with:
         name: examples
-        path: |
-          docs
-          examples.md
+        path: examples.tar
         if-no-files-found: error 
     - name: upload code coverage
       uses: actions/upload-artifact@v4
