@@ -10,29 +10,22 @@ on:
     branches: [ "develop", "main" ]
 
 permissions:
-  contents: read
-
+  contents: write | read
+  pages: write
+  id-token: write
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
+    # init
     - uses: actions/checkout@v3
     - name: Install dependencies
       run: |
         make init 
+    # run pytest
     - name: Test with pytest
       run: |
         make test
-    - name: upload examples
-      uses: actions/upload-artifact@v4
-      with:
-        name: examples
-        path: |
-          docs
-          examples.md
-        if-no-files-found: error 
     - name: upload code coverage
       uses: actions/upload-artifact@v4
       with:
@@ -43,6 +36,15 @@ jobs:
       uses: codecov/codecov-action@v3
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+    # publish pages
+    - name: Prepare examples
+      run: tar -cvf github-pages.tar examples.md docs
+    - name: upload examples
+      uses: actions/upload-pages-artifact@v3
+      with:
+        name: github-pages
+        path: github-pages.tar
+    # publish wheel
     - name: create wheel
       run: |
         env
