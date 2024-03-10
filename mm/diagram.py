@@ -482,13 +482,16 @@ class Diagram:
         )
         parser.add_argument(
             "regions",
-            help="command line input for regions should be tuples of name, origin and size.",
+            help="""Sequence of region data. Should be tuples of name, origin and size: 
+            <name1> <origin1> <size1> <nameN> <originN> <sizeN>""",
             nargs="*",
         )
         parser.add_argument(
             "-o",
             "--out",
-            help='path to the markdown output report file. Default: "out/report.md"',
+            help="""The path to the markdown output report file. 
+            Diagram and table images will be written using this path and name (using png extension).
+            Default: 'out/report.md'""",
             default="out/report.md",
         )
         parser.add_argument(
@@ -497,7 +500,8 @@ class Diagram:
             help="""
             The 'height' in pixels and 'max address' in bytes for the diagram. 
             Please use hex format. Ignored when using JSON file input.
-            Memory regions exceeding this value will be scaled to fit. 
+            Memory regions exceeding this value will be scaled to fit when drawn 
+            but collision measurements will use the original value. 
             If you need to set 'height' and 'max address' to different values, 
             please use the JSON input file instead.""",
             type=str
@@ -505,9 +509,10 @@ class Diagram:
         parser.add_argument(
             "-t",
             "--threshold",
-            help="The threshold for skipping void sections. Please use hex.",
+            help="""The threshold for replacing large empty sections with 'SKIPPED' regions. 
+            Any space over this value will be replaced. Please use hex. Default = 0x16""",
             type=str,
-            default=hex(200)
+            default=hex(10)
         )
         parser.add_argument(
             "-n",
@@ -518,7 +523,7 @@ class Diagram:
         parser.add_argument(
             "-f",
             "--file",
-            help="JSON input file for multiple memory maps (and links) support. Please see doc/example/input.json for help.",
+            help="JSON input file for multiple memory maps (and links) support. Please see doc/example for help.",
             type=str,
         )
         parser.add_argument(
@@ -528,7 +533,8 @@ class Diagram:
         )        
         parser.add_argument(
             "--no_whitespace_trim",
-            help="Force whitespace trim in diagram images.",
+            help="""Force disable of whitespace trim in diagram images. 
+            If this option is set, diagram images may be created larger than requested.""",
             action="store_true"
         )        
 

@@ -1,7 +1,7 @@
 {
   "$schema": "../../mm/schema.json",
   "name": "TestDiagram",
-  "height": 874,
+  "height": 437,
   "width": 614,
   "memory_maps": {
     "eMMC": {
@@ -22,7 +22,7 @@
         },
         "Blob4": {
           "origin": "0x100",
-          "size": "0x10"
+          "size": "0x30"
         }
       }
     },
