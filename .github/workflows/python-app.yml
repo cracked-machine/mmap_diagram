@@ -10,7 +10,7 @@ on:
     branches: [ "develop", "main" ]
 
 permissions:
-  contents: write | read
+  contents: write
   pages: write
   id-token: write
 jobs:
