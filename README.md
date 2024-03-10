@@ -24,13 +24,13 @@ Tool for generating diagrams that show the mapping of regions in memory, specifc
     - All graphic properties are available
     - Max address and diagram size
 
-- Diagram width and height can be specified using JSON. The contents will be automatically draw to the correct scale within the requested diagram size. If height is not set then the correct height will be calculated from the region data. NOTE: Command line input can set both the diagram height and max address simulataneously using the 'limit' option. 
+- Diagram width and height can be specified using JSON. The contents will be automatically draw to the correct scale within the requested diagram size. If height is not set then the correct height will be calculated from the region data. NOTE: Command line input can ONLY set both the diagram height and max address simulataneously using the 'limit' option. 
 - Max address can be set using JSON. If this is higher than the diagram height, the contents will be scaled. If regions exceed this max address, the collision will be highlighted both in the diagram and table. 
 
   ![](doc/example/example_end_collision_diagram.png)
   ![](doc/example/example_end_collision_table.png)
 
-  If max address is not set then the diagram height will be used. NOTE: Command line input can set both the diagram height and max address simulataneously using the 'limit' option.
+  If max address is not set then the diagram height will be used. NOTE: Command line input can ONLY set both the diagram height and max address simulataneously using the 'limit' option.
 
 - Many additional settings are available in the JSON input. Please see the [schema](mm/schema.json) for more information. 
 
