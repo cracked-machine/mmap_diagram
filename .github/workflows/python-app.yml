@@ -29,7 +29,9 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: examples
-        path: doc
+        path: |
+          docs
+          examples.md
         if-no-files-found: error 
     - name: upload code coverage
       uses: actions/upload-artifact@v4

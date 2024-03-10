@@ -5,3 +5,5 @@ tests/lcov
 out
 custom
 .pytest_cache
+docs/example
+examples.md

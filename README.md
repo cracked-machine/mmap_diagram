@@ -5,16 +5,16 @@ Tool for generating diagrams that show the mapping of regions in memory, specifc
 
 ||
 |:-:|
-|![](doc/example/example_two_maps_diagram.png)|
-|![](doc/example/example_two_maps_table.png)|
+|![](docs/example/example_two_maps_diagram.png)|
+|![](docs/example/example_two_maps_table.png)|
 
 ### Features
 
 - Regions are plotted onto a diagram. Freespace is measured and put into the accompanying table.
 - Region collisions are highlighted on the diagram and in the accompnaying table. The table will detail which regions have collided as well as related measurements.
 
-  ![](doc/example/example_region_collisions_diagram.png)
-  ![](doc/example/example_region_collisions_table.png)
+  ![](docs/example/example_region_collisions_diagram.png)
+  ![](docs/example/example_region_collisions_table.png)
 
 - The output is available as:
     - separate images for diagram and table.
@@ -27,15 +27,15 @@ Tool for generating diagrams that show the mapping of regions in memory, specifc
 - Diagram width and height can be specified using JSON. The contents will be automatically draw to the correct scale within the requested diagram size. If height is not set then the correct height will be calculated from the region data. NOTE: Command line input can ONLY set both the diagram height and max address simulataneously using the 'limit' option. 
 - Max address can be set using JSON. If this is higher than the diagram height, the contents will be scaled. If regions exceed this max address, the collision will be highlighted both in the diagram and table. 
 
-  ![](doc/example/example_end_collision_diagram.png)
-  ![](doc/example/example_end_collision_table.png)
+  ![](docs/example/example_end_collision_diagram.png)
+  ![](docs/example/example_end_collision_table.png)
 
   If max address is not set then the diagram height will be used. NOTE: Command line input can ONLY set both the diagram height and max address simulataneously using the 'limit' option.
 
 - Many additional settings are available in the JSON input. Please see the [schema](mm/schema.json) for more information. 
 
 
-More examples can be found in [doc/example/main.md](doc/example/main.md)
+More examples can be found in [docs/example/main.md](docs/example/main.md)
 
 ### Usage:
 
@@ -62,7 +62,7 @@ options:
   -t THRESHOLD, --threshold THRESHOLD
                         The threshold for replacing large empty sections with 'SKIPPED' regions. Any space over this value will be replaced. Please use hex. Default = 0x16
   -n NAME, --name NAME  Provide a name for the memory map. Ignored when JSON file is provided.
-  -f FILE, --file FILE  JSON input file for multiple memory maps (and links) support. Please see doc/example for help.
+  -f FILE, --file FILE  JSON input file for multiple memory maps (and links) support. Please see docs/example for help.
   -v                    Enable debug output.
   --no_whitespace_trim  Force disable of whitespace trim in diagram images. If this option is set, diagram images may be created larger than requested.
 ```
@@ -75,9 +75,9 @@ options:
     python3 -m mm.diagram kernel 0x10 0x50 rootfs 0x50 0x30 dtb 0x90 0x30 uboot 0xD0 0x50 uboot-scr 0x110 0x30 -l 0x3e8
     ```
 
-- Using JSON many other options can be set. See json files in [doc/example](doc/example) folder.
+- Using JSON many other options can be set. See json files in [docs/example](docs/example) folder.
 
     ```
-    python3 -m mm.diagram -f doc/example/input.json
+    python3 -m mm.diagram -f docs/example/input.json
     ```
 

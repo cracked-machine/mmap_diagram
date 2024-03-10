@@ -523,7 +523,7 @@ class Diagram:
         parser.add_argument(
             "-f",
             "--file",
-            help="JSON input file for multiple memory maps (and links) support. Please see doc/example for help.",
+            help="JSON input file for multiple memory maps (and links) support. Please see docs/example for help.",
             type=str,
         )
         parser.add_argument(

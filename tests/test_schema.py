@@ -21,7 +21,7 @@ def test_schema_gen(setup):
 def test_gen_example_input(input):
     data = mm.metamodel.Diagram(**input)
 
-    output_file = pathlib.Path("./doc/example/input.json")
+    output_file = pathlib.Path("./docs/example/input.json")
     with output_file.open("w") as fp:
         fp.write(data.model_dump_json(indent=2))
     
@@ -49,7 +49,7 @@ def test_input_file(caplog):
         "sys.argv", 
         [
             "mm.diagram", 
-            "-f", "doc/example/input.json",
+            "-f", "docs/example/input.json",
             "-l", hex(1000),
             "-t", hex(500)
         ]
