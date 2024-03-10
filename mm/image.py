@@ -246,12 +246,10 @@ class MemoryRegionImage(Image):
     def __str__(self):
         return (
             "|"
-            + str(self.parent)
-            + "|"
             + "<span style='color:"
             + str(self.fill)
             + "'>"
-            + str(self.name)
+            + str(self.name) + " (" + str(self.parent) + ")"
             + "</span>|"
             + str(self.origin_as_hex) + " (" +  str(self.origin_as_int) + ")"
             + "|"
@@ -270,8 +268,7 @@ class MemoryRegionImage(Image):
     def get_data_as_list(self) -> List:
         """Get selected instance attributes"""
         return [
-            str(self.parent),
-            str(self.name),
+            str(self.name) + " (" + str(self.parent) + ")",
             str(self.origin_as_hex) + " (" +  str(self.origin_as_int) + ")",
             str(self.size_as_hex) + " (" +  str(self.size_as_int) + ")",
             str(self.freespace_as_hex) + " (" +  str(self.freespace_as_int) + ")",
@@ -613,7 +610,7 @@ class Table:
         _color = {
             "bg": "white",
             "cell_bg": "white",
-            "header_bg": "gray",
+            "header_bg": "lightgrey",
             "font": "black",
             "rowline": "black",
             "colline": "black",

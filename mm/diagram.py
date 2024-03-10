@@ -389,31 +389,33 @@ class Diagram:
         # Create the table image
         table_img = mm.image.Table().get_table_img(
             table=table_data,
-            header=["Map", "Region", "Origin", "Size", "Free Space", "Collisions", "links", "Drawing Scale"],
+            header=["Region (Parent)", "Origin", "Size", "Free Space", "Collisions", "links", "Drawing Scale"],
             font=PIL.ImageFont.load_default(15),
             stock=True,
             colors={"red": "green", "green": "red"},
         )
 
         # create the caption image
-        caption = "\n".join(
-            f"""{mmd.name}: 
-                       Max Address = 0x{mmd.max_address:X} ({mmd.max_address:,}) 
-                      { 'Calculated from region data' if mmd.max_address_calculated else 'User-defined'} """
-                for mmd in mmd_list)
         
+        caption = ""
+        for mmd in mmd_list:
+            max_address_hex = f"0x{mmd.max_address:X}"
+            caption += f"{mmd.name}:"
+            caption += f"\n{'':10}max address = 0x{mmd.max_address:X} ({mmd.max_address:,})"
+            caption += f"\n{'':10}{'Calculated from region data' if mmd.max_address_calculated else 'User-defined input'}\n"
+         
         _, ctop, _, cbottom = PIL.ImageDraw.Draw(PIL.Image.new("RGBA", (0,0))).multiline_textbbox(
             (0,0),
             text=caption,
             font=PIL.ImageFont.load_default(15)
         )              
-        caption_img = PIL.Image.new("RGBA", (table_img.width, cbottom - ctop + 15), color="lightgrey")
+        caption_img = PIL.Image.new("RGBA", (table_img.width - 20, cbottom - ctop + 15), color="lightgrey")
         PIL.ImageDraw.Draw(caption_img).text((5,5), caption, fill="black", font=PIL.ImageFont.load_default(15))
 
         # composite the table and cpation images together
         final_table_img = PIL.Image.new("RGBA", (max(caption_img.width, table_img.width), caption_img.height + table_img.height + 30), color="white")
-        final_table_img.paste(caption_img, (10,10))
-        final_table_img.paste(table_img, (0,caption_img.height + 20))
+        final_table_img.paste(table_img, (0,0))
+        final_table_img.paste(caption_img, (10,table_img.height + 10))
 
         tableimg_file_path = pathlib.Path(Diagram.pargs.out).stem + "_table.png"
         final_table_img.save(pathlib.Path(Diagram.pargs.out).parent / tableimg_file_path)
@@ -431,11 +433,16 @@ class Diagram:
 
         with open(Diagram.pargs.out, "w") as f:
             f.write(f"""![memory map diagram]({pathlib.Path(Diagram.pargs.out).stem}_redux.png)\n""")
-            f.write("|map|region|origin|size|free Space|collisions|links|draw scale|\n")
-            f.write("|:-|:-|:-|:-|:-|:-|:-|:-|\n")
+            f.write("|region (parent)|origin|size|free Space|collisions|links|draw scale|\n")
+            f.write("|:-|:-|:-|:-|:-|:-|:-|\n")
             # use __str__ from mm.image.MemoryRegionImage to print tabulated row
             for mr in table_list:
                 f.write(f"{mr}\n")
+            f.write("\n---")
+            for mmd in mmd_list:
+                f.write(f"\n#### {mmd.name}:")
+                f.write(f"\n- max address = 0x{mmd.max_address:X} ({mmd.max_address:,})")
+                f.write(f"\n- {'Calculated from region data' if mmd.max_address_calculated else 'User-defined input'}")
 
     @classmethod
     def _parse_args(cls):
