@@ -5,7 +5,7 @@ Tool for generating diagrams that show the mapping of regions in memory, specifc
 
 ||
 |:-:|
-|![](doc/example/example_normal_redux.png)|
+|![](doc/example/example_normal_diagram.png)|
 |![](doc/example/example_normal_table.png)|
 
 As well as the `png` format diagram image, a `markdown` report is also created:

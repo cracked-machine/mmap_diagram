@@ -13,10 +13,25 @@ import pathlib
 import logging
 import collections
 
-from typing import List, Dict, Literal, Tuple, DefaultDict
+from typing import List, Dict, Literal, Tuple, DefaultDict, NamedTuple
 
 import mm.image
 import mm.metamodel
+
+class APageSize(NamedTuple):
+    width: int
+    height: int
+
+A1 = APageSize(7016, 9933)
+A2 = APageSize(4961, 7016)
+A3 = APageSize(3508, 4961)
+A4 = APageSize(2480, 3508)
+A5 = APageSize(1748, 2480)
+A6 = APageSize(1240, 1748)
+A7 = APageSize(874, 1240)
+A8 = APageSize(614, 874)
+A9 = APageSize(437, 614)
+A10 = APageSize(307, 437)
 
 root = logging.getLogger()
 root.setLevel(logging.INFO)
@@ -51,7 +66,7 @@ class MemoryMapDiagram:
         self.max_address = next(iter(memory_map_metadata.values())).max_address
         """User-defined (via JSON) or calculated from region data if undefined or smaller than region data"""
         
-        self.max_address_calculated: bool = next(iter(memory_map_metadata.values())).max_address_calculated
+        self.max_address_taken_from_diagram_height: bool = next(iter(memory_map_metadata.values())).max_address_taken_from_diagram_height
         """The max address value was calculated from region data"""
 
         self.addr_col_width_percent = (self.width // 100) * Diagram.model.legend_width
@@ -172,25 +187,25 @@ class MemoryMapDiagram:
             return label.overlay(dest, xy)
         
 
-    def _create_mmap(self, memregion_list: List[mm.image.MemoryRegionImage], draw_scale: int) -> None:
+    def _create_mmap(self, only_memregion_list: List[mm.image.MemoryRegionImage], draw_scale: int) -> None:
         """Create a dict of region groups, interleaved with void regions. 
         Then draw the regions onto a larger memory map image. """
 
-        redux_subgroup_idx = 0
-        redux_subgroup: DefaultDict = collections.defaultdict(list)
+        mixed_region_dict_idx = 0
+        self.mixed_region_dict: DefaultDict = collections.defaultdict(list)
 
-        for memregion in memregion_list:
+        for memregion in only_memregion_list:
             # start adding memregions to the current subgroup...
-            redux_subgroup[redux_subgroup_idx].append(memregion)
+            self.mixed_region_dict[mixed_region_dict_idx].append(memregion)
             # until we hit a empty space larger than the threshold setting
             if memregion.freespace_as_int > Diagram.model.threshold:
                 # add a single void region subgroup at a new index...
-                redux_subgroup_idx = redux_subgroup_idx + 1
-                redux_subgroup[redux_subgroup_idx].append(self.voidregion)
+                mixed_region_dict_idx = mixed_region_dict_idx + 1
+                self.mixed_region_dict[mixed_region_dict_idx].append(self.voidregion)
                 # then increment again, ready for next memregion subgroup
-                redux_subgroup_idx = redux_subgroup_idx + 1
+                mixed_region_dict_idx = mixed_region_dict_idx + 1
 
-        map_img_redux = PIL.Image.new(
+        map_img = PIL.Image.new(
             "RGBA", 
             (self.width, self.height), 
             color=Diagram.model.bgcolour)
@@ -198,27 +213,24 @@ class MemoryMapDiagram:
         next_void_pos = 0
         last_void_pos = 0 
         void_padding = 10
-        for group_idx in range(0, len(redux_subgroup)):
+        for group_idx in range(0, len(self.mixed_region_dict)):
 
             region: mm.image.MemoryRegionImage
-            for region_idx, region in enumerate(redux_subgroup[group_idx]):
+            for region in self.mixed_region_dict[group_idx]:
                 
-
                 if isinstance(region, mm.image.MemoryRegionImage):
                     # adjusted values for drawing ypos - labels should use the original values
                     region_origin_scaled  = region.origin_as_int // draw_scale
 
-                    region._draw()
-
                     # add memory region after ypos of last voidregion - if any
-                    map_img_redux = region.overlay(
-                        dest=map_img_redux, 
+                    map_img = region.overlay(
+                        dest=map_img, 
                         xy=mm.image.Point(0, last_void_pos if last_void_pos else region_origin_scaled), 
                         alpha=int(Diagram.model.region_alpha))
                     
                     # add origin address text
-                    map_img_redux = self._add_label(
-                        dest=map_img_redux, 
+                    map_img = self._add_label(
+                        dest=map_img, 
                         xy=mm.image.Point(region.img.width + 5, (last_void_pos if last_void_pos else region_origin_scaled) - 2 ) , 
                         text=f"0x{region.origin_as_int:X}" + " (" + f"{region.origin_as_int:,}" + ")", 
                         font_size=region.metadata.address_text_size)
@@ -228,39 +240,38 @@ class MemoryMapDiagram:
 
                 if isinstance(region, mm.image.VoidRegionImage):
                     # add void region
-                    map_img_redux.paste(region.img, (0, next_void_pos))
+                    map_img.paste(region.img, (0, next_void_pos))
                     # reset the ypos for the next memregion
                     last_void_pos = next_void_pos + region.img.height + void_padding
-                
 
-
-        last_region = redux_subgroup[len(redux_subgroup) - 1][-1]
+        last_region = self.mixed_region_dict[len(self.mixed_region_dict) - 1][-1]
         if isinstance(last_region, mm.image.VoidRegionImage):
-            map_img_redux = self._add_label(
-                dest=map_img_redux, 
+            map_img = self._add_label(
+                dest=map_img, 
                 xy=mm.image.Point(last_region.img.width + 5, next_void_pos + last_region.img.height), 
                 text=f"0x{self.max_address:X}" + " (" + f"{self.max_address:,}" + ")", 
                 font_size=Diagram.model.address_text_size,
                 y_origin="bottom")
             
         if isinstance(last_region, mm.image.MemoryRegionImage):
-            map_img_redux = self._add_label(
-                dest=map_img_redux, 
+            map_img = self._add_label(
+                dest=map_img, 
                 xy=mm.image.Point(last_region.img.width + 5, next_void_pos - void_padding), 
                 text=f"0x{self.max_address:X}" + " (" + f"{self.max_address:,}" + ")", 
                 font_size=last_region.metadata.address_text_size,
                 y_origin="bottom")
 
-        min_bbox = None
-        if not Diagram.pargs.trim_whitespace:
-            min_bbox = mm.image.Bbox((0,0, Diagram.model.width,Diagram.model.height))             
-        map_img_redux = self.trim_whitespace(
-            map_img_redux, 
-            min=min_bbox
+        bbox = mm.image.Bbox((0,0, Diagram.model.width,Diagram.model.height))             
+        if Diagram.pargs.no_whitespace_trim:
+            bbox = None
+        map_img = self.trim_whitespace(
+            map_img, 
+            max=bbox,
+            min=bbox
         )
 
         # flip back up the right way
-        self.img = map_img_redux.transpose(PIL.Image.FLIP_TOP_BOTTOM)           
+        self.img = map_img.transpose(PIL.Image.FLIP_TOP_BOTTOM)           
         
 
 class Diagram:
@@ -290,12 +301,12 @@ class Diagram:
             pass
 
         # composite the memory map diagrams into single diagram
-        self.draw_diagram_img_redux()
+        self.draw_diagram_img()
 
         self._create_table_image(self.mmd_list)
         self._create_markdown(self.mmd_list)        
 
-    def draw_diagram_img_redux(self) -> None:
+    def draw_diagram_img(self) -> None:
         """add each memory map to the complete diagram image"""
 
         max_map_img_height = max(self.mmd_list, key=lambda mmd: mmd.img.height).img.height
@@ -371,7 +382,7 @@ class Diagram:
         # make sure we don't go over the requested height
         if final_diagram_img.height > Diagram.model.height:
             final_diagram_img = final_diagram_img.resize((Diagram.model.width, Diagram.model.height), PIL.Image.Resampling.BICUBIC)
-        img_file_path = pathlib.Path(Diagram.pargs.out).stem + "_redux.png"
+        img_file_path = pathlib.Path(Diagram.pargs.out).stem + "_diagram.png"
         final_diagram_img.save(pathlib.Path(Diagram.pargs.out).parent / img_file_path)
 
     def _create_table_image(self, mmd_list: List[MemoryMapDiagram]) -> None:
@@ -402,7 +413,7 @@ class Diagram:
             max_address_hex = f"0x{mmd.max_address:X}"
             caption += f"{mmd.name}:"
             caption += f"\n{'':10}max address = 0x{mmd.max_address:X} ({mmd.max_address:,})"
-            caption += f"\n{'':10}{'Calculated from region data' if mmd.max_address_calculated else 'User-defined input'}\n"
+            caption += f"\n{'':10}{'Diagram height used' if mmd.max_address_taken_from_diagram_height else 'User-defined input'}\n"
          
         _, ctop, _, cbottom = PIL.ImageDraw.Draw(PIL.Image.new("RGBA", (0,0))).multiline_textbbox(
             (0,0),
@@ -432,7 +443,7 @@ class Diagram:
         table_list.sort(key=lambda x: x.origin_as_int, reverse=True)
 
         with open(Diagram.pargs.out, "w") as f:
-            f.write(f"""![memory map diagram]({pathlib.Path(Diagram.pargs.out).stem}_redux.png)\n""")
+            f.write(f"""![memory map diagram]({pathlib.Path(Diagram.pargs.out).stem}_diagram.png)\n""")
             f.write("|region (parent)|origin|size|free Space|collisions|links|draw scale|\n")
             f.write("|:-|:-|:-|:-|:-|:-|:-|\n")
             # use __str__ from mm.image.MemoryRegionImage to print tabulated row
@@ -442,7 +453,7 @@ class Diagram:
             for mmd in mmd_list:
                 f.write(f"\n#### {mmd.name}:")
                 f.write(f"\n- max address = 0x{mmd.max_address:X} ({mmd.max_address:,})")
-                f.write(f"\n- {'Calculated from region data' if mmd.max_address_calculated else 'User-defined input'}")
+                f.write(f"\n- {'Calculated from region data' if mmd.max_address_taken_from_diagram_height else 'User-defined input'}")
 
     @classmethod
     def _parse_args(cls):
@@ -464,7 +475,12 @@ class Diagram:
         parser.add_argument(
             "-l",
             "--limit",
-            help="The height for the diagram. Please use hex. Memory regions exceeding this height will be scaled to fit. Ignored when using JSON file input.",
+            help="""
+            The 'height' in pixels and 'max address' in bytes for the diagram. 
+            Please use hex format. Ignored when using JSON file input.
+            Memory regions exceeding this value will be scaled to fit. 
+            If you need to set 'height' and 'max address' to different values, 
+            please use the JSON input file instead.""",
             type=str
         )
         parser.add_argument(
@@ -492,7 +508,7 @@ class Diagram:
             action="store_true"
         )        
         parser.add_argument(
-            "--trim_whitespace",
+            "--no_whitespace_trim",
             help="Force whitespace trim in diagram images.",
             action="store_true"
         )        
@@ -547,7 +563,7 @@ class Diagram:
                 "$schema": "../../mm/schema.json",
                 "name": "Diagram",
                 "height": int(Diagram.pargs.limit,16),
-                "width": 400,
+                "width": A8.width,  # width is fixed when using the command line
                 "threshold": int(Diagram.pargs.threshold, 16),
                 "memory_maps": { 
                     mmname : { 

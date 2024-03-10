@@ -204,7 +204,6 @@ def test_default_limit_arg_format(file_setup):
             "a", "0x10", "0x10", 
             "-l", hex(2000),
             "-o", str(file_setup["report"]),
-            "--trim_whitespace",
         ]
     ):
 
@@ -219,7 +218,7 @@ def test_default_limit_arg_format(file_setup):
 
         assert file_setup["diagram_image"].exists()
         outimg = PIL.Image.open(str(file_setup["diagram_image"]))
-        assert outimg.height == 100
+        assert outimg.height == 2000
 
         assert file_setup["table_image"].exists()
         
@@ -234,7 +233,7 @@ def test_valid_2000_limit_arg_format(file_setup):
             "a", "0x10", "0x10", 
             "-o", str(file_setup["report"]), 
             "-l", hex(2000),
-            "--trim_whitespace",
+            
         ]
     ):
 
@@ -248,54 +247,7 @@ def test_valid_2000_limit_arg_format(file_setup):
 
         assert file_setup["diagram_image"].exists()
         outimg = PIL.Image.open(str(file_setup["diagram_image"]))
-        assert outimg.size[1] == 100
+        assert outimg.size[1] == 2000
 
         assert file_setup["table_image"].exists()
 
-def test_input_file(caplog):
-
-    # Check you get warning with -f and -l
-    with unittest.mock.patch(
-        "sys.argv", 
-        [
-            "mm.diagram", 
-            "-f", "input.json",
-            "-l", hex(1000),
-            "-t", hex(500)
-        ]
-    ):        
-        with pytest.raises(SystemExit):
-            mm.diagram.Diagram()
-            
-    caplog.clear()
-
-    # Check you get warning with -f and -l
-    with unittest.mock.patch(
-        "sys.argv", 
-        [
-            "mm.diagram", 
-            "-f", "doc/example/input.json",
-            "-l", hex(1000),
-            "-t", hex(500)
-        ]
-    ):        
-        with caplog.at_level(logging.WARNING):
-            d = mm.diagram.Diagram()
-            assert 'Limit flag is ignore when using JSON input. Using the JSON file Diagram -> height field instead.' in caplog.text
-
-    caplog.clear()
-
-        # Check you get don't get warning with only -l
-    with unittest.mock.patch(
-        "sys.argv", 
-        [
-            "mm.diagram", 
-            "a", "0x10", "0x10",
-            "-l", hex(1000),
-            "-t", hex(500)
-        ]
-    ):
-
-        with caplog.at_level(logging.WARNING):
-            d = mm.diagram.Diagram()
-            assert not 'Limit flag is ignore when using JSON input. Using the JSON file Diagram -> height field instead.' in caplog.text

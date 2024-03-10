@@ -1,14 +1,16 @@
 import pytest
 from typing import Dict
 import pathlib
+import mm.diagram
+
 
 @pytest.fixture
 def input() -> Dict:
     valid = {
         "$schema": "../../mm/schema.json",
         "name": "TestDiagram",
-        "height": 1000,
-        "width": 1000,
+        "height": mm.diagram.A8.height,
+        "width": mm.diagram.A8.width,
         "memory_maps": {
             "eMMC": {
                 "memory_regions": 
@@ -163,7 +165,7 @@ def file_setup(request):
     report = pathlib.Path(f"{request.param['file_path']}.md")
     report.unlink(missing_ok=True)
 
-    diagram_image = pathlib.Path(f"{request.param['file_path']}_redux.png")
+    diagram_image = pathlib.Path(f"{request.param['file_path']}_diagram.png")
     diagram_image.unlink(missing_ok=True)
 
     table_image = pathlib.Path(f"{request.param['file_path']}_table.png")
