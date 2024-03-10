@@ -459,7 +459,12 @@ class Diagram:
         parser.add_argument(
             "-l",
             "--limit",
-            help="The height for the diagram. Please use hex. Memory regions exceeding this height will be scaled to fit. Ignored when using JSON file input.",
+            help="""
+            The 'height' in pixels and 'max address' in bytes for the diagram. 
+            Please use hex format. Ignored when using JSON file input.
+            Memory regions exceeding this value will be scaled to fit. 
+            If you need to set 'height' and 'max address' to different values, 
+            please use the JSON input file instead.""",
             type=str
         )
         parser.add_argument(
