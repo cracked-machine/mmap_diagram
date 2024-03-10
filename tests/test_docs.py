@@ -25,7 +25,6 @@ def test_generate_doc_example_normal(file_setup):
             "--out", str(file_setup["report"]),
             "-l", hex(height),
             "--threshold", hex(200),
-            "--trim_whitespace"
         ],
     ):
 
@@ -69,7 +68,6 @@ def test_generate_doc_example_collisions(file_setup):
             "--out", str(file_setup["report"]),
             "--limit", height,
             "--threshold", hex(200),
-            "--trim_whitespace"
         ],
     ):
 
@@ -125,7 +123,6 @@ def test_generate_doc_example_two_maps(input, file_setup):
                 "--out", str(file_setup["report"]),
                 "--limit", hex(height),
                 "--threshold", hex(200),
-                "--trim_whitespace"
             ],
         ):
 
@@ -202,7 +199,6 @@ def test_generate_doc_example_three_maps(input, file_setup):
                 "--out", str(file_setup["report"]),
                 "--limit", hex(height),
                 "--threshold", hex(200),
-                "--trim_whitespace"
             ],
         ):
 

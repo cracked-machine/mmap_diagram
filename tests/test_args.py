@@ -204,7 +204,6 @@ def test_default_limit_arg_format(file_setup):
             "a", "0x10", "0x10", 
             "-l", hex(2000),
             "-o", str(file_setup["report"]),
-            "--trim_whitespace",
         ]
     ):
 
@@ -234,7 +233,7 @@ def test_valid_2000_limit_arg_format(file_setup):
             "a", "0x10", "0x10", 
             "-o", str(file_setup["report"]), 
             "-l", hex(2000),
-            "--trim_whitespace",
+            
         ]
     ):
 

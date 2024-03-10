@@ -246,12 +246,12 @@ class MemoryMapDiagram:
                 font_size=last_region.metadata.address_text_size,
                 y_origin="bottom")
 
-        min_bbox = None
-        if not Diagram.pargs.trim_whitespace:
-            min_bbox = mm.image.Bbox((0,0, Diagram.model.width,Diagram.model.height))             
+        max_bbox = mm.image.Bbox((0,0, Diagram.model.width,Diagram.model.height))             
+        if Diagram.pargs.no_whitespace_trim:
+            max_bbox = None
         map_img = self.trim_whitespace(
             map_img, 
-            min=min_bbox
+            max=max_bbox
         )
 
         # flip back up the right way
@@ -492,7 +492,7 @@ class Diagram:
             action="store_true"
         )        
         parser.add_argument(
-            "--trim_whitespace",
+            "--no_whitespace_trim",
             help="Force whitespace trim in diagram images.",
             action="store_true"
         )        

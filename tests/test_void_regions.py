@@ -20,7 +20,7 @@ def test_void_region_default(file_setup):
             "dtb", "0x190", "0x30",
             "-o", str(file_setup["report"]),
             "-l", hex(height),
-            "--trim_whitespace",
+            
         ],
     ):
 
@@ -66,7 +66,7 @@ def test_void_region_uservalue_500(file_setup):
             "-o", str(file_setup["report"]),
             "-l", hex(height),
             "-t", hex(500),
-            "--trim_whitespace",
+            
         ],
     ):
 
@@ -110,7 +110,7 @@ def test_void_region_uservalue_1000(file_setup):
             "-o", str(file_setup["report"]),
             "-l", hex(height),
             "-t", hex(1000),
-            "--trim_whitespace",
+            
         ],
     ):
 
