@@ -42,7 +42,7 @@ jobs:
         mkdir _site
         cp -r docs _site
         cp examples.md _site
-        echo "test" > _site/index.html
+        echo "<a href='examples.html'>examples</a>" > _site/index.html
     - name: upload examples
       uses: actions/upload-pages-artifact@v3
       with:
