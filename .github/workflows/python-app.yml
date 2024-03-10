@@ -37,6 +37,11 @@ jobs:
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     # publish pages
+    - name: Converts Markdown to HTML
+      uses: jaywcjlove/markdown-to-html-cli@main
+      with:
+        source: examples.md
+        output: examples.html
     - name: Prepare examples
       run: |
         mkdir _site
