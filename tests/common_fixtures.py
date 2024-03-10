@@ -163,7 +163,7 @@ def file_setup(request):
     report = pathlib.Path(f"{request.param['file_path']}.md")
     report.unlink(missing_ok=True)
 
-    diagram_image = pathlib.Path(f"{request.param['file_path']}_redux.png")
+    diagram_image = pathlib.Path(f"{request.param['file_path']}_diagram.png")
     diagram_image.unlink(missing_ok=True)
 
     table_image = pathlib.Path(f"{request.param['file_path']}_table.png")

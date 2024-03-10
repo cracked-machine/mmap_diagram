@@ -4,7 +4,8 @@ import mm.metamodel
 import pydantic 
 from typing import Dict
 from tests.common_fixtures import input
-
+import unittest
+import logging
 
 @pytest.fixture
 def setup() -> Dict:
@@ -25,6 +26,54 @@ def test_gen_example_input(input):
         fp.write(data.model_dump_json(indent=2))
     
     assert output_file.exists()
+
+def test_input_file(caplog):
+
+    # Check you get warning with -f and -l
+    with unittest.mock.patch(
+        "sys.argv", 
+        [
+            "mm.diagram", 
+            "-f", "input.json",
+            "-l", hex(1000),
+            "-t", hex(500)
+        ]
+    ):        
+        with pytest.raises(SystemExit):
+            mm.diagram.Diagram()
+            
+    caplog.clear()
+
+    # Check you get warning with -f and -l
+    with unittest.mock.patch(
+        "sys.argv", 
+        [
+            "mm.diagram", 
+            "-f", "doc/example/input.json",
+            "-l", hex(1000),
+            "-t", hex(500)
+        ]
+    ):        
+        with caplog.at_level(logging.WARNING):
+            d = mm.diagram.Diagram()
+            assert 'Limit flag is ignore when using JSON input. Using the JSON file Diagram -> height field instead.' in caplog.text
+
+    caplog.clear()
+
+        # Check you get don't get warning with only -l
+    with unittest.mock.patch(
+        "sys.argv", 
+        [
+            "mm.diagram", 
+            "a", "0x10", "0x10",
+            "-l", hex(1000),
+            "-t", hex(500)
+        ]
+    ):
+
+        with caplog.at_level(logging.WARNING):
+            d = mm.diagram.Diagram()
+            assert not 'Limit flag is ignore when using JSON input. Using the JSON file Diagram -> height field instead.' in caplog.text
     
 def test_data_present(input):
     data = mm.metamodel.Diagram(**input)

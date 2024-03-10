@@ -1,13 +1,13 @@
-![memory map diagram](example_three_maps_redux.png)
+![memory map diagram](example_three_maps_diagram.png)
 |region (parent)|origin|size|free Space|collisions|links|draw scale|
 |:-|:-|:-|:-|:-|:-|:-|
-|<span style='color:(57, 60, 51)'>Blob5 (DRAM)</span>|0x78 (120)|0x20 (32)|0x0 (0)|||1:1|
-|<span style='color:(38, 32, 0)'>Blob3 (DRAM)</span>|0x50 (80)|0x20 (32)|0x8 (8)|||1:1|
-|<span style='color:(22, 48, 10)'>Blob7 (flash)</span>|0x50 (80)|0x20 (32)|0x0 (0)||('DRAM', 'Blob3')<BR>('DRAM', 'Blob5')|1:1|
-|<span style='color:(28, 10, 45)'>Blob4 (DRAM)</span>|0x28 (40)|0x20 (32)|0x8 (8)|||1:1|
-|<span style='color:(23, 8, 32)'>Blob6 (flash)</span>|0xa (10)|0x3c (60)|0xa (10)|||1:1|
-|<span style='color:(22, 0, 63)'>Blob1 (eMMC)</span>|0x0 (0)|0x20 (32)|0x0 (0)||('DRAM', 'Blob2')<BR>('DRAM', 'Blob4')|1:1|
-|<span style='color:(15, 7, 43)'>Blob2 (DRAM)</span>|0x0 (0)|0x20 (32)|0x8 (8)|||1:1|
+|<span style='color:(3, 22, 36)'>Blob5 (DRAM)</span>|0x78 (120)|0x20 (32)|0x0 (0)|||1:1|
+|<span style='color:(40, 26, 51)'>Blob3 (DRAM)</span>|0x50 (80)|0x20 (32)|0x8 (8)|||1:1|
+|<span style='color:(18, 8, 26)'>Blob7 (flash)</span>|0x50 (80)|0x20 (32)|0x0 (0)||('DRAM', 'Blob3')<BR>('DRAM', 'Blob5')|1:1|
+|<span style='color:(32, 37, 39)'>Blob4 (DRAM)</span>|0x28 (40)|0x20 (32)|0x8 (8)|||1:1|
+|<span style='color:(5, 12, 65)'>Blob6 (flash)</span>|0xa (10)|0x3c (60)|0xa (10)|||1:1|
+|<span style='color:(29, 7, 32)'>Blob1 (eMMC)</span>|0x0 (0)|0x20 (32)|0x0 (0)||('DRAM', 'Blob2')<BR>('DRAM', 'Blob4')|1:1|
+|<span style='color:(68, 46, 38)'>Blob2 (DRAM)</span>|0x0 (0)|0x20 (32)|0x8 (8)|||1:1|
 
 ---
 #### eMMC:

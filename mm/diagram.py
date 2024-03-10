@@ -190,7 +190,7 @@ class MemoryMapDiagram:
                 # then increment again, ready for next memregion subgroup
                 redux_subgroup_idx = redux_subgroup_idx + 1
 
-        map_img_redux = PIL.Image.new(
+        map_img = PIL.Image.new(
             "RGBA", 
             (self.width, self.height), 
             color=Diagram.model.bgcolour)
@@ -211,14 +211,14 @@ class MemoryMapDiagram:
                     region._draw()
 
                     # add memory region after ypos of last voidregion - if any
-                    map_img_redux = region.overlay(
-                        dest=map_img_redux, 
+                    map_img = region.overlay(
+                        dest=map_img, 
                         xy=mm.image.Point(0, last_void_pos if last_void_pos else region_origin_scaled), 
                         alpha=int(Diagram.model.region_alpha))
                     
                     # add origin address text
-                    map_img_redux = self._add_label(
-                        dest=map_img_redux, 
+                    map_img = self._add_label(
+                        dest=map_img, 
                         xy=mm.image.Point(region.img.width + 5, (last_void_pos if last_void_pos else region_origin_scaled) - 2 ) , 
                         text=f"0x{region.origin_as_int:X}" + " (" + f"{region.origin_as_int:,}" + ")", 
                         font_size=region.metadata.address_text_size)
@@ -228,24 +228,22 @@ class MemoryMapDiagram:
 
                 if isinstance(region, mm.image.VoidRegionImage):
                     # add void region
-                    map_img_redux.paste(region.img, (0, next_void_pos))
+                    map_img.paste(region.img, (0, next_void_pos))
                     # reset the ypos for the next memregion
                     last_void_pos = next_void_pos + region.img.height + void_padding
-                
-
 
         last_region = redux_subgroup[len(redux_subgroup) - 1][-1]
         if isinstance(last_region, mm.image.VoidRegionImage):
-            map_img_redux = self._add_label(
-                dest=map_img_redux, 
+            map_img = self._add_label(
+                dest=map_img, 
                 xy=mm.image.Point(last_region.img.width + 5, next_void_pos + last_region.img.height), 
                 text=f"0x{self.max_address:X}" + " (" + f"{self.max_address:,}" + ")", 
                 font_size=Diagram.model.address_text_size,
                 y_origin="bottom")
             
         if isinstance(last_region, mm.image.MemoryRegionImage):
-            map_img_redux = self._add_label(
-                dest=map_img_redux, 
+            map_img = self._add_label(
+                dest=map_img, 
                 xy=mm.image.Point(last_region.img.width + 5, next_void_pos - void_padding), 
                 text=f"0x{self.max_address:X}" + " (" + f"{self.max_address:,}" + ")", 
                 font_size=last_region.metadata.address_text_size,
@@ -254,13 +252,13 @@ class MemoryMapDiagram:
         min_bbox = None
         if not Diagram.pargs.trim_whitespace:
             min_bbox = mm.image.Bbox((0,0, Diagram.model.width,Diagram.model.height))             
-        map_img_redux = self.trim_whitespace(
-            map_img_redux, 
+        map_img = self.trim_whitespace(
+            map_img, 
             min=min_bbox
         )
 
         # flip back up the right way
-        self.img = map_img_redux.transpose(PIL.Image.FLIP_TOP_BOTTOM)           
+        self.img = map_img.transpose(PIL.Image.FLIP_TOP_BOTTOM)           
         
 
 class Diagram:
@@ -290,12 +288,12 @@ class Diagram:
             pass
 
         # composite the memory map diagrams into single diagram
-        self.draw_diagram_img_redux()
+        self.draw_diagram_img()
 
         self._create_table_image(self.mmd_list)
         self._create_markdown(self.mmd_list)        
 
-    def draw_diagram_img_redux(self) -> None:
+    def draw_diagram_img(self) -> None:
         """add each memory map to the complete diagram image"""
 
         max_map_img_height = max(self.mmd_list, key=lambda mmd: mmd.img.height).img.height
@@ -371,7 +369,7 @@ class Diagram:
         # make sure we don't go over the requested height
         if final_diagram_img.height > Diagram.model.height:
             final_diagram_img = final_diagram_img.resize((Diagram.model.width, Diagram.model.height), PIL.Image.Resampling.BICUBIC)
-        img_file_path = pathlib.Path(Diagram.pargs.out).stem + "_redux.png"
+        img_file_path = pathlib.Path(Diagram.pargs.out).stem + "_diagram.png"
         final_diagram_img.save(pathlib.Path(Diagram.pargs.out).parent / img_file_path)
 
     def _create_table_image(self, mmd_list: List[MemoryMapDiagram]) -> None:
@@ -432,7 +430,7 @@ class Diagram:
         table_list.sort(key=lambda x: x.origin_as_int, reverse=True)
 
         with open(Diagram.pargs.out, "w") as f:
-            f.write(f"""![memory map diagram]({pathlib.Path(Diagram.pargs.out).stem}_redux.png)\n""")
+            f.write(f"""![memory map diagram]({pathlib.Path(Diagram.pargs.out).stem}_diagram.png)\n""")
             f.write("|region (parent)|origin|size|free Space|collisions|links|draw scale|\n")
             f.write("|:-|:-|:-|:-|:-|:-|:-|\n")
             # use __str__ from mm.image.MemoryRegionImage to print tabulated row
