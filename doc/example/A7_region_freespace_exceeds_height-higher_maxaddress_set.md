@@ -1,9 +1,9 @@
 ![memory map diagram](A7_region_freespace_exceeds_height-higher_maxaddress_set_diagram.png)
 |region (parent)|origin|size|free Space|collisions|links|draw scale|
 |:-|:-|:-|:-|:-|:-|:-|
-|<span style='color:(49, 45, 46)'>OCM (Global System Address Map)</span>|0x7e0 (2016)|0x7d0 (2000)|0xfffff04f (4294963279)|||4:1|
-|<span style='color:(28, 4, 53)'>DDR Memory Controller (Global System Address Map)</span>|0x10 (16)|0x3e8 (1000)|0x3e8 (1000)|||4:1|
-|<span style='color:(66, 4, 20)'>Boot Image (Flash)</span>|0x0 (0)|0xffffff (16777215)|0xff000000 (4278190080)|||14176:1|
+|<span style='color:(68, 30, 62)'>OCM (Global System Address Map)</span>|0x7e0 (2016)|0x7d0 (2000)|0xfffff04f (4294963279)|||4:1|
+|<span style='color:(9, 41, 14)'>DDR Memory Controller (Global System Address Map)</span>|0x10 (16)|0x3e8 (1000)|0x3e8 (1000)|||4:1|
+|<span style='color:(65, 42, 50)'>Boot Image (Flash)</span>|0x0 (0)|0xffffff (16777215)|0xff000000 (4278190080)|||14176:1|
 
 ---
 #### Global System Address Map:

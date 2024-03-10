@@ -41,6 +41,22 @@ formatter = logging.Formatter("%(levelname)s - %(message)s")
 handler.setFormatter(formatter)
 root.addHandler(handler)
 
+
+class LockableDictOfLists(collections.defaultdict):
+    def __init__(self):
+        self.__lock = False
+        super(LockableDictOfLists, self).__init__(list,)
+
+    def lock(self):
+        """No more keys can be created."""
+        self.__lock = True
+    
+    def __setitem__(self, __key: any, __value: any) -> None:
+        if self.__lock:
+            logging.warning("You were prevented from trying to update a locked dict!")
+            return
+        return super().__setitem__(__key, __value)
+
 @typeguard.typechecked
 class MemoryMapDiagram:
 
@@ -192,7 +208,7 @@ class MemoryMapDiagram:
         Then draw the regions onto a larger memory map image. """
 
         mixed_region_dict_idx = 0
-        self.mixed_region_dict: DefaultDict = collections.defaultdict(list)
+        self.mixed_region_dict: LockableDictOfLists = LockableDictOfLists()
 
         for memregion in only_memregion_list:
             # start adding memregions to the current subgroup...
@@ -204,6 +220,9 @@ class MemoryMapDiagram:
                 self.mixed_region_dict[mixed_region_dict_idx].append(self.voidregion)
                 # then increment again, ready for next memregion subgroup
                 mixed_region_dict_idx = mixed_region_dict_idx + 1
+
+
+        self.mixed_region_dict.lock()
 
         map_img = PIL.Image.new(
             "RGBA", 

@@ -1,9 +1,9 @@
 ![memory map diagram](A5_maxaddress_lower_than_memregions_diagram.png)
 |region (parent)|origin|size|free Space|collisions|links|draw scale|
 |:-|:-|:-|:-|:-|:-|:-|
-|<span style='color:(48, 53, 18)'>Boot Image (Flash)</span>|0xbb8 (3000)|0x7d0 (2000)|-0xbb8 (-3000)| end @ 0x7d0 |('Global System Address Map', 'OCM')|3:1|
-|<span style='color:(24, 38, 18)'>OCM (Global System Address Map)</span>|0x7e0 (2016)|0x7d0 (2000)|-0x600 (-1536)| end @ 0x9b0 ||2:1|
-|<span style='color:(12, 36, 60)'>DDR Memory Controller (Global System Address Map)</span>|0x10 (16)|0x3e8 (1000)|0x3e8 (1000)|||2:1|
+|<span style='color:(65, 53, 63)'>Boot Image (Flash)</span>|0xbb8 (3000)|0x7d0 (2000)|-0xbb8 (-3000)| end @ 0x7d0 |('Global System Address Map', 'OCM')|3:1|
+|<span style='color:(36, 12, 45)'>OCM (Global System Address Map)</span>|0x7e0 (2016)|0x7d0 (2000)|-0x600 (-1536)| end @ 0x9b0 ||2:1|
+|<span style='color:(23, 53, 29)'>DDR Memory Controller (Global System Address Map)</span>|0x10 (16)|0x3e8 (1000)|0x3e8 (1000)|||2:1|
 
 ---
 #### Global System Address Map:
