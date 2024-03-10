@@ -211,7 +211,7 @@ def test_default_limit_arg_format(file_setup):
         default_limit = mm.diagram.Diagram.pargs.limit
 
         # this test assumes the default 'threshold' is 0x3e8 (1000)
-        assert mm.diagram.Diagram.pargs.threshold == hex(200)
+        assert mm.diagram.Diagram.pargs.threshold == hex(10)
         assert not mm.diagram.Diagram.pargs.threshold == 200
 
         assert file_setup["report"].exists()

@@ -99,9 +99,11 @@ def test_generate_doc_example_collisions(file_setup):
 def test_generate_doc_example_two_maps(input, file_setup):
     """ """
 
+    input['height'] = mm.diagram.A9.width
+    input['width'] = mm.diagram.A9.height
     input['memory_maps']['eMMC']['memory_regions']['Blob4'] = {
         "origin": "0x100",
-        "size": "0x10"
+        "size": "0x30"
     }
 
     input['memory_maps']['DRAM']['memory_regions']['Blob5'] = {
@@ -133,7 +135,7 @@ def test_generate_doc_example_two_maps(input, file_setup):
         assert file_setup["report"].exists()
 
         assert file_setup["diagram_image"].exists()
-        assert PIL.Image.open(str(file_setup["diagram_image"])).size == (mm.diagram.A8.width, mm.diagram.A8.height)
+        assert PIL.Image.open(str(file_setup["diagram_image"])).size == (mm.diagram.A9.height, mm.diagram.A9.width)
 
 
         assert file_setup["table_image"].exists()
@@ -142,6 +144,9 @@ def test_generate_doc_example_two_maps(input, file_setup):
 def test_generate_doc_example_three_maps(input, file_setup):
     
     """ """
+
+    input['height'] = mm.diagram.A9.width
+    input['width'] = mm.diagram.A9.height    
     input["memory_maps"]['eMMC']['memory_regions']['Blob1'] = {
         "origin": hex(0),
         "size": hex(32),
@@ -206,7 +211,7 @@ def test_generate_doc_example_three_maps(input, file_setup):
         assert file_setup["report"].exists()
 
         assert file_setup["diagram_image"].exists()
-        assert PIL.Image.open(str(file_setup["diagram_image"])).size == (mm.diagram.A8.width, mm.diagram.A8.height)
+        assert PIL.Image.open(str(file_setup["diagram_image"])).size == (mm.diagram.A9.height, mm.diagram.A9.width)
         assert file_setup["table_image"].exists()
 
 ######################################

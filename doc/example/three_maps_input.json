@@ -1,7 +1,7 @@
 {
   "$schema": "../../mm/schema.json",
   "name": "TestDiagram",
-  "height": 874,
+  "height": 437,
   "width": 614,
   "memory_maps": {
     "eMMC": {

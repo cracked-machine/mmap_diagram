@@ -295,7 +295,7 @@
           "type": "string"
         }
       ],
-      "default": "0xc8",
+      "default": "0xa",
       "description": "The threshold for skipping void sections. Please use hex.",
       "title": "Threshold"
     },

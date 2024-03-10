@@ -50,7 +50,7 @@
   "height": 874,
   "indent_scheme": "alternate",
   "region_alpha": 192,
-  "threshold": 200,
+  "threshold": 10,
   "title_fill_colour": [
     224,
     224,

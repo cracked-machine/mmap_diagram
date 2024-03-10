@@ -507,7 +507,7 @@ class Diagram:
             "--threshold",
             help="The threshold for skipping void sections. Please use hex.",
             type=str,
-            default=hex(200)
+            default=hex(10)
         )
         parser.add_argument(
             "-n",

@@ -219,7 +219,7 @@ class Diagram(ConfigParent):
     threshold: Annotated[
         int | str,
         pydantic.Field(
-            hex(200),
+            hex(10),
             description="The threshold for skipping void sections. Please use hex."            
         )
     ]

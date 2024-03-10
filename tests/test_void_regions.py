@@ -29,14 +29,14 @@ def test_void_region_cli_defaults(file_setup):
 
         d = mm.diagram.Diagram()
 
-        assert len(d.mmd_list[0].mixed_region_dict) == 4
+        assert len(d.mmd_list[0].mixed_region_dict) == 6
         assert all(isinstance(x, mm.image.MemoryRegionImage) for x in d.mmd_list[0].mixed_region_dict[0])
         assert all(isinstance(x, mm.image.VoidRegionImage) for x in d.mmd_list[0].mixed_region_dict[1])
         assert all(isinstance(x, mm.image.MemoryRegionImage) for x in d.mmd_list[0].mixed_region_dict[2])
         assert all(isinstance(x, mm.image.VoidRegionImage) for x in d.mmd_list[0].mixed_region_dict[3])
 
         # assumes the defaults haven't changed
-        assert mm.diagram.Diagram.pargs.threshold == hex(200)
+        assert mm.diagram.Diagram.pargs.threshold == hex(10)
 
         for region_image in d.mmd_list[0].image_list:
             if region_image.name == "kernel":
