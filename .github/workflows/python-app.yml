@@ -10,29 +10,22 @@ on:
     branches: [ "develop", "main" ]
 
 permissions:
-  contents: read
-
+  contents: write
+  pages: write
+  id-token: write
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
+    # init
     - uses: actions/checkout@v3
     - name: Install dependencies
       run: |
         make init 
+    # run pytest
     - name: Test with pytest
       run: |
         make test
-    - name: upload examples
-      uses: actions/upload-artifact@v4
-      with:
-        name: examples
-        path: |
-          docs
-          examples.md
-        if-no-files-found: error 
     - name: upload code coverage
       uses: actions/upload-artifact@v4
       with:
@@ -43,6 +36,28 @@ jobs:
       uses: codecov/codecov-action@v3
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+    # publish pages
+    - name: Converts Markdown to HTML
+      uses: jaywcjlove/markdown-to-html-cli@main
+      with:
+        source: examples.md
+        output: examples.html
+    - name: Prepare examples
+      run: |
+        mkdir _site
+        cp -r docs _site
+        cp examples.md _site
+        cp examples.html _site
+        echo "<a href='examples.html'>examples</a>" > _site/index.html
+    - name: upload examples
+      uses: actions/upload-pages-artifact@v3
+      with:
+        name: github-pages
+        path: _site
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
+    # publish wheel
     - name: create wheel
       run: |
         env
