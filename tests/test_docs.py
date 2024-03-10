@@ -4,14 +4,18 @@ import mm.metamodel
 import pathlib
 import pytest
 import PIL.Image
-from tests.common_fixtures import input, file_setup, zynqmp
+from tests.common_fixtures import input, file_setup, markdown_setup
 import json
 
-
-
-
-@pytest.mark.parametrize("file_setup", [{"file_path": "docs/example/example_end_collision"}], indirect=True)
-def test_generate_doc_example_end_collision(file_setup):
+@pytest.mark.parametrize(
+        "file_setup", 
+        [
+            {
+                "file_path": "docs/example/example_end_collisions",
+                "markdown_comment": "Region collision with diagram max address"
+            }
+        ], indirect=True)
+def test_generate_doc_example_end_collisions(file_setup):
     """ """
 
     
@@ -29,6 +33,10 @@ def test_generate_doc_example_end_collision(file_setup):
     ):
 
         d = mm.diagram.Diagram()
+
+        output_file = pathlib.Path("docs/example/example_end_collisions.json")
+        with output_file.open("w") as fp:
+            fp.write(d.model.model_dump_json(indent=2))    
 
         # we only have a single mmd in mmd_list for this test
         for region_image in d.mmd_list[0].image_list:
@@ -54,10 +62,18 @@ def test_generate_doc_example_end_collision(file_setup):
         # reduced void threshold, so empty section between rootfs and dtb should be voided, making the file smaller
         assert file_setup["table_image"].exists()
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "docs/example/example_region_collisions"}], indirect=True)
+@pytest.mark.parametrize(
+        "file_setup", 
+        [
+            {
+                "file_path": "docs/example/example_region_collisions",
+                "markdown_comment": "Region collisions with other regions"
+            }
+        ], indirect=True)
 def test_generate_doc_example_region_collisions(file_setup):
     """ """
-    
+
+
     with unittest.mock.patch(
         "sys.argv",
         [
@@ -72,6 +88,10 @@ def test_generate_doc_example_region_collisions(file_setup):
     ):
 
         d =mm.diagram.Diagram()
+
+        output_file = pathlib.Path("docs/example/example_region_collisions.json")
+        with output_file.open("w") as fp:
+            fp.write(d.model.model_dump_json(indent=2))    
 
         # we only have a single mmd in mmd_list for this test
         for region_image in d.mmd_list[0].image_list:
@@ -95,7 +115,14 @@ def test_generate_doc_example_region_collisions(file_setup):
 
         assert file_setup["table_image"].exists()
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "docs/example/example_two_maps"}], indirect=True)
+@pytest.mark.parametrize(
+        "file_setup", 
+        [
+            {
+                "file_path": "docs/example/example_two_maps",
+                "markdown_comment": "Diagram with two memory maps"
+            }
+        ], indirect=True)
 def test_generate_doc_example_two_maps(input, file_setup):
     """ """
 
@@ -111,7 +138,7 @@ def test_generate_doc_example_two_maps(input, file_setup):
         "size": "0x10"
     }
 
-    input_file = pathlib.Path("./docs/example/two_maps_input.json")
+    input_file = pathlib.Path("./docs/example/example_two_maps.json")
     with input_file.open("w") as fp:
         fp.write(json.dumps(input, indent=2))
 
@@ -140,7 +167,14 @@ def test_generate_doc_example_two_maps(input, file_setup):
 
         assert file_setup["table_image"].exists()
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "docs/example/example_three_maps"}], indirect=True)
+@pytest.mark.parametrize(
+        "file_setup", 
+        [
+            {
+                "file_path": "docs/example/example_three_maps",
+                "markdown_comment": "Diagram with three memory maps"
+            }
+        ], indirect=True)
 def test_generate_doc_example_three_maps(input, file_setup):
     
     """ """
@@ -190,7 +224,7 @@ def test_generate_doc_example_three_maps(input, file_setup):
         }        
     }
 
-    input_file = pathlib.Path("./docs/example/three_maps_input.json")
+    input_file = pathlib.Path("./docs/example/example_three_maps.json")
     with input_file.open("w") as fp:
         fp.write(json.dumps(input, indent=2))
 

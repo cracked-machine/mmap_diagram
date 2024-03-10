@@ -158,6 +158,15 @@ def zynqmp() -> Dict:
 
 #     return data
 
+markdown = pathlib.Path("examples.md")
+
+@pytest.fixture(scope="session", autouse=True)
+def markdown_setup():
+    # prepare something ahead of all tests
+    markdown.unlink(missing_ok=True)
+    with open(markdown, 'a', encoding='utf-8') as fp:
+        fp.write("|description|diagram|\n")
+        fp.write("|-|-|\n")   
 
 @pytest.fixture
 def file_setup(request):
@@ -171,6 +180,22 @@ def file_setup(request):
     table_image = pathlib.Path(f"{request.param['file_path']}_table.png")
     table_image.unlink(missing_ok=True)
 
-    return {"report": report, "diagram_image": diagram_image, "table_image": table_image}
+    yield {"report": report, "diagram_image": diagram_image, "table_image": table_image}
 
+    if "docs/example" in request.param['file_path']:
+        with open(markdown, 'a', encoding='utf-8') as mdfp:
+
+            markdown_comment = str(request.param['markdown_comment']).replace("\n","")
+            markdown_comment = markdown_comment.replace("-","<br>-")
+
+            mdfp.write( f"|{markdown_comment if 'markdown_comment' in request.param else 'No Description?'}|![]( {request.param['file_path']}_diagram.png )|\n")    
+            mdfp.write( f"||![]( {request.param['file_path']}_table.png )|\n")    
+            mdfp.write( f"||[{request.param['file_path']}.json]({request.param['file_path']}.json)<pre>" )
+
+            with open(f"{request.param['file_path']}.json", "r", encoding="utf-8") as jsonfp:
+                mdfp.write( jsonfp.read().replace("\n", "<BR>") )
+
+            mdfp.write( f"</pre>|\n" )
+
+    print("FINISHED")
 

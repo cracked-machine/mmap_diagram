@@ -12,7 +12,20 @@ import logging
 
 # A3
             
-@pytest.mark.parametrize("file_setup", [{"file_path": "docs/example/A3_region_exceeds_height-no_maxaddress_set"}], indirect=True)
+@pytest.mark.parametrize(
+        "file_setup", 
+        [
+            {
+                "file_path": "docs/example/A3_region_exceeds_height-no_maxaddress_set",
+                "markdown_comment": """ 
+                                    -   A3 size diagram, but region exceeds that height. 
+                                        Output should remain at A3 size but the drawing ratio will adjust to fit the larger contents
+                                        Note the ratio is rounded up to nearest integer value.
+                                    -   Since the max_address was not set it was taken from the diagram height, which means the region collided with the max_address"""
+                            
+            }
+        ], 
+        indirect=True)
 def test_generate_doc_A3_region_exceeds_height_no_maxaddress_set(file_setup, zynqmp):
     """ 
     -   A3 size diagram, but region exceeds that height. 
@@ -58,7 +71,20 @@ def test_generate_doc_A3_region_exceeds_height_no_maxaddress_set(file_setup, zyn
         assert file_setup["diagram_image"].exists()
         assert PIL.Image.open(str(file_setup["diagram_image"])).size == (mm.diagram.A3.width, mm.diagram.A3.height)
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "docs/example/A3_region_freespace_exceeds_height-higher_maxaddress_set"}], indirect=True)
+@pytest.mark.parametrize(
+        "file_setup", 
+        [
+            {
+                "file_path": "docs/example/A3_region_freespace_exceeds_height-higher_maxaddress_set",
+                "markdown_comment": """ 
+                                    same as 'test_generate_doc_region_exceeds_height_no_maxaddress_set' test, but:
+                                    -   'max_address' is now set at a higher value than the max region size. 
+                                        This will cause excessive freespace values to be created (larger than the diagram height).
+                                        To prevent illegible diagrams, the pre-calculated value will be used instead.
+                                        NOTE: draw_scale is adjusted to allow for potential voidregions
+                                    """
+            }
+        ], indirect=True)
 def test_generate_doc_A3_region_freespace_exceeds_height_higher_maxaddress_set(file_setup, zynqmp, caplog):
     """ 
     same as 'test_generate_doc_region_exceeds_height_no_maxaddress_set' test, but:
@@ -116,7 +142,19 @@ def test_generate_doc_A3_region_freespace_exceeds_height_higher_maxaddress_set(f
             assert file_setup["diagram_image"].exists()
             assert PIL.Image.open(str(file_setup["diagram_image"])).size == (mm.diagram.A3.width, mm.diagram.A3.height)
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "docs/example/A3_maxaddress_lower_than_memregions"}], indirect=True)
+@pytest.mark.parametrize(
+        "file_setup", 
+        [
+            {
+                "file_path": "docs/example/A3_maxaddress_lower_than_memregions",
+                "markdown_comment": """ 
+                                    same as 'test_generate_doc_region_exceeds_height_no_maxaddress_set' test, but:
+                                        - 'max_address is now set below the memregions but this will be overridden with the 
+                                        calculated largest value from the region data.
+                                    """
+
+            }
+        ], indirect=True)
 def test_generate_doc_A3_maxaddress_lower_than_memregions(file_setup, zynqmp, caplog):
     """ 
     same as 'test_generate_doc_region_exceeds_height_no_maxaddress_set' test, but:
@@ -173,7 +211,19 @@ def test_generate_doc_A3_maxaddress_lower_than_memregions(file_setup, zynqmp, ca
 
 # A4
             
-@pytest.mark.parametrize("file_setup", [{"file_path": "docs/example/A4_region_exceeds_height-no_maxaddress_set"}], indirect=True)
+@pytest.mark.parametrize(
+        "file_setup", 
+        [
+            {
+                "file_path": "docs/example/A4_region_exceeds_height-no_maxaddress_set",
+                "markdown_comment": """ 
+                                    -   A4 size diagram, but region exceeds that height. 
+                                        Output should remain at A4 size but the drawing ratio will adjust to fit the larger contents
+                                        Note the ratio is rounded up to nearest integer value.
+                                    -   Since the max_address was not set it was taken from the diagram height, which means the region collided with the max_address"""
+                                    
+            }
+        ], indirect=True)
 def test_generate_doc_A4_region_exceeds_height_no_maxaddress_set(file_setup, zynqmp):
     """ 
     -   A4 size diagram, but region exceeds that height. 
@@ -219,7 +269,20 @@ def test_generate_doc_A4_region_exceeds_height_no_maxaddress_set(file_setup, zyn
         assert file_setup["diagram_image"].exists()
         assert PIL.Image.open(str(file_setup["diagram_image"])).size == (mm.diagram.A4.width, mm.diagram.A4.height)
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "docs/example/A4_region_freespace_exceeds_height-higher_maxaddress_set"}], indirect=True)
+@pytest.mark.parametrize(
+        "file_setup", 
+        [
+            {
+                "file_path": "docs/example/A4_region_freespace_exceeds_height-higher_maxaddress_set",
+                "markdown_comment": """ 
+                                    same as 'test_generate_doc_region_exceeds_height_no_maxaddress_set' test, but:
+                                    -   'max_address' is now set at a higher value than the max region size. 
+                                        This will cause excessive freespace values to be created (larger than the diagram height).
+                                        To prevent illegible diagrams, the pre-calculated value will be used instead.
+                                        NOTE: draw_scale is adjusted to allow for potential voidregions
+                                    """
+            }
+        ], indirect=True)
 def test_generate_doc_A4_region_freespace_exceeds_height_higher_maxaddress_set(file_setup, zynqmp, caplog):
     """ 
     same as 'test_generate_doc_region_exceeds_height_no_maxaddress_set' test, but:
@@ -277,7 +340,18 @@ def test_generate_doc_A4_region_freespace_exceeds_height_higher_maxaddress_set(f
             assert file_setup["diagram_image"].exists()
             assert PIL.Image.open(str(file_setup["diagram_image"])).size == (mm.diagram.A4.width, mm.diagram.A4.height)
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "docs/example/A4_maxaddress_lower_than_memregions"}], indirect=True)
+@pytest.mark.parametrize(
+        "file_setup", 
+        [
+            {
+                "file_path": "docs/example/A4_maxaddress_lower_than_memregions",
+                "markdown_comment": """ 
+                                    same as 'test_generate_doc_region_exceeds_height_no_maxaddress_set' test, but:
+                                        - 'max_address is now set below the memregions but this will be overridden with the 
+                                        calculated largest value from the region data.
+                                    """
+            }
+        ], indirect=True)
 def test_generate_doc_A4_maxaddress_lower_than_memregions(file_setup, zynqmp, caplog):
     """ 
     same as 'test_generate_doc_region_exceeds_height_no_maxaddress_set' test, but:
@@ -335,7 +409,19 @@ def test_generate_doc_A4_maxaddress_lower_than_memregions(file_setup, zynqmp, ca
 # A5 
             
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "docs/example/A5_region_exceeds_height-no_maxaddress_set"}], indirect=True)
+@pytest.mark.parametrize(
+        "file_setup", 
+        [
+            {
+                "file_path": "docs/example/A5_region_exceeds_height-no_maxaddress_set",
+                "markdown_comment": """ 
+                                    -   A5 size diagram, but region exceeds that height. 
+                                        Output should remain at A5 size but the drawing ratio will adjust to fit the larger contents
+                                        Note the ratio is rounded up to nearest integer value.
+                                    -   Since the max_address was not set it was taken from the diagram height, which means the region collided with the max_address"""
+                                    
+            }
+        ], indirect=True)
 def test_generate_doc_A5_region_exceeds_height_no_maxaddress_set(file_setup, zynqmp):
     """ 
     -   A5 size diagram, but region exceeds that height. 
@@ -381,7 +467,20 @@ def test_generate_doc_A5_region_exceeds_height_no_maxaddress_set(file_setup, zyn
         assert file_setup["diagram_image"].exists()
         assert PIL.Image.open(str(file_setup["diagram_image"])).size == (mm.diagram.A5.width, mm.diagram.A5.height)
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "docs/example/A5_region_freespace_exceeds_height-higher_maxaddress_set"}], indirect=True)
+@pytest.mark.parametrize(
+        "file_setup", 
+        [
+            {
+                "file_path": "docs/example/A5_region_freespace_exceeds_height-higher_maxaddress_set",
+                "markdown_comment": """ 
+                                    same as 'test_generate_doc_region_exceeds_height_no_maxaddress_set' test, but:
+                                    -   'max_address' is now set at a higher value than the max region size. 
+                                        This will cause excessive freespace values to be created (larger than the diagram height).
+                                        To prevent illegible diagrams, the pre-calculated value will be used instead.
+                                        NOTE: draw_scale is adjusted to allow for potential voidregions
+                                    """
+            }
+        ], indirect=True)
 def test_generate_doc_A5_region_freespace_exceeds_height_higher_maxaddress_set(file_setup, zynqmp, caplog):
     """ 
     same as 'test_generate_doc_region_exceeds_height_no_maxaddress_set' test, but:
@@ -439,7 +538,18 @@ def test_generate_doc_A5_region_freespace_exceeds_height_higher_maxaddress_set(f
             assert file_setup["diagram_image"].exists()
             assert PIL.Image.open(str(file_setup["diagram_image"])).size == (mm.diagram.A5.width, mm.diagram.A5.height)
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "docs/example/A5_maxaddress_lower_than_memregions"}], indirect=True)
+@pytest.mark.parametrize(
+        "file_setup", 
+        [
+            {
+                "file_path": "docs/example/A5_maxaddress_lower_than_memregions",
+                "markdown_comment": """ 
+                                    same as 'test_generate_doc_region_exceeds_height_no_maxaddress_set' test, but:
+                                        - 'max_address is now set below the memregions but this will be overridden with the 
+                                        calculated largest value from the region data.
+                                    """
+            }
+        ], indirect=True)
 def test_generate_doc_A5_maxaddress_lower_than_memregions(file_setup, zynqmp, caplog):
     """ 
     same as 'test_generate_doc_region_exceeds_height_no_maxaddress_set' test, but:
@@ -496,7 +606,19 @@ def test_generate_doc_A5_maxaddress_lower_than_memregions(file_setup, zynqmp, ca
 
 # A6 
             
-@pytest.mark.parametrize("file_setup", [{"file_path": "docs/example/A6_region_exceeds_height-no_maxaddress_set"}], indirect=True)
+@pytest.mark.parametrize(
+        "file_setup", 
+        [
+            {
+                "file_path": "docs/example/A6_region_exceeds_height-no_maxaddress_set",
+                "markdown_comment": """ 
+                                    -   A6 size diagram, but region exceeds that height. 
+                                        Output should remain at A6 size but the drawing ratio will adjust to fit the larger contents
+                                        Note the ratio is rounded up to nearest integer value.
+                                    -   Since the max_address was not set it was taken from the diagram height, which means the region collided with the max_address"""
+                                    
+            }
+        ], indirect=True)
 def test_generate_doc_A6_region_exceeds_height_no_maxaddress_set(file_setup, zynqmp):
     """ 
     -   A6 size diagram, but region exceeds that height. 
@@ -542,7 +664,20 @@ def test_generate_doc_A6_region_exceeds_height_no_maxaddress_set(file_setup, zyn
         assert file_setup["diagram_image"].exists()
         assert PIL.Image.open(str(file_setup["diagram_image"])).size == (mm.diagram.A6.width, mm.diagram.A6.height)
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "docs/example/A6_region_freespace_exceeds_height-higher_maxaddress_set"}], indirect=True)
+@pytest.mark.parametrize(
+        "file_setup", 
+        [
+            {
+                "file_path": "docs/example/A6_region_freespace_exceeds_height-higher_maxaddress_set",
+                "markdown_comment": """ 
+                                    same as 'test_generate_doc_region_exceeds_height_no_maxaddress_set' test, but:
+                                    -   'max_address' is now set at a higher value than the max region size. 
+                                        This will cause excessive freespace values to be created (larger than the diagram height).
+                                        To prevent illegible diagrams, the pre-calculated value will be used instead.
+                                        NOTE: draw_scale is adjusted to allow for potential voidregions
+                                    """
+            }
+        ], indirect=True)
 def test_generate_doc_A6_region_freespace_exceeds_height_higher_maxaddress_set(file_setup, zynqmp, caplog):
     """ 
     same as 'test_generate_doc_region_exceeds_height_no_maxaddress_set' test, but:
@@ -600,7 +735,18 @@ def test_generate_doc_A6_region_freespace_exceeds_height_higher_maxaddress_set(f
             assert file_setup["diagram_image"].exists()
             assert PIL.Image.open(str(file_setup["diagram_image"])).size == (mm.diagram.A6.width, mm.diagram.A6.height)
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "docs/example/A6_maxaddress_lower_than_memregions"}], indirect=True)
+@pytest.mark.parametrize(
+        "file_setup", 
+        [
+            {
+                "file_path": "docs/example/A6_maxaddress_lower_than_memregions",
+                "markdown_comment": """ 
+                                    same as 'test_generate_doc_region_exceeds_height_no_maxaddress_set' test, but:
+                                        - 'max_address is now set below the memregions but this will be overridden with the 
+                                        calculated largest value from the region data.
+                                    """
+            }
+        ], indirect=True)
 def test_generate_doc_A6_maxaddress_lower_than_memregions(file_setup, zynqmp, caplog):
     """ 
     same as 'test_generate_doc_region_exceeds_height_no_maxaddress_set' test, but:
@@ -657,7 +803,19 @@ def test_generate_doc_A6_maxaddress_lower_than_memregions(file_setup, zynqmp, ca
 
 # A7
             
-@pytest.mark.parametrize("file_setup", [{"file_path": "docs/example/A7_region_exceeds_height-no_maxaddress_set"}], indirect=True)
+@pytest.mark.parametrize(
+        "file_setup", 
+        [
+            {
+                "file_path": "docs/example/A7_region_exceeds_height-no_maxaddress_set",
+                "markdown_comment": """ 
+                                    -   A7 size diagram, but region exceeds that height. 
+                                        Output should remain at A7 size but the drawing ratio will adjust to fit the larger contents
+                                        Note the ratio is rounded up to nearest integer value.
+                                    -   Since the max_address was not set it was taken from the diagram height, which means the region collided with the max_address"""
+    
+            }
+        ], indirect=True)
 def test_generate_doc_A7_region_exceeds_height_no_maxaddress_set(file_setup, zynqmp):
     """ 
     -   A7 size diagram, but region exceeds that height. 
@@ -703,7 +861,20 @@ def test_generate_doc_A7_region_exceeds_height_no_maxaddress_set(file_setup, zyn
         assert file_setup["diagram_image"].exists()
         assert PIL.Image.open(str(file_setup["diagram_image"])).size == (mm.diagram.A7.width, mm.diagram.A7.height)
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "docs/example/A7_region_freespace_exceeds_height-higher_maxaddress_set"}], indirect=True)
+@pytest.mark.parametrize(
+        "file_setup", 
+        [
+            {
+                "file_path": "docs/example/A7_region_freespace_exceeds_height-higher_maxaddress_set",
+                "markdown_comment": """ 
+                                    same as 'test_generate_doc_region_exceeds_height_no_maxaddress_set' test, but:
+                                    -   'max_address' is now set at a higher value than the max region size. 
+                                        This will cause excessive freespace values to be created (larger than the diagram height).
+                                        To prevent illegible diagrams, the pre-calculated value will be used instead.
+                                        NOTE: draw_scale is adjusted to allow for potential voidregions
+                                    """
+            }
+        ], indirect=True)
 def test_generate_doc_A7_region_freespace_exceeds_height_higher_maxaddress_set(file_setup, zynqmp, caplog):
     """ 
     same as 'test_generate_doc_region_exceeds_height_no_maxaddress_set' test, but:
@@ -761,7 +932,18 @@ def test_generate_doc_A7_region_freespace_exceeds_height_higher_maxaddress_set(f
             assert file_setup["diagram_image"].exists()
             assert PIL.Image.open(str(file_setup["diagram_image"])).size == (mm.diagram.A7.width, mm.diagram.A7.height)
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "docs/example/A7_maxaddress_lower_than_memregions"}], indirect=True)
+@pytest.mark.parametrize(
+        "file_setup", 
+        [
+            {
+                "file_path": "docs/example/A7_maxaddress_lower_than_memregions",
+                "markdown_comment": """ 
+                                    same as 'test_generate_doc_region_exceeds_height_no_maxaddress_set' test, but:
+                                        - 'max_address is now set below the memregions but this will be overridden with the 
+                                        calculated largest value from the region data.
+                                    """
+            }
+        ], indirect=True)
 def test_generate_doc_A7_maxaddress_lower_than_memregions(file_setup, zynqmp, caplog):
     """ 
     same as 'test_generate_doc_region_exceeds_height_no_maxaddress_set' test, but:
@@ -818,7 +1000,18 @@ def test_generate_doc_A7_maxaddress_lower_than_memregions(file_setup, zynqmp, ca
 
 # A8  
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "docs/example/A8_region_exceeds_height-no_maxaddress_set"}], indirect=True)
+@pytest.mark.parametrize(
+        "file_setup", 
+        [
+            {
+                "file_path": "docs/example/A8_region_exceeds_height-no_maxaddress_set",
+                "markdown_comment": """ 
+                                    -   A8 size diagram, but region exceeds that height. 
+                                    Output should remain at A8 size but the drawing ratio will adjust to fit the larger contents
+                                    Note the ratio is rounded up to nearest integer value.
+                                    -   Since the max_address was not set it was taken from the diagram height, which means the region collided with the max_address"""
+            }
+        ], indirect=True)
 def test_generate_doc_A8_region_exceeds_height_no_maxaddress_set(file_setup, zynqmp):
     """ 
     -   A8 size diagram, but region exceeds that height. 
@@ -864,7 +1057,20 @@ def test_generate_doc_A8_region_exceeds_height_no_maxaddress_set(file_setup, zyn
         assert file_setup["diagram_image"].exists()
         assert PIL.Image.open(str(file_setup["diagram_image"])).size == (mm.diagram.A8.width, mm.diagram.A8.height)
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "docs/example/A8_region_freespace_exceeds_height-higher_maxaddress_set"}], indirect=True)
+@pytest.mark.parametrize(
+        "file_setup", 
+        [
+            {
+                "file_path": "docs/example/A8_region_freespace_exceeds_height-higher_maxaddress_set",
+                "markdown_comment": """ 
+                                    same as 'test_generate_doc_region_exceeds_height_no_maxaddress_set' test, but:
+                                    -   'max_address' is now set at a higher value than the max region size. 
+                                    This will cause excessive freespace values to be created (larger than the diagram height).
+                                    To prevent illegible diagrams, the pre-calculated value will be used instead.
+                                    NOTE: draw_scale is adjusted to allow for potential voidregions
+                                    """
+            }
+        ], indirect=True)
 def test_generate_doc_A8_region_freespace_exceeds_height_higher_maxaddress_set(file_setup, zynqmp, caplog):
     """ 
     same as 'test_generate_doc_region_exceeds_height_no_maxaddress_set' test, but:
@@ -922,7 +1128,17 @@ def test_generate_doc_A8_region_freespace_exceeds_height_higher_maxaddress_set(f
             assert file_setup["diagram_image"].exists()
             assert PIL.Image.open(str(file_setup["diagram_image"])).size == (mm.diagram.A8.width, mm.diagram.A8.height)
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "docs/example/A8_maxaddress_lower_than_memregions"}], indirect=True)
+@pytest.mark.parametrize(
+        "file_setup", 
+        [
+            {
+                "file_path": "docs/example/A8_maxaddress_lower_than_memregions",
+                "markdown_comment":     """same as 'test_generate_doc_region_exceeds_height_no_maxaddress_set' test, but:
+                                        - 'max_address is now set below the memregions but this will be overridden with the 
+                                        calculated largest value from the region data.
+                                        """
+            }
+        ], indirect=True)
 def test_generate_doc_A8_maxaddress_lower_than_memregions(file_setup, zynqmp, caplog):
     """ 
     same as 'test_generate_doc_region_exceeds_height_no_maxaddress_set' test, but:
