@@ -10,8 +10,8 @@ import json
 
 
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "doc/example/example_normal"}], indirect=True)
-def test_generate_doc_example_normal(file_setup):
+@pytest.mark.parametrize("file_setup", [{"file_path": "doc/example/example_end_collision"}], indirect=True)
+def test_generate_doc_example_end_collision(file_setup):
     """ """
 
     
@@ -23,7 +23,7 @@ def test_generate_doc_example_normal(file_setup):
             "rootfs", "0x50", "0x30",
             "dtb", "0x190", "0x30",
             "--out", str(file_setup["report"]),
-            "-l", hex(mm.diagram.A8.height),
+            "-l", hex(mm.diagram.A9.width),
             "--threshold", hex(200),
         ],
     ):
@@ -43,19 +43,19 @@ def test_generate_doc_example_normal(file_setup):
             if region_image.name == "dtb":
                 assert region_image.origin_as_hex == "0x190"
                 assert region_image.size_as_hex == "0x30"
-                assert region_image.freespace_as_hex == "0x1aa"
+                assert region_image.freespace_as_hex == "-0xb"
 
         assert file_setup["report"].exists()
 
         assert file_setup["diagram_image"].exists()
         found_size = PIL.Image.open(str(file_setup["diagram_image"])).size
-        assert found_size == (mm.diagram.A8.width, mm.diagram.A8.height)
+        assert found_size == (mm.diagram.A8.width, mm.diagram.A9.width)
 
         # reduced void threshold, so empty section between rootfs and dtb should be voided, making the file smaller
         assert file_setup["table_image"].exists()
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "doc/example/example_collisions"}], indirect=True)
-def test_generate_doc_example_collisions(file_setup):
+@pytest.mark.parametrize("file_setup", [{"file_path": "doc/example/example_region_collisions"}], indirect=True)
+def test_generate_doc_example_region_collisions(file_setup):
     """ """
     
     with unittest.mock.patch(
@@ -66,7 +66,7 @@ def test_generate_doc_example_collisions(file_setup):
             "rootfs", "0x50", "0x50",
             "dtb", "0x90", "0x30",
             "--out", str(file_setup["report"]),
-            "--limit", hex(mm.diagram.A8.height),
+            "--limit", hex(mm.diagram.A9.width),
             "--threshold", hex(200),
         ],
     ):
@@ -86,12 +86,12 @@ def test_generate_doc_example_collisions(file_setup):
             if region_image.name == "dtb":
                 assert region_image.origin_as_hex == "0x90"
                 assert region_image.size_as_hex == "0x30"
-                assert region_image.freespace_as_hex == "0x2aa"
+                assert region_image.freespace_as_hex == "0xf5"
 
         assert file_setup["report"].exists()
 
         assert file_setup["diagram_image"].exists()
-        assert PIL.Image.open(str(file_setup["diagram_image"])).size == (mm.diagram.A8.width, mm.diagram.A8.height)
+        assert PIL.Image.open(str(file_setup["diagram_image"])).size == (mm.diagram.A8.width, mm.diagram.A9.width)
 
         assert file_setup["table_image"].exists()
 

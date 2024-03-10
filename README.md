@@ -12,6 +12,10 @@ Tool for generating diagrams that show the mapping of regions in memory, specifc
 
 - Regions are plotted onto a diagram. Freespace is measured and put into the accompanying table.
 - Region collisions are highlighted on the diagram and in the accompnaying table. The table will detail which regions have collided as well as related measurements.
+
+  ![](doc/example/example_region_collisions_diagram.png)
+  ![](doc/example/example_region_collisions_table.png)
+
 - The output is available as:
     - separate images for diagram and table.
     - markdown table with inline diagram image.
@@ -21,7 +25,13 @@ Tool for generating diagrams that show the mapping of regions in memory, specifc
     - Max address and diagram size
 
 - Diagram width and height can be specified using JSON. The contents will be automatically draw to the correct scale within the requested diagram size. If height is not set then the correct height will be calculated from the region data. NOTE: Command line input can set both the diagram height and max address simulataneously using the 'limit' option. 
-- Max address can be set using JSON. If this is higher than the diagram height, the contents will be scaled. If regions exceed this max address, the collision will be highlighted both in the diagram and table. If max address is not set then the diagram height will be used. NOTE: Command line input can set both the diagram height and max address simulataneously using the 'limit' option.
+- Max address can be set using JSON. If this is higher than the diagram height, the contents will be scaled. If regions exceed this max address, the collision will be highlighted both in the diagram and table. 
+
+  ![](doc/example/example_end_collision_diagram.png)
+  ![](doc/example/example_end_collision_table.png)
+
+  If max address is not set then the diagram height will be used. NOTE: Command line input can set both the diagram height and max address simulataneously using the 'limit' option.
+
 - Many additional settings are available in the JSON input. Please see the [schema](mm/schema.json) for more information. 
 
 
@@ -59,7 +69,7 @@ options:
 
 #### Examples
 
-- Generate five regions called `kernel`, `rootfs`, `dtb`, `uboot` and `uboot-scr` where four of the five regions intersect/collide. The default report output path is used. Diagram output is shown at the top of the page.
+- Generate five regions called `kernel`, `rootfs`, `dtb`, `uboot` and `uboot-scr` where four of the five regions intersect/collide. The default report output path is used. 
 
     ```
     python3 -m mm.diagram kernel 0x10 0x50 rootfs 0x50 0x30 dtb 0x90 0x30 uboot 0xD0 0x50 uboot-scr 0x110 0x30 -l 0x3e8
