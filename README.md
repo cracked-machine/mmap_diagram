@@ -74,7 +74,7 @@ options:
     python3 -m mm.diagram kernel 0x10 0x50 rootfs 0x50 0x30 dtb 0x90 0x30 uboot 0xD0 0x50 uboot-scr 0x110 0x30 -l 0x3e8
     ```
 
-- Using JSON many other options can be set. 
+- Using JSON many other options can be set. Example json files can be found [here](https://cracked-machine.github.io/mmdiagram/examples.html)
 
     ```
     python3 -m mm.diagram -f docs/example/input.json
