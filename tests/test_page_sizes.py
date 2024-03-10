@@ -12,7 +12,7 @@ import logging
 
 # A3
             
-@pytest.mark.parametrize("file_setup", [{"file_path": "doc/example/A3_region_exceeds_height-no_maxaddress_set"}], indirect=True)
+@pytest.mark.parametrize("file_setup", [{"file_path": "docs/example/A3_region_exceeds_height-no_maxaddress_set"}], indirect=True)
 def test_generate_doc_A3_region_exceeds_height_no_maxaddress_set(file_setup, zynqmp):
     """ 
     -   A3 size diagram, but region exceeds that height. 
@@ -27,7 +27,7 @@ def test_generate_doc_A3_region_exceeds_height_no_maxaddress_set(file_setup, zyn
     # "Boot Image" won't match ["Global System Address Map", "OCM"] link at this size
     zynqmp['memory_maps']['Flash']['memory_regions']['Boot Image']['links'] = []
 
-    input_file = pathlib.Path("./doc/example/A3_region_exceeds_height-no_maxaddress_set.json")
+    input_file = pathlib.Path("./docs/example/A3_region_exceeds_height-no_maxaddress_set.json")
     with input_file.open("w") as fp:
         fp.write(json.dumps(zynqmp, indent=2))
 
@@ -58,7 +58,7 @@ def test_generate_doc_A3_region_exceeds_height_no_maxaddress_set(file_setup, zyn
         assert file_setup["diagram_image"].exists()
         assert PIL.Image.open(str(file_setup["diagram_image"])).size == (mm.diagram.A3.width, mm.diagram.A3.height)
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "doc/example/A3_region_freespace_exceeds_height-higher_maxaddress_set"}], indirect=True)
+@pytest.mark.parametrize("file_setup", [{"file_path": "docs/example/A3_region_freespace_exceeds_height-higher_maxaddress_set"}], indirect=True)
 def test_generate_doc_A3_region_freespace_exceeds_height_higher_maxaddress_set(file_setup, zynqmp, caplog):
     """ 
     same as 'test_generate_doc_region_exceeds_height_no_maxaddress_set' test, but:
@@ -78,7 +78,7 @@ def test_generate_doc_A3_region_freespace_exceeds_height_higher_maxaddress_set(f
     # "Boot Image" won't match ["Global System Address Map", "OCM"] link at this size
     zynqmp['memory_maps']['Flash']['memory_regions']['Boot Image']['links'] = []
 
-    input_file = pathlib.Path("./doc/example/A3_region_freespace_exceeds_height-higher_maxaddress_set.json")
+    input_file = pathlib.Path("./docs/example/A3_region_freespace_exceeds_height-higher_maxaddress_set.json")
     with input_file.open("w") as fp:
         fp.write(json.dumps(zynqmp, indent=2))
 
@@ -116,7 +116,7 @@ def test_generate_doc_A3_region_freespace_exceeds_height_higher_maxaddress_set(f
             assert file_setup["diagram_image"].exists()
             assert PIL.Image.open(str(file_setup["diagram_image"])).size == (mm.diagram.A3.width, mm.diagram.A3.height)
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "doc/example/A3_maxaddress_lower_than_memregions"}], indirect=True)
+@pytest.mark.parametrize("file_setup", [{"file_path": "docs/example/A3_maxaddress_lower_than_memregions"}], indirect=True)
 def test_generate_doc_A3_maxaddress_lower_than_memregions(file_setup, zynqmp, caplog):
     """ 
     same as 'test_generate_doc_region_exceeds_height_no_maxaddress_set' test, but:
@@ -134,7 +134,7 @@ def test_generate_doc_A3_maxaddress_lower_than_memregions(file_setup, zynqmp, ca
     zynqmp['memory_maps']['Flash']['max_address'] = hex(new_max_address)
     # zynqmp['memory_maps']['Global System Address Map']['max_address'] = "0xFFFFFFFF"
 
-    input_file = pathlib.Path("./doc/example/A3_maxaddress_lower_than_memregions.json")
+    input_file = pathlib.Path("./docs/example/A3_maxaddress_lower_than_memregions.json")
     with input_file.open("w") as fp:
         fp.write(json.dumps(zynqmp, indent=2))
 
@@ -173,7 +173,7 @@ def test_generate_doc_A3_maxaddress_lower_than_memregions(file_setup, zynqmp, ca
 
 # A4
             
-@pytest.mark.parametrize("file_setup", [{"file_path": "doc/example/A4_region_exceeds_height-no_maxaddress_set"}], indirect=True)
+@pytest.mark.parametrize("file_setup", [{"file_path": "docs/example/A4_region_exceeds_height-no_maxaddress_set"}], indirect=True)
 def test_generate_doc_A4_region_exceeds_height_no_maxaddress_set(file_setup, zynqmp):
     """ 
     -   A4 size diagram, but region exceeds that height. 
@@ -188,7 +188,7 @@ def test_generate_doc_A4_region_exceeds_height_no_maxaddress_set(file_setup, zyn
     # "Boot Image" won't match ["Global System Address Map", "OCM"] link at this size
     zynqmp['memory_maps']['Flash']['memory_regions']['Boot Image']['links'] = []
 
-    input_file = pathlib.Path("./doc/example/A4_region_exceeds_height-no_maxaddress_set.json")
+    input_file = pathlib.Path("./docs/example/A4_region_exceeds_height-no_maxaddress_set.json")
     with input_file.open("w") as fp:
         fp.write(json.dumps(zynqmp, indent=2))
 
@@ -219,7 +219,7 @@ def test_generate_doc_A4_region_exceeds_height_no_maxaddress_set(file_setup, zyn
         assert file_setup["diagram_image"].exists()
         assert PIL.Image.open(str(file_setup["diagram_image"])).size == (mm.diagram.A4.width, mm.diagram.A4.height)
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "doc/example/A4_region_freespace_exceeds_height-higher_maxaddress_set"}], indirect=True)
+@pytest.mark.parametrize("file_setup", [{"file_path": "docs/example/A4_region_freespace_exceeds_height-higher_maxaddress_set"}], indirect=True)
 def test_generate_doc_A4_region_freespace_exceeds_height_higher_maxaddress_set(file_setup, zynqmp, caplog):
     """ 
     same as 'test_generate_doc_region_exceeds_height_no_maxaddress_set' test, but:
@@ -239,7 +239,7 @@ def test_generate_doc_A4_region_freespace_exceeds_height_higher_maxaddress_set(f
     # "Boot Image" won't match ["Global System Address Map", "OCM"] link at this size
     zynqmp['memory_maps']['Flash']['memory_regions']['Boot Image']['links'] = []
 
-    input_file = pathlib.Path("./doc/example/A4_region_freespace_exceeds_height-higher_maxaddress_set.json")
+    input_file = pathlib.Path("./docs/example/A4_region_freespace_exceeds_height-higher_maxaddress_set.json")
     with input_file.open("w") as fp:
         fp.write(json.dumps(zynqmp, indent=2))
 
@@ -277,7 +277,7 @@ def test_generate_doc_A4_region_freespace_exceeds_height_higher_maxaddress_set(f
             assert file_setup["diagram_image"].exists()
             assert PIL.Image.open(str(file_setup["diagram_image"])).size == (mm.diagram.A4.width, mm.diagram.A4.height)
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "doc/example/A4_maxaddress_lower_than_memregions"}], indirect=True)
+@pytest.mark.parametrize("file_setup", [{"file_path": "docs/example/A4_maxaddress_lower_than_memregions"}], indirect=True)
 def test_generate_doc_A4_maxaddress_lower_than_memregions(file_setup, zynqmp, caplog):
     """ 
     same as 'test_generate_doc_region_exceeds_height_no_maxaddress_set' test, but:
@@ -295,7 +295,7 @@ def test_generate_doc_A4_maxaddress_lower_than_memregions(file_setup, zynqmp, ca
     zynqmp['memory_maps']['Flash']['max_address'] = hex(new_max_address)
     # zynqmp['memory_maps']['Global System Address Map']['max_address'] = "0xFFFFFFFF"
 
-    input_file = pathlib.Path("./doc/example/A4_maxaddress_lower_than_memregions.json")
+    input_file = pathlib.Path("./docs/example/A4_maxaddress_lower_than_memregions.json")
     with input_file.open("w") as fp:
         fp.write(json.dumps(zynqmp, indent=2))
 
@@ -335,7 +335,7 @@ def test_generate_doc_A4_maxaddress_lower_than_memregions(file_setup, zynqmp, ca
 # A5 
             
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "doc/example/A5_region_exceeds_height-no_maxaddress_set"}], indirect=True)
+@pytest.mark.parametrize("file_setup", [{"file_path": "docs/example/A5_region_exceeds_height-no_maxaddress_set"}], indirect=True)
 def test_generate_doc_A5_region_exceeds_height_no_maxaddress_set(file_setup, zynqmp):
     """ 
     -   A5 size diagram, but region exceeds that height. 
@@ -350,7 +350,7 @@ def test_generate_doc_A5_region_exceeds_height_no_maxaddress_set(file_setup, zyn
     # "Boot Image" won't match ["Global System Address Map", "OCM"] link at this size
     zynqmp['memory_maps']['Flash']['memory_regions']['Boot Image']['links'] = []
 
-    input_file = pathlib.Path("./doc/example/A5_region_exceeds_height-no_maxaddress_set.json")
+    input_file = pathlib.Path("./docs/example/A5_region_exceeds_height-no_maxaddress_set.json")
     with input_file.open("w") as fp:
         fp.write(json.dumps(zynqmp, indent=2))
 
@@ -381,7 +381,7 @@ def test_generate_doc_A5_region_exceeds_height_no_maxaddress_set(file_setup, zyn
         assert file_setup["diagram_image"].exists()
         assert PIL.Image.open(str(file_setup["diagram_image"])).size == (mm.diagram.A5.width, mm.diagram.A5.height)
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "doc/example/A5_region_freespace_exceeds_height-higher_maxaddress_set"}], indirect=True)
+@pytest.mark.parametrize("file_setup", [{"file_path": "docs/example/A5_region_freespace_exceeds_height-higher_maxaddress_set"}], indirect=True)
 def test_generate_doc_A5_region_freespace_exceeds_height_higher_maxaddress_set(file_setup, zynqmp, caplog):
     """ 
     same as 'test_generate_doc_region_exceeds_height_no_maxaddress_set' test, but:
@@ -401,7 +401,7 @@ def test_generate_doc_A5_region_freespace_exceeds_height_higher_maxaddress_set(f
     # "Boot Image" won't match ["Global System Address Map", "OCM"] link at this size
     zynqmp['memory_maps']['Flash']['memory_regions']['Boot Image']['links'] = []
 
-    input_file = pathlib.Path("./doc/example/A5_region_freespace_exceeds_height-higher_maxaddress_set.json")
+    input_file = pathlib.Path("./docs/example/A5_region_freespace_exceeds_height-higher_maxaddress_set.json")
     with input_file.open("w") as fp:
         fp.write(json.dumps(zynqmp, indent=2))
 
@@ -439,7 +439,7 @@ def test_generate_doc_A5_region_freespace_exceeds_height_higher_maxaddress_set(f
             assert file_setup["diagram_image"].exists()
             assert PIL.Image.open(str(file_setup["diagram_image"])).size == (mm.diagram.A5.width, mm.diagram.A5.height)
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "doc/example/A5_maxaddress_lower_than_memregions"}], indirect=True)
+@pytest.mark.parametrize("file_setup", [{"file_path": "docs/example/A5_maxaddress_lower_than_memregions"}], indirect=True)
 def test_generate_doc_A5_maxaddress_lower_than_memregions(file_setup, zynqmp, caplog):
     """ 
     same as 'test_generate_doc_region_exceeds_height_no_maxaddress_set' test, but:
@@ -457,7 +457,7 @@ def test_generate_doc_A5_maxaddress_lower_than_memregions(file_setup, zynqmp, ca
     zynqmp['memory_maps']['Flash']['max_address'] = hex(new_max_address)
     # zynqmp['memory_maps']['Global System Address Map']['max_address'] = "0xFFFFFFFF"
 
-    input_file = pathlib.Path("./doc/example/A5_maxaddress_lower_than_memregions.json")
+    input_file = pathlib.Path("./docs/example/A5_maxaddress_lower_than_memregions.json")
     with input_file.open("w") as fp:
         fp.write(json.dumps(zynqmp, indent=2))
 
@@ -496,7 +496,7 @@ def test_generate_doc_A5_maxaddress_lower_than_memregions(file_setup, zynqmp, ca
 
 # A6 
             
-@pytest.mark.parametrize("file_setup", [{"file_path": "doc/example/A6_region_exceeds_height-no_maxaddress_set"}], indirect=True)
+@pytest.mark.parametrize("file_setup", [{"file_path": "docs/example/A6_region_exceeds_height-no_maxaddress_set"}], indirect=True)
 def test_generate_doc_A6_region_exceeds_height_no_maxaddress_set(file_setup, zynqmp):
     """ 
     -   A6 size diagram, but region exceeds that height. 
@@ -511,7 +511,7 @@ def test_generate_doc_A6_region_exceeds_height_no_maxaddress_set(file_setup, zyn
     # "Boot Image" won't match ["Global System Address Map", "OCM"] link at this size
     zynqmp['memory_maps']['Flash']['memory_regions']['Boot Image']['links'] = []
 
-    input_file = pathlib.Path("./doc/example/A6_region_exceeds_height-no_maxaddress_set.json")
+    input_file = pathlib.Path("./docs/example/A6_region_exceeds_height-no_maxaddress_set.json")
     with input_file.open("w") as fp:
         fp.write(json.dumps(zynqmp, indent=2))
 
@@ -542,7 +542,7 @@ def test_generate_doc_A6_region_exceeds_height_no_maxaddress_set(file_setup, zyn
         assert file_setup["diagram_image"].exists()
         assert PIL.Image.open(str(file_setup["diagram_image"])).size == (mm.diagram.A6.width, mm.diagram.A6.height)
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "doc/example/A6_region_freespace_exceeds_height-higher_maxaddress_set"}], indirect=True)
+@pytest.mark.parametrize("file_setup", [{"file_path": "docs/example/A6_region_freespace_exceeds_height-higher_maxaddress_set"}], indirect=True)
 def test_generate_doc_A6_region_freespace_exceeds_height_higher_maxaddress_set(file_setup, zynqmp, caplog):
     """ 
     same as 'test_generate_doc_region_exceeds_height_no_maxaddress_set' test, but:
@@ -562,7 +562,7 @@ def test_generate_doc_A6_region_freespace_exceeds_height_higher_maxaddress_set(f
     # "Boot Image" won't match ["Global System Address Map", "OCM"] link at this size
     zynqmp['memory_maps']['Flash']['memory_regions']['Boot Image']['links'] = []
 
-    input_file = pathlib.Path("./doc/example/A6_region_freespace_exceeds_height-higher_maxaddress_set.json")
+    input_file = pathlib.Path("./docs/example/A6_region_freespace_exceeds_height-higher_maxaddress_set.json")
     with input_file.open("w") as fp:
         fp.write(json.dumps(zynqmp, indent=2))
 
@@ -600,7 +600,7 @@ def test_generate_doc_A6_region_freespace_exceeds_height_higher_maxaddress_set(f
             assert file_setup["diagram_image"].exists()
             assert PIL.Image.open(str(file_setup["diagram_image"])).size == (mm.diagram.A6.width, mm.diagram.A6.height)
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "doc/example/A6_maxaddress_lower_than_memregions"}], indirect=True)
+@pytest.mark.parametrize("file_setup", [{"file_path": "docs/example/A6_maxaddress_lower_than_memregions"}], indirect=True)
 def test_generate_doc_A6_maxaddress_lower_than_memregions(file_setup, zynqmp, caplog):
     """ 
     same as 'test_generate_doc_region_exceeds_height_no_maxaddress_set' test, but:
@@ -618,7 +618,7 @@ def test_generate_doc_A6_maxaddress_lower_than_memregions(file_setup, zynqmp, ca
     zynqmp['memory_maps']['Flash']['max_address'] = hex(new_max_address)
     # zynqmp['memory_maps']['Global System Address Map']['max_address'] = "0xFFFFFFFF"
 
-    input_file = pathlib.Path("./doc/example/A6_maxaddress_lower_than_memregions.json")
+    input_file = pathlib.Path("./docs/example/A6_maxaddress_lower_than_memregions.json")
     with input_file.open("w") as fp:
         fp.write(json.dumps(zynqmp, indent=2))
 
@@ -657,7 +657,7 @@ def test_generate_doc_A6_maxaddress_lower_than_memregions(file_setup, zynqmp, ca
 
 # A7
             
-@pytest.mark.parametrize("file_setup", [{"file_path": "doc/example/A7_region_exceeds_height-no_maxaddress_set"}], indirect=True)
+@pytest.mark.parametrize("file_setup", [{"file_path": "docs/example/A7_region_exceeds_height-no_maxaddress_set"}], indirect=True)
 def test_generate_doc_A7_region_exceeds_height_no_maxaddress_set(file_setup, zynqmp):
     """ 
     -   A7 size diagram, but region exceeds that height. 
@@ -672,7 +672,7 @@ def test_generate_doc_A7_region_exceeds_height_no_maxaddress_set(file_setup, zyn
     # "Boot Image" won't match ["Global System Address Map", "OCM"] link at this size
     zynqmp['memory_maps']['Flash']['memory_regions']['Boot Image']['links'] = []
 
-    input_file = pathlib.Path("./doc/example/A7_region_exceeds_height-no_maxaddress_set.json")
+    input_file = pathlib.Path("./docs/example/A7_region_exceeds_height-no_maxaddress_set.json")
     with input_file.open("w") as fp:
         fp.write(json.dumps(zynqmp, indent=2))
 
@@ -703,7 +703,7 @@ def test_generate_doc_A7_region_exceeds_height_no_maxaddress_set(file_setup, zyn
         assert file_setup["diagram_image"].exists()
         assert PIL.Image.open(str(file_setup["diagram_image"])).size == (mm.diagram.A7.width, mm.diagram.A7.height)
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "doc/example/A7_region_freespace_exceeds_height-higher_maxaddress_set"}], indirect=True)
+@pytest.mark.parametrize("file_setup", [{"file_path": "docs/example/A7_region_freespace_exceeds_height-higher_maxaddress_set"}], indirect=True)
 def test_generate_doc_A7_region_freespace_exceeds_height_higher_maxaddress_set(file_setup, zynqmp, caplog):
     """ 
     same as 'test_generate_doc_region_exceeds_height_no_maxaddress_set' test, but:
@@ -723,7 +723,7 @@ def test_generate_doc_A7_region_freespace_exceeds_height_higher_maxaddress_set(f
     # "Boot Image" won't match ["Global System Address Map", "OCM"] link at this size
     zynqmp['memory_maps']['Flash']['memory_regions']['Boot Image']['links'] = []
 
-    input_file = pathlib.Path("./doc/example/A7_region_freespace_exceeds_height-higher_maxaddress_set.json")
+    input_file = pathlib.Path("./docs/example/A7_region_freespace_exceeds_height-higher_maxaddress_set.json")
     with input_file.open("w") as fp:
         fp.write(json.dumps(zynqmp, indent=2))
 
@@ -761,7 +761,7 @@ def test_generate_doc_A7_region_freespace_exceeds_height_higher_maxaddress_set(f
             assert file_setup["diagram_image"].exists()
             assert PIL.Image.open(str(file_setup["diagram_image"])).size == (mm.diagram.A7.width, mm.diagram.A7.height)
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "doc/example/A7_maxaddress_lower_than_memregions"}], indirect=True)
+@pytest.mark.parametrize("file_setup", [{"file_path": "docs/example/A7_maxaddress_lower_than_memregions"}], indirect=True)
 def test_generate_doc_A7_maxaddress_lower_than_memregions(file_setup, zynqmp, caplog):
     """ 
     same as 'test_generate_doc_region_exceeds_height_no_maxaddress_set' test, but:
@@ -779,7 +779,7 @@ def test_generate_doc_A7_maxaddress_lower_than_memregions(file_setup, zynqmp, ca
     zynqmp['memory_maps']['Flash']['max_address'] = hex(new_max_address)
     # zynqmp['memory_maps']['Global System Address Map']['max_address'] = "0xFFFFFFFF"
 
-    input_file = pathlib.Path("./doc/example/A7_maxaddress_lower_than_memregions.json")
+    input_file = pathlib.Path("./docs/example/A7_maxaddress_lower_than_memregions.json")
     with input_file.open("w") as fp:
         fp.write(json.dumps(zynqmp, indent=2))
 
@@ -818,7 +818,7 @@ def test_generate_doc_A7_maxaddress_lower_than_memregions(file_setup, zynqmp, ca
 
 # A8  
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "doc/example/A8_region_exceeds_height-no_maxaddress_set"}], indirect=True)
+@pytest.mark.parametrize("file_setup", [{"file_path": "docs/example/A8_region_exceeds_height-no_maxaddress_set"}], indirect=True)
 def test_generate_doc_A8_region_exceeds_height_no_maxaddress_set(file_setup, zynqmp):
     """ 
     -   A8 size diagram, but region exceeds that height. 
@@ -833,7 +833,7 @@ def test_generate_doc_A8_region_exceeds_height_no_maxaddress_set(file_setup, zyn
     # "Boot Image" won't match ["Global System Address Map", "OCM"] link at this size
     zynqmp['memory_maps']['Flash']['memory_regions']['Boot Image']['links'] = []
 
-    input_file = pathlib.Path("./doc/example/A8_region_exceeds_height-no_maxaddress_set.json")
+    input_file = pathlib.Path("./docs/example/A8_region_exceeds_height-no_maxaddress_set.json")
     with input_file.open("w") as fp:
         fp.write(json.dumps(zynqmp, indent=2))
 
@@ -864,7 +864,7 @@ def test_generate_doc_A8_region_exceeds_height_no_maxaddress_set(file_setup, zyn
         assert file_setup["diagram_image"].exists()
         assert PIL.Image.open(str(file_setup["diagram_image"])).size == (mm.diagram.A8.width, mm.diagram.A8.height)
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "doc/example/A8_region_freespace_exceeds_height-higher_maxaddress_set"}], indirect=True)
+@pytest.mark.parametrize("file_setup", [{"file_path": "docs/example/A8_region_freespace_exceeds_height-higher_maxaddress_set"}], indirect=True)
 def test_generate_doc_A8_region_freespace_exceeds_height_higher_maxaddress_set(file_setup, zynqmp, caplog):
     """ 
     same as 'test_generate_doc_region_exceeds_height_no_maxaddress_set' test, but:
@@ -884,7 +884,7 @@ def test_generate_doc_A8_region_freespace_exceeds_height_higher_maxaddress_set(f
     # "Boot Image" won't match ["Global System Address Map", "OCM"] link at this size
     zynqmp['memory_maps']['Flash']['memory_regions']['Boot Image']['links'] = []
 
-    input_file = pathlib.Path("./doc/example/A8_region_freespace_exceeds_height-higher_maxaddress_set.json")
+    input_file = pathlib.Path("./docs/example/A8_region_freespace_exceeds_height-higher_maxaddress_set.json")
     with input_file.open("w") as fp:
         fp.write(json.dumps(zynqmp, indent=2))
 
@@ -922,7 +922,7 @@ def test_generate_doc_A8_region_freespace_exceeds_height_higher_maxaddress_set(f
             assert file_setup["diagram_image"].exists()
             assert PIL.Image.open(str(file_setup["diagram_image"])).size == (mm.diagram.A8.width, mm.diagram.A8.height)
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "doc/example/A8_maxaddress_lower_than_memregions"}], indirect=True)
+@pytest.mark.parametrize("file_setup", [{"file_path": "docs/example/A8_maxaddress_lower_than_memregions"}], indirect=True)
 def test_generate_doc_A8_maxaddress_lower_than_memregions(file_setup, zynqmp, caplog):
     """ 
     same as 'test_generate_doc_region_exceeds_height_no_maxaddress_set' test, but:
@@ -940,7 +940,7 @@ def test_generate_doc_A8_maxaddress_lower_than_memregions(file_setup, zynqmp, ca
     zynqmp['memory_maps']['Flash']['max_address'] = hex(new_max_address)
     # zynqmp['memory_maps']['Global System Address Map']['max_address'] = "0xFFFFFFFF"
 
-    input_file = pathlib.Path("./doc/example/A8_maxaddress_lower_than_memregions.json")
+    input_file = pathlib.Path("./docs/example/A8_maxaddress_lower_than_memregions.json")
     with input_file.open("w") as fp:
         fp.write(json.dumps(zynqmp, indent=2))
 

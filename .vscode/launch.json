@@ -9,7 +9,7 @@
             "console": "integratedTerminal",
             "module": "mm.diagram",
             "args": [
-                "-f", "doc/example/input.json",
+                "-f", "docs/example/input.json",
                 "-v"
             ],
             "justMyCode": false

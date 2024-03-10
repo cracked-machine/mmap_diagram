@@ -10,7 +10,7 @@ import json
 
 
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "doc/example/example_end_collision"}], indirect=True)
+@pytest.mark.parametrize("file_setup", [{"file_path": "docs/example/example_end_collision"}], indirect=True)
 def test_generate_doc_example_end_collision(file_setup):
     """ """
 
@@ -54,7 +54,7 @@ def test_generate_doc_example_end_collision(file_setup):
         # reduced void threshold, so empty section between rootfs and dtb should be voided, making the file smaller
         assert file_setup["table_image"].exists()
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "doc/example/example_region_collisions"}], indirect=True)
+@pytest.mark.parametrize("file_setup", [{"file_path": "docs/example/example_region_collisions"}], indirect=True)
 def test_generate_doc_example_region_collisions(file_setup):
     """ """
     
@@ -95,7 +95,7 @@ def test_generate_doc_example_region_collisions(file_setup):
 
         assert file_setup["table_image"].exists()
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "doc/example/example_two_maps"}], indirect=True)
+@pytest.mark.parametrize("file_setup", [{"file_path": "docs/example/example_two_maps"}], indirect=True)
 def test_generate_doc_example_two_maps(input, file_setup):
     """ """
 
@@ -111,7 +111,7 @@ def test_generate_doc_example_two_maps(input, file_setup):
         "size": "0x10"
     }
 
-    input_file = pathlib.Path("./doc/example/two_maps_input.json")
+    input_file = pathlib.Path("./docs/example/two_maps_input.json")
     with input_file.open("w") as fp:
         fp.write(json.dumps(input, indent=2))
 
@@ -140,7 +140,7 @@ def test_generate_doc_example_two_maps(input, file_setup):
 
         assert file_setup["table_image"].exists()
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "doc/example/example_three_maps"}], indirect=True)
+@pytest.mark.parametrize("file_setup", [{"file_path": "docs/example/example_three_maps"}], indirect=True)
 def test_generate_doc_example_three_maps(input, file_setup):
     
     """ """
@@ -190,7 +190,7 @@ def test_generate_doc_example_three_maps(input, file_setup):
         }        
     }
 
-    input_file = pathlib.Path("./doc/example/three_maps_input.json")
+    input_file = pathlib.Path("./docs/example/three_maps_input.json")
     with input_file.open("w") as fp:
         fp.write(json.dumps(input, indent=2))
 
