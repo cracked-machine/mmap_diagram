@@ -4,7 +4,8 @@ import mm.image
 import pathlib
 import PIL.Image
 import pytest
-from tests.common_fixtures import file_setup
+import json
+from tests.common_fixtures import file_setup, input
 
 @pytest.mark.parametrize("file_setup", [{"file_path": "out/tmp/void_region_default"}], indirect=True)
 def test_void_region_default(file_setup):
@@ -136,5 +137,42 @@ def test_void_region_uservalue_1000(file_setup):
         assert file_setup["diagram_image"].exists()
         found_size = PIL.Image.open(str(file_setup["diagram_image"])).size
         assert found_size == (400, 482)
+
+        assert file_setup["table_image"].exists()
+
+
+@pytest.mark.parametrize("file_setup", [{"file_path": "out/tmp/void_region_uservalue_file"}], indirect=True)
+def test_void_region_uservalue_file(file_setup, input):
+    """ """
+
+    input_file = pathlib.Path("./out/tmp/void_region_uservalue_file.json")
+    with input_file.open("w") as fp:
+        fp.write(json.dumps(input, indent=2))
+
+    with unittest.mock.patch(
+        "sys.argv",
+        [
+            "mm.diagram",
+            "kernel", "0x10", "0x30",
+            "rootfs", "0x50", "0x30",
+            "dtb", "0x190", "0x30",
+            "--out", str(file_setup["report"]),
+            "--file", str(input_file),
+            "--threshold", hex(1000),
+            
+        ],
+    ):
+
+        d = mm.diagram.Diagram()
+        for mmd in d.mmd_list:
+            assert not "kernel" in mmd.image_list
+            assert not "rootfs" in mmd.image_list
+            assert not "dtb" in mmd.image_list
+
+        assert file_setup["report"].exists()
+
+        assert file_setup["diagram_image"].exists()
+        found_size = PIL.Image.open(str(file_setup["diagram_image"])).size
+        assert found_size == (1000, 130)
 
         assert file_setup["table_image"].exists()
