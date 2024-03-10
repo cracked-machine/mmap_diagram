@@ -65,7 +65,9 @@ options:
     python3 -m mm.diagram kernel 0x10 0x50 rootfs 0x50 0x30 dtb 0x90 0x30 uboot 0xD0 0x50 uboot-scr 0x110 0x30 -l 0x3e8
     ```
 
-- Using JSON the same options (plus many others) can be set. See example files in [doc/example](doc/example) folder.
+- Using JSON the same options (plus many others) can be set. See json files in [doc/example](doc/example) folder.
 
-
+    ```
+    python3 -m mm.diagram -f doc/example/input.json
+    ```
 
