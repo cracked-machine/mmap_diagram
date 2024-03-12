@@ -19,19 +19,20 @@ import mm.image
 import mm.metamodel
 
 class APageSize(NamedTuple):
+    name: str
     width: int
     height: int
 
-A1 = APageSize(7016, 9933)
-A2 = APageSize(4961, 7016)
-A3 = APageSize(3508, 4961)
-A4 = APageSize(2480, 3508)
-A5 = APageSize(1748, 2480)
-A6 = APageSize(1240, 1748)
-A7 = APageSize(874, 1240)
-A8 = APageSize(614, 874)
-A9 = APageSize(437, 614)
-A10 = APageSize(307, 437)
+A1 = APageSize("A1", 7016, 9933)
+A2 = APageSize("A2", 4961, 7016)
+A3 = APageSize("A3", 3508, 4961)
+A4 = APageSize("A4", 2480, 3508)
+A5 = APageSize("A5", 1748, 2480)
+A6 = APageSize("A6", 1240, 1748)
+A7 = APageSize("A7", 874, 1240)
+A8 = APageSize("A8", 614, 874)
+A9 = APageSize("A9", 437, 614)
+A10 = APageSize("A10", 307, 437)
 
 root = logging.getLogger()
 root.setLevel(logging.INFO)

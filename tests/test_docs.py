@@ -12,7 +12,7 @@ import json
         [
             {
                 "file_path": "docs/example/example_end_collisions",
-                "markdown_comment": "Region collision with diagram max address"
+                "test_desc": "Region collision with diagram max address"
             }
         ], indirect=True)
 def test_generate_doc_example_end_collisions(file_setup):
@@ -67,7 +67,7 @@ def test_generate_doc_example_end_collisions(file_setup):
         [
             {
                 "file_path": "docs/example/example_region_collisions",
-                "markdown_comment": "Region collisions with other regions"
+                "test_desc": "Region collisions with other regions"
             }
         ], indirect=True)
 def test_generate_doc_example_region_collisions(file_setup):
@@ -120,7 +120,7 @@ def test_generate_doc_example_region_collisions(file_setup):
         [
             {
                 "file_path": "docs/example/example_two_maps",
-                "markdown_comment": "Diagram with two memory maps"
+                "test_desc": "Diagram with two memory maps"
             }
         ], indirect=True)
 def test_generate_doc_example_two_maps(input, file_setup):
@@ -172,7 +172,7 @@ def test_generate_doc_example_two_maps(input, file_setup):
         [
             {
                 "file_path": "docs/example/example_three_maps",
-                "markdown_comment": "Diagram with three memory maps"
+                "test_desc": "Diagram with three memory maps"
             }
         ], indirect=True)
 def test_generate_doc_example_three_maps(input, file_setup):
