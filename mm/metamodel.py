@@ -149,7 +149,7 @@ class Diagram(ConfigParent):
     ]
     bgcolour: Annotated[
         ColourType,
-        pydantic.Field("white", description="The background colour used for the diagram")
+        pydantic.Field((0xF8,0xF8,0xF8), description="The background colour used for the diagram")
     ] 
     link_alpha: Annotated[
         int,

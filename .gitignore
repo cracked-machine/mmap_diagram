@@ -11,7 +11,7 @@ docs/example/*
 !docs/example/example_two_maps_table.png
 !docs/example/example_region_collisions_diagram.png
 !docs/example/example_region_collisions_table.png
-!docs/example/example_end_collision_diagram.png
-!docs/example/example_end_collision_table.png
+!docs/example/example_end_collisions_diagram.png
+!docs/example/example_end_collisions_table.png
 
 examples.md
