@@ -251,7 +251,7 @@ class MemoryMapDiagram:
                     # add origin address text
                     map_img = self._add_label(
                         dest=map_img, 
-                        xy=mm.image.Point(region.img.width + 5, (last_void_pos if last_void_pos else region_origin_scaled) - 2 ) , 
+                        xy=mm.image.Point(region.img.width + 5, (last_void_pos if last_void_pos else region_origin_scaled) - 1 ) , 
                         text=f"0x{region.origin_as_int:X}" + " (" + f"{region.origin_as_int:,}" + ")", 
                         font_size=region.metadata.address_text_size)
                     
@@ -328,7 +328,7 @@ class Diagram:
 
     def draw_diagram_img(self) -> None:
         """add each memory map to the complete diagram image"""
-
+        border_width = 4
         max_map_img_height = max(self.mmd_list, key=lambda mmd: mmd.img.height).img.height
         max_title_img_height = max(self.mmd_list, key=lambda mmd: mmd.title.img.height).title.img.height
         
@@ -343,7 +343,7 @@ class Diagram:
             # add the mem map diagram image
             final_diagram_img.paste(
                 mmd.img.transpose(PIL.Image.FLIP_TOP_BOTTOM), 
-                ( (mmd_idx * mmd.width), 0))
+                ( (mmd_idx * mmd.width), border_width))
             
             # add the mem map name label at this stage so all titles line up at the "top"
             final_diagram_img = mmd.title.overlay(
@@ -402,6 +402,11 @@ class Diagram:
         # make sure we don't go over the requested height
         if final_diagram_img.height > Diagram.model.height:
             final_diagram_img = final_diagram_img.resize((Diagram.model.width, Diagram.model.height), PIL.Image.Resampling.BICUBIC)
+        # draw a border around the diagram
+        PIL.ImageDraw.Draw(final_diagram_img).rectangle(
+            (0,0, final_diagram_img.width -1, final_diagram_img.height -1), 
+            outline="black",
+            width=border_width)
         img_file_path = pathlib.Path(Diagram.pargs.out).stem + "_diagram.png"
         final_diagram_img.save(pathlib.Path(Diagram.pargs.out).parent / img_file_path)
 
