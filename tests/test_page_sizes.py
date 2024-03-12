@@ -1,14 +1,14 @@
-
 import unittest
-import mm.diagram
-import mm.metamodel
-import pathlib
 import pytest
 import PIL.Image
-from tests.common_fixtures import zynqmp, file_setup
 import json
 import logging
 
+from tests.fixtures.common import file_setup
+from tests.fixtures.input_data import zynqmp
+
+import mm.diagram
+import mm.metamodel
 
 test_desc = """ 
 -   region exceeds diagram height. 

@@ -1,12 +1,12 @@
 import unittest
 import pytest
-import mm.diagram
-import pathlib
 import PIL.Image
-import argparse
 import pydantic
-from tests.common_fixtures import input, file_setup
-import logging
+
+from tests.fixtures.common import file_setup
+from tests.fixtures.input_data import input
+
+import mm.diagram
 
 def test_no_args():
     with unittest.mock.patch("sys.argv", ["mm.diagram", ""]):

@@ -1,9 +1,7 @@
 import PIL.ImageDraw
 import PIL.Image
+
 import mm.image
-import pytest
-import unittest
-import random
 
 # Note: these are unit tests that require visual inspection of the images produced in out/tmp/arrow_X.png
 # The arrow block graphic should line up with the expected line+dot vector

@@ -1,10 +1,12 @@
-import mm.diagram
 import unittest
-import mm.image
 import pytest 
-from tests.common_fixtures import file_setup
-import pathlib
 import json
+import pathlib
+
+from tests.fixtures.common import file_setup
+
+import mm.diagram
+import mm.image
 
 # These tests only check the distance between adjacent regions
 # They don't check the output image sizes so we don't care what value we set to the threshold.

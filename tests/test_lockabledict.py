@@ -1,7 +1,8 @@
 
 import unittest
-import mm.diagram
 import logging
+
+import mm.diagram
 
 def test_void_no_new_keys(caplog):
     """ Same as 'test_void_region_cli_A5_no_voids' but with json file input"""
