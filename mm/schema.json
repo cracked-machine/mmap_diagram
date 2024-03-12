@@ -163,7 +163,11 @@
           "type": "array"
         }
       ],
-      "default": "white",
+      "default": [
+        248,
+        248,
+        248
+      ],
       "description": "The background colour used for the diagram",
       "title": "Bgcolour"
     },
