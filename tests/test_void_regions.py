@@ -1,13 +1,15 @@
-import mm.diagram
 import unittest
-import mm.image
 import pathlib
 import PIL.Image
 import pytest
 import json
-from tests.common_fixtures import file_setup, input
-from typing import List
-import logging
+
+from tests.fixtures.common import file_setup
+from tests.fixtures.input_data import input
+
+import mm.diagram
+import mm.image
+
 
 @pytest.mark.parametrize("file_setup", [{"file_path": "out/tmp/void_region_cli_defaults"}], indirect=True)
 def test_void_region_cli_defaults(file_setup):

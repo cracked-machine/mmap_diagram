@@ -1,11 +1,14 @@
 import unittest
-import mm.diagram
-import mm.metamodel
 import pathlib
 import pytest
 import PIL.Image
-from tests.common_fixtures import input, file_setup, markdown_setup
 import json
+
+from tests.fixtures.common import file_setup, markdown_setup
+from tests.fixtures.input_data import input
+
+import mm.diagram
+import mm.metamodel
 
 @pytest.mark.parametrize(
         "file_setup", 

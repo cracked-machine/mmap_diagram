@@ -1,14 +1,16 @@
 import pytest
 import pathlib
-import mm.metamodel
 import pydantic 
-from typing import Dict
-from tests.common_fixtures import input
 import unittest
 import logging
+import typing 
+
+from tests.fixtures.input_data import input
+
+import mm.metamodel
 
 @pytest.fixture
-def setup() -> Dict:
+def setup() -> typing.Dict:
     schema = pathlib.Path("./mm/schema.json")
     schema.unlink(missing_ok=True)
     return {"schema": schema}
