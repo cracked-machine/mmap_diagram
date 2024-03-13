@@ -4,7 +4,7 @@ import PIL.Image
 import json
 import logging
 
-from tests.fixtures.common import file_setup
+from tests.fixtures.common import test_setup
 from tests.fixtures.input_data import zynqmp
 
 import mm.diagram
@@ -19,7 +19,7 @@ test_desc = """
 """
 
 @pytest.mark.parametrize(
-    'psize, expected_scale_res, file_setup', 
+    'psize, expected_scale_res, test_setup', 
     [
         (mm.diagram.A3, (1, 3382), {"file_path": "docs/example/A3_region_exceeds_height_no_maxaddress_set", "test_desc": test_desc}),
         (mm.diagram.A4, (2, 4783), {"file_path": "docs/example/A4_region_exceeds_height_no_maxaddress_set", "test_desc": test_desc}),
@@ -27,13 +27,13 @@ test_desc = """
         (mm.diagram.A6, (3, 9598), {"file_path": "docs/example/A6_region_exceeds_height_no_maxaddress_set", "test_desc": test_desc}),
         (mm.diagram.A7, (4, 13531), {"file_path": "docs/example/A7_region_exceeds_height_no_maxaddress_set", "test_desc": test_desc}),
         (mm.diagram.A8, (5, 19196), {"file_path": "docs/example/A8_region_exceeds_height_no_maxaddress_set", "test_desc": test_desc}),
-    ], indirect=['file_setup']
+    ], indirect=['test_setup']
 )
 def test_generate_doc_region_exceeds_height_no_maxaddress_set(
     zynqmp,
     expected_scale_res,
     psize,
-    file_setup,
+    test_setup,
     
 ):
 
@@ -45,7 +45,7 @@ def test_generate_doc_region_exceeds_height_no_maxaddress_set(
     # "Boot Image" won't match ["Global System Address Map", "OCM"] link at this size
     zynqmp['memory_maps']['Flash']['memory_regions']['Boot Image']['links'] = []
 
-    with file_setup['json_file'].open("w") as fp:
+    with test_setup['json_file'].open("w") as fp:
         fp.write(json.dumps(zynqmp, indent=2))
 
     # test start
@@ -53,8 +53,8 @@ def test_generate_doc_region_exceeds_height_no_maxaddress_set(
         "sys.argv",
             [
                 "mm.diagram",
-                "--file", str(file_setup['json_file']),
-                "--out", str(file_setup['report']),
+                "--file", str(test_setup['json_file']),
+                "--out", str(test_setup['report']),
                 "--threshold", hex(100)
             ],
         ):
@@ -73,8 +73,8 @@ def test_generate_doc_region_exceeds_height_no_maxaddress_set(
                 assert mmap.max_address_taken_from_diagram_height == True
                 assert mmap.draw_scale == expected_scale_res[1]
 
-        assert file_setup['diagram_image'].exists()
-        assert PIL.Image.open( str(file_setup['diagram_image']) ).size == (
+        assert test_setup['diagram_image'].exists()
+        assert PIL.Image.open( str(test_setup['diagram_image']) ).size == (
             psize.width, 
             psize.height)
 
@@ -86,7 +86,7 @@ test_desc = """
                 NOTE: draw_scale is adjusted to allow for potential voidregions
             """
 @pytest.mark.parametrize(
-    'psize, expected_scale_res, file_setup', 
+    'psize, expected_scale_res, test_setup', 
     [
         (mm.diagram.A3, (1, 3544), {"file_path": "docs/example/A3_region_freespace_exceeds_height_higher_maxaddress_set", "test_desc": test_desc}),
         (mm.diagram.A4, (2, 5011), {"file_path": "docs/example/A4_region_freespace_exceeds_height_higher_maxaddress_set", "test_desc": test_desc}),
@@ -94,13 +94,13 @@ test_desc = """
         (mm.diagram.A6, (3, 10056), {"file_path": "docs/example/A6_region_freespace_exceeds_height_higher_maxaddress_set", "test_desc": test_desc}),
         (mm.diagram.A7, (4, 14176), {"file_path": "docs/example/A7_region_freespace_exceeds_height_higher_maxaddress_set", "test_desc": test_desc}),
         (mm.diagram.A8, (5, 20112), {"file_path": "docs/example/A8_region_freespace_exceeds_height_higher_maxaddress_set", "test_desc": test_desc}),
-    ], indirect=['file_setup']
+    ], indirect=['test_setup']
 )
 def test_generate_doc_region_freespace_exceeds_height_higher_maxaddress_set(
     zynqmp,
     expected_scale_res,
     psize,
-    file_setup,
+    test_setup,
     caplog,
     
 ):
@@ -114,15 +114,15 @@ def test_generate_doc_region_freespace_exceeds_height_higher_maxaddress_set(
     # "Boot Image" won't match ["Global System Address Map", "OCM"] link at this size
     zynqmp['memory_maps']['Flash']['memory_regions']['Boot Image']['links'] = []
 
-    with file_setup['json_file'].open("w") as fp:
+    with test_setup['json_file'].open("w") as fp:
         fp.write(json.dumps(zynqmp, indent=2))
 
     with unittest.mock.patch(
         "sys.argv",
             [
                 "mm.diagram",
-                "--file", str(file_setup['json_file']),
-                "--out", str(file_setup["report"]),
+                "--file", str(test_setup['json_file']),
+                "--out", str(test_setup["report"]),
                 "--threshold", hex(100),
                 "-v"
             ],
@@ -148,8 +148,8 @@ def test_generate_doc_region_freespace_exceeds_height_higher_maxaddress_set(
                     assert mmap.draw_scale == expected_scale_res[1]
             
 
-            assert file_setup["diagram_image"].exists()
-            assert PIL.Image.open(str(file_setup["diagram_image"])).size == (psize.width, psize.height)
+            assert test_setup["diagram_image"].exists()
+            assert PIL.Image.open(str(test_setup["diagram_image"])).size == (psize.width, psize.height)
 
 
 test_desc = """ 
@@ -157,7 +157,7 @@ test_desc = """
                 calculated largest value from the region data.
             """
 @pytest.mark.parametrize(
-    'psize, expected_scale_res, file_setup', 
+    'psize, expected_scale_res, test_setup', 
     [
         (mm.diagram.A3, (1, 2), {"file_path": "docs/example/A3_maxaddress_lower_than_memregions", "test_desc": test_desc}),
         (mm.diagram.A4, (2, 2), {"file_path": "docs/example/A4_maxaddress_lower_than_memregions", "test_desc": test_desc}),
@@ -165,13 +165,13 @@ test_desc = """
         (mm.diagram.A6, (3, 3), {"file_path": "docs/example/A6_maxaddress_lower_than_memregions", "test_desc": test_desc}),
         (mm.diagram.A7, (4, 5), {"file_path": "docs/example/A7_maxaddress_lower_than_memregions", "test_desc": test_desc}),
         (mm.diagram.A8, (5, 6), {"file_path": "docs/example/A8_maxaddress_lower_than_memregions", "test_desc": test_desc}),
-    ], indirect=['file_setup']
+    ], indirect=['test_setup']
 )
 def test_generate_doc_maxaddress_lower_than_memregions(
     zynqmp,
     expected_scale_res,
     psize,
-    file_setup,
+    test_setup,
     caplog,
     
 ):
@@ -185,15 +185,15 @@ def test_generate_doc_maxaddress_lower_than_memregions(
     zynqmp['memory_maps']['Flash']['max_address'] = hex(new_max_address)
     # zynqmp['memory_maps']['Global System Address Map']['max_address'] = "0xFFFFFFFF"
 
-    with file_setup['json_file'].open("w") as fp:
+    with test_setup['json_file'].open("w") as fp:
         fp.write(json.dumps(zynqmp, indent=2))
 
     with unittest.mock.patch(
         "sys.argv",
             [
                 "mm.diagram",
-                "--file", str(file_setup['json_file']),
-                "--out", str(file_setup["report"]),
+                "--file", str(test_setup['json_file']),
+                "--out", str(test_setup["report"]),
                 "--threshold", hex(100),
                 "-v"
             ],
@@ -218,5 +218,5 @@ def test_generate_doc_maxaddress_lower_than_memregions(
                     # NOTE: draw_scale has been adjusted because it didn't allow space for a void region
                     assert mmap.draw_scale == expected_scale_res[1]
 
-            assert file_setup["diagram_image"].exists()
-            assert PIL.Image.open(str(file_setup["diagram_image"])).size == (psize.width, psize.height)
+            assert test_setup["diagram_image"].exists()
+            assert PIL.Image.open(str(test_setup["diagram_image"])).size == (psize.width, psize.height)

@@ -4,21 +4,21 @@ import pytest
 import PIL.Image
 import json
 
-from tests.fixtures.common import file_setup, markdown_setup
+from tests.fixtures.common import test_setup, session_setup
 from tests.fixtures.input_data import input
 
 import mm.diagram
 import mm.metamodel
 
 @pytest.mark.parametrize(
-        "file_setup", 
+        "test_setup", 
         [
             {
                 "file_path": "docs/example/example_end_collisions",
                 "test_desc": "Region collision with diagram max address"
             }
         ], indirect=True)
-def test_generate_doc_example_end_collisions(file_setup):
+def test_generate_doc_example_end_collisions(test_setup):
     """ """
 
     
@@ -29,7 +29,7 @@ def test_generate_doc_example_end_collisions(file_setup):
             "kernel", "0x10", "0x30",
             "rootfs", "0x50", "0x30",
             "dtb", "0x190", "0x30",
-            "--out", str(file_setup["report"]),
+            "--out", str(test_setup["report"]),
             "-l", hex(mm.diagram.A9.width),
             "--threshold", hex(200),
         ],
@@ -56,24 +56,24 @@ def test_generate_doc_example_end_collisions(file_setup):
                 assert region_image.size_as_hex == "0x30"
                 assert region_image.freespace_as_hex == "-0xb"
 
-        assert file_setup["report"].exists()
+        assert test_setup["report"].exists()
 
-        assert file_setup["diagram_image"].exists()
-        found_size = PIL.Image.open(str(file_setup["diagram_image"])).size
+        assert test_setup["diagram_image"].exists()
+        found_size = PIL.Image.open(str(test_setup["diagram_image"])).size
         assert found_size == (mm.diagram.A8.width, mm.diagram.A9.width)
 
         # reduced void threshold, so empty section between rootfs and dtb should be voided, making the file smaller
-        assert file_setup["table_image"].exists()
+        assert test_setup["table_image"].exists()
 
 @pytest.mark.parametrize(
-        "file_setup", 
+        "test_setup", 
         [
             {
                 "file_path": "docs/example/example_region_collisions",
                 "test_desc": "Region collisions with other regions"
             }
         ], indirect=True)
-def test_generate_doc_example_region_collisions(file_setup):
+def test_generate_doc_example_region_collisions(test_setup):
     """ """
 
 
@@ -84,7 +84,7 @@ def test_generate_doc_example_region_collisions(file_setup):
             "kernel", "0x10", "0x60",
             "rootfs", "0x50", "0x50",
             "dtb", "0x90", "0x30",
-            "--out", str(file_setup["report"]),
+            "--out", str(test_setup["report"]),
             "--limit", hex(mm.diagram.A9.width),
             "--threshold", hex(200),
         ],
@@ -111,22 +111,22 @@ def test_generate_doc_example_region_collisions(file_setup):
                 assert region_image.size_as_hex == "0x30"
                 assert region_image.freespace_as_hex == "0xf5"
 
-        assert file_setup["report"].exists()
+        assert test_setup["report"].exists()
 
-        assert file_setup["diagram_image"].exists()
-        assert PIL.Image.open(str(file_setup["diagram_image"])).size == (mm.diagram.A8.width, mm.diagram.A9.width)
+        assert test_setup["diagram_image"].exists()
+        assert PIL.Image.open(str(test_setup["diagram_image"])).size == (mm.diagram.A8.width, mm.diagram.A9.width)
 
-        assert file_setup["table_image"].exists()
+        assert test_setup["table_image"].exists()
 
 @pytest.mark.parametrize(
-        "file_setup", 
+        "test_setup", 
         [
             {
                 "file_path": "docs/example/example_two_maps",
                 "test_desc": "Diagram with two memory maps"
             }
         ], indirect=True)
-def test_generate_doc_example_two_maps(input, file_setup):
+def test_generate_doc_example_two_maps(input, test_setup):
     """ """
 
     input['height'] = mm.diagram.A9.width
@@ -152,7 +152,7 @@ def test_generate_doc_example_two_maps(input, file_setup):
             [
                 "mm.diagram",
                 "--file", str(input_file),
-                "--out", str(file_setup["report"]),
+                "--out", str(test_setup["report"]),
                 "--limit", hex(mm.diagram.A8.height),
                 "--threshold", hex(200),
             ],
@@ -162,23 +162,23 @@ def test_generate_doc_example_two_maps(input, file_setup):
 
         mm.diagram.Diagram()
 
-        assert file_setup["report"].exists()
+        assert test_setup["report"].exists()
 
-        assert file_setup["diagram_image"].exists()
-        assert PIL.Image.open(str(file_setup["diagram_image"])).size == (mm.diagram.A9.height, mm.diagram.A9.width)
+        assert test_setup["diagram_image"].exists()
+        assert PIL.Image.open(str(test_setup["diagram_image"])).size == (mm.diagram.A9.height, mm.diagram.A9.width)
 
 
-        assert file_setup["table_image"].exists()
+        assert test_setup["table_image"].exists()
 
 @pytest.mark.parametrize(
-        "file_setup", 
+        "test_setup", 
         [
             {
                 "file_path": "docs/example/example_three_maps",
                 "test_desc": "Diagram with three memory maps"
             }
         ], indirect=True)
-def test_generate_doc_example_three_maps(input, file_setup):
+def test_generate_doc_example_three_maps(input, test_setup):
     
     """ """
 
@@ -237,7 +237,7 @@ def test_generate_doc_example_three_maps(input, file_setup):
             [
                 "mm.diagram",
                 "--file", str(input_file),
-                "--out", str(file_setup["report"]),
+                "--out", str(test_setup["report"]),
                 "--limit", hex(mm.diagram.A8.height),
                 "--threshold", hex(200),
             ],
@@ -245,11 +245,11 @@ def test_generate_doc_example_three_maps(input, file_setup):
 
         mm.diagram.Diagram()
 
-        assert file_setup["report"].exists()
+        assert test_setup["report"].exists()
 
-        assert file_setup["diagram_image"].exists()
-        assert PIL.Image.open(str(file_setup["diagram_image"])).size == (mm.diagram.A9.height, mm.diagram.A9.width)
-        assert file_setup["table_image"].exists()
+        assert test_setup["diagram_image"].exists()
+        assert PIL.Image.open(str(test_setup["diagram_image"])).size == (mm.diagram.A9.height, mm.diagram.A9.width)
+        assert test_setup["table_image"].exists()
 
 ######################################
         

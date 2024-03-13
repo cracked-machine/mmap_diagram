@@ -3,7 +3,7 @@ import pytest
 import json
 import pathlib
 
-from tests.fixtures.common import file_setup
+from tests.fixtures.common import test_setup
 
 import mm.diagram
 import mm.image
@@ -219,8 +219,8 @@ def test_distance_five_regions_bottom_top_collision():
                 assert region_image.size_as_hex == "0x30"
                 assert region_image.freespace_as_hex == "0x2a8"
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "out/tmp/distance_collision_with_limit"}], indirect=True)
-def test_distance_collision_with_limit(file_setup):
+@pytest.mark.parametrize("test_setup", [{"file_path": "out/tmp/distance_collision_with_limit"}], indirect=True)
+def test_distance_collision_with_limit(test_setup):
     """ """
     data = {
         "$schema": "../../mm/schema.json",
@@ -265,10 +265,10 @@ def test_distance_collision_with_limit(file_setup):
                 assert region_image.freespace_as_hex == "-0x50"
 
 
-        assert file_setup["report"].exists()
+        assert test_setup["report"].exists()
 
-        assert file_setup["diagram_image"].exists()
-        # outimg = PIL.Image.open(str(file_setup["diagram_image"]))
+        assert test_setup["diagram_image"].exists()
+        # outimg = PIL.Image.open(str(test_setup["diagram_image"]))
         # assert outimg.size[1] == 2000
 
-        assert file_setup["table_image"].exists()
+        assert test_setup["table_image"].exists()

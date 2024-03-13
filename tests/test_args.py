@@ -3,7 +3,7 @@ import pytest
 import PIL.Image
 import pydantic
 
-from tests.fixtures.common import file_setup
+from tests.fixtures.common import test_setup
 from tests.fixtures.input_data import input
 
 import mm.diagram
@@ -180,8 +180,8 @@ def test_voidthresh_arg():
         
         mm.diagram.Diagram()
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "out/tmp/invalid_2000_limit_arg_format"}], indirect=True)
-def test_invalid_2000_limit_arg_format(file_setup):
+@pytest.mark.parametrize("test_setup", [{"file_path": "out/tmp/invalid_2000_limit_arg_format"}], indirect=True)
+def test_invalid_2000_limit_arg_format(test_setup):
     with unittest.mock.patch(
         "sys.argv", 
         ["mm.diagram", 
@@ -193,8 +193,8 @@ def test_invalid_2000_limit_arg_format(file_setup):
         with pytest.raises(SystemExit):
             mm.diagram.Diagram()
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "out/tmp/default_limit_arg_format"}], indirect=True)
-def test_default_limit_arg_format(file_setup):
+@pytest.mark.parametrize("test_setup", [{"file_path": "out/tmp/default_limit_arg_format"}], indirect=True)
+def test_default_limit_arg_format(test_setup):
     """should create custom report dir/files"""
 
     with unittest.mock.patch(
@@ -203,7 +203,7 @@ def test_default_limit_arg_format(file_setup):
             "mm.diagram", 
             "a", "0x10", "0x10", 
             "-l", hex(2000),
-            "-o", str(file_setup["report"]),
+            "-o", str(test_setup["report"]),
         ]
     ):
 
@@ -214,16 +214,16 @@ def test_default_limit_arg_format(file_setup):
         assert mm.diagram.Diagram.pargs.threshold == hex(10)
         assert not mm.diagram.Diagram.pargs.threshold == 200
 
-        assert file_setup["report"].exists()
+        assert test_setup["report"].exists()
 
-        assert file_setup["diagram_image"].exists()
-        outimg = PIL.Image.open(str(file_setup["diagram_image"]))
+        assert test_setup["diagram_image"].exists()
+        outimg = PIL.Image.open(str(test_setup["diagram_image"]))
         assert outimg.height == 2000
 
-        assert file_setup["table_image"].exists()
+        assert test_setup["table_image"].exists()
         
-@pytest.mark.parametrize("file_setup", [{"file_path": "out/tmp/valid_2000_limit_arg_format"}], indirect=True)
-def test_valid_2000_limit_arg_format(file_setup):
+@pytest.mark.parametrize("test_setup", [{"file_path": "out/tmp/valid_2000_limit_arg_format"}], indirect=True)
+def test_valid_2000_limit_arg_format(test_setup):
     """should create custom report dir/files"""
 
     with unittest.mock.patch(
@@ -231,7 +231,7 @@ def test_valid_2000_limit_arg_format(file_setup):
         [
             "mm.diagram", 
             "a", "0x10", "0x10", 
-            "-o", str(file_setup["report"]), 
+            "-o", str(test_setup["report"]), 
             "-l", hex(2000),
             
         ]
@@ -243,11 +243,11 @@ def test_valid_2000_limit_arg_format(file_setup):
         assert mm.diagram.Diagram.pargs.limit == hex(2000)
         assert not mm.diagram.Diagram.pargs.limit == 2000
 
-        assert file_setup["report"].exists()
+        assert test_setup["report"].exists()
 
-        assert file_setup["diagram_image"].exists()
-        outimg = PIL.Image.open(str(file_setup["diagram_image"]))
+        assert test_setup["diagram_image"].exists()
+        outimg = PIL.Image.open(str(test_setup["diagram_image"]))
         assert outimg.size[1] == 2000
 
-        assert file_setup["table_image"].exists()
+        assert test_setup["table_image"].exists()
 

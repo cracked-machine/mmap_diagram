@@ -4,15 +4,15 @@ import PIL.Image
 import pytest
 import json
 
-from tests.fixtures.common import file_setup
+from tests.fixtures.common import test_setup
 from tests.fixtures.input_data import input
 
 import mm.diagram
 import mm.image
 
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "out/tmp/void_region_cli_defaults"}], indirect=True)
-def test_void_region_cli_defaults(file_setup):
+@pytest.mark.parametrize("test_setup", [{"file_path": "out/tmp/void_region_cli_defaults"}], indirect=True)
+def test_void_region_cli_defaults(test_setup):
     """ Check the void regions were added for the default threshold"""
 
     
@@ -23,7 +23,7 @@ def test_void_region_cli_defaults(file_setup):
             "kernel", "0x10", "0x30",
             "rootfs", "0x50", "0x30",
             "dtb", "0x190", "0x30",
-            "-o", str(file_setup["report"]),
+            "-o", str(test_setup["report"]),
             "-l", hex(mm.diagram.A8.height),
             
         ],
@@ -54,16 +54,16 @@ def test_void_region_cli_defaults(file_setup):
                 assert region_image.size_as_hex == "0x30"
                 assert region_image.freespace_as_hex == "0x1aa"
 
-        assert file_setup["report"].exists()
+        assert test_setup["report"].exists()
 
-        assert file_setup["diagram_image"].exists()
-        found_size = PIL.Image.open(str(file_setup["diagram_image"])).size
+        assert test_setup["diagram_image"].exists()
+        found_size = PIL.Image.open(str(test_setup["diagram_image"])).size
         assert found_size == (mm.diagram.A8.width, mm.diagram.A8.height)
 
-        assert file_setup["table_image"].exists()
+        assert test_setup["table_image"].exists()
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "out/tmp/void_region_cli_a10"}], indirect=True)
-def test_void_region_cli_a10(file_setup):
+@pytest.mark.parametrize("test_setup", [{"file_path": "out/tmp/void_region_cli_a10"}], indirect=True)
+def test_void_region_cli_a10(test_setup):
     """ check the voidregions were added for smaller diagram size with lower threshold set"""
 
     
@@ -74,7 +74,7 @@ def test_void_region_cli_a10(file_setup):
             "kernel", "0x10", "0x30",
             "rootfs", "0x50", "0x30",
             "dtb", "0x120", "0x30",
-            "-o", str(file_setup["report"]),
+            "-o", str(test_setup["report"]),
             "-l", hex(mm.diagram.A10.height),
             "-t", hex(50),
             
@@ -104,16 +104,16 @@ def test_void_region_cli_a10(file_setup):
                 assert region_image.size_as_hex == "0x30"
                 assert region_image.freespace_as_hex == "0x65"
 
-        assert file_setup["report"].exists()
+        assert test_setup["report"].exists()
 
-        assert file_setup["diagram_image"].exists()
-        found_size = PIL.Image.open(str(file_setup["diagram_image"])).size
+        assert test_setup["diagram_image"].exists()
+        found_size = PIL.Image.open(str(test_setup["diagram_image"])).size
         assert found_size == (mm.diagram.A8.width, mm.diagram.A10.height)
 
-        assert file_setup["table_image"].exists()
+        assert test_setup["table_image"].exists()
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "out/tmp/void_region_cli_A5_no_voids"}], indirect=True)
-def test_void_region_cli_A5_no_voids(file_setup):
+@pytest.mark.parametrize("test_setup", [{"file_path": "out/tmp/void_region_cli_A5_no_voids"}], indirect=True)
+def test_void_region_cli_A5_no_voids(test_setup):
     """ check the void regions were not added when the threshold is set above the diagram height"""
 
     with unittest.mock.patch(
@@ -123,7 +123,7 @@ def test_void_region_cli_A5_no_voids(file_setup):
             "kernel", "0x10", "0x30",
             "rootfs", "0x50", "0x30",
             "dtb", "0x190", "0x30",
-            "-o", str(file_setup["report"]),
+            "-o", str(test_setup["report"]),
             "-l", hex(mm.diagram.A5.height),
             "-t", hex(5000),
             
@@ -150,17 +150,17 @@ def test_void_region_cli_A5_no_voids(file_setup):
                 assert region_image.size_as_hex == "0x30"
                 assert region_image.freespace_as_hex == "0x7f0"
 
-        assert file_setup["report"].exists()
+        assert test_setup["report"].exists()
 
-        assert file_setup["diagram_image"].exists()
-        found_size = PIL.Image.open(str(file_setup["diagram_image"])).size
+        assert test_setup["diagram_image"].exists()
+        found_size = PIL.Image.open(str(test_setup["diagram_image"])).size
         assert found_size == (mm.diagram.A8.width, mm.diagram.A5.height)
 
-        assert file_setup["table_image"].exists()
+        assert test_setup["table_image"].exists()
 
 
-@pytest.mark.parametrize("file_setup", [{"file_path": "out/tmp/void_region_uservalue_file_no_voids"}], indirect=True)
-def test_void_region_uservalue_file_no_voids(file_setup, input, caplog):
+@pytest.mark.parametrize("test_setup", [{"file_path": "out/tmp/void_region_uservalue_file_no_voids"}], indirect=True)
+def test_void_region_uservalue_file_no_voids(test_setup, input, caplog):
     """ Same as 'test_void_region_cli_A5_no_voids' but with json file input"""
 
     input_file = pathlib.Path("./out/tmp/void_region_uservalue_file_no_voids.json")
@@ -174,7 +174,7 @@ def test_void_region_uservalue_file_no_voids(file_setup, input, caplog):
             "kernel", "0x10", "0x30",
             "rootfs", "0x50", "0x30",
             "dtb", "0x190", "0x30",
-            "--out", str(file_setup["report"]),
+            "--out", str(test_setup["report"]),
             "--file", str(input_file),
             "--threshold", hex(1000),
             
@@ -192,10 +192,10 @@ def test_void_region_uservalue_file_no_voids(file_setup, input, caplog):
             assert not "rootfs" in mmd.image_list
             assert not "dtb" in mmd.image_list
 
-        assert file_setup["report"].exists()
+        assert test_setup["report"].exists()
 
-        assert file_setup["diagram_image"].exists()
-        found_size = PIL.Image.open(str(file_setup["diagram_image"])).size
+        assert test_setup["diagram_image"].exists()
+        found_size = PIL.Image.open(str(test_setup["diagram_image"])).size
         assert found_size == (mm.diagram.A8.width, mm.diagram.A8.height)
 
-        assert file_setup["table_image"].exists()
+        assert test_setup["table_image"].exists()
