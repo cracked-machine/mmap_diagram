@@ -35,8 +35,8 @@ def file_setup(request):
             file_path = request.param['file_path']
             mdfp.write( f"| <H3>{file_path} |\n")
             mdfp.write( f"| {markdown_comment} |\n")
-            mdfp.write( f"| ![]( {file_path}_diagram.png ) |\n")    
-            mdfp.write( f"| ![]( {file_path}_table.png ) |\n")    
+            mdfp.write( f"| [![]( {file_path}_diagram.png )]({file_path}_diagram.png) |\n")    
+            mdfp.write( f"| [![]( {file_path}_table.png )]({file_path}_table.png) |\n")    
             mdfp.write( f"| [{file_path}.json]({file_path}.json)<pre>" )
 
             with open(f"{file_path}.json", "r", encoding="utf-8") as jsonfp:
