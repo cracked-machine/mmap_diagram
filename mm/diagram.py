@@ -13,10 +13,12 @@ import pathlib
 import logging
 import collections
 
+
 from typing import List, Dict, Literal, Tuple, DefaultDict, NamedTuple
 
 import mm.image
 import mm.metamodel
+
 
 class APageSize(NamedTuple):
     name: str
@@ -484,7 +486,24 @@ class Diagram:
     def _parse_args(cls):
         """Setup the command line interface"""
         parser = argparse.ArgumentParser(
-            description="""Generate a diagram showing how binary regions co-exist within memory."""
+            formatter_class=argparse.RawTextHelpFormatter,
+            description=
+            """Tool for generating diagrams that show the mapping of regions in memory.""",
+          
+            epilog="""
+EXAMPLES
+--------
+- Generate a map diagram called 'dram' that contains five regions called kernel, rootfs, dtb, uboot and uboot-scr where four of the five regions intersect/collide. 
+  The default report output path is used.
+                    
+    python3 -m mm.diagram kernel 0x10 0x50 rootfs 0x50 0x30 dtb 0x90 0x30 uboot 0xD0 0x50 uboot-scr 0x110 0x30 -l 0x3e8 -n dram
+
+- Using JSON many other options can be set. 
+  Example json files can be found at https://cracked-machine.github.io/mmdiagram/examples.html
+                                   
+    python3 -m mm.diagram -f docs/example/example_two_maps.json                                  
+
+                    """
         )
         parser.add_argument(
             "regions",
@@ -553,15 +572,15 @@ class Diagram:
             root.setLevel(logging.DEBUG)
         # parse hex/int inputs
         if not Diagram.pargs.file and not Diagram.pargs.limit:
-            raise SystemExit("You must specify either: limit setting or JSON input file.")
+            raise SystemExit("Error: You must specify either: limit setting or JSON input file.")
         if not Diagram.pargs.file and Diagram.pargs.limit:
             if not Diagram.pargs.limit[:2] == "0x":
-                raise SystemExit(f"'limit' argument should be in hex format: {str(Diagram.pargs.limit)} = {hex(int(Diagram.pargs.limit))}")
+                raise SystemExit(f"Error: 'limit' argument should be in hex format: {str(Diagram.pargs.limit)} = {hex(int(Diagram.pargs.limit))}")
         if not Diagram.pargs.file and not Diagram.pargs.regions:
             raise SystemExit("You must provide either: region string or JSON input file.")
         if Diagram.pargs.threshold:
             if not Diagram.pargs.threshold[:2] == "0x":
-                raise SystemExit(f"'threshold' argument should be in hex format: {str(Diagram.pargs.threshold)} = {hex(int(Diagram.pargs.threshold))}")
+                raise SystemExit(f"Error: 'threshold' argument should be in hex format: {str(Diagram.pargs.threshold)} = {hex(int(Diagram.pargs.threshold))}")
 
         # make sure the output path is valid and parent dir exists
         if not pathlib.Path(Diagram.pargs.out).suffix == ".md":
@@ -570,14 +589,14 @@ class Diagram:
 
         # check data point cardinality
         if len(sys.argv) == 1:
-            raise SystemExit("must pass in data points")
+            raise SystemExit("Error: You must pass in data points")
         if not Diagram.pargs.file:
             if len(Diagram.pargs.regions) % 3:
-                raise SystemExit("command line input data should be in multiples of three") 
+                raise SystemExit("Error: Command line input data should be in multiples of three") 
         else:
             json_file = pathlib.Path(Diagram.pargs.file).resolve()
             if not json_file.exists():
-                raise SystemExit(f"File not found: {json_file}")
+                raise SystemExit(f"Error: File not found: {json_file}")
     
     @classmethod
     def _create_model(cls) -> mm.metamodel.Diagram:
