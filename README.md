@@ -46,25 +46,45 @@ python3 -m mm.diagram -h
 ```
 usage: diagram.py [-h] [-o OUT] [-l LIMIT] [-t THRESHOLD] [-n NAME] [-f FILE] [-v] [--no_whitespace_trim] [regions ...]
 
-Generate a diagram showing how binary regions co-exist within memory.
+Tool for generating diagrams that show the mapping of regions in memory.
 
 positional arguments:
-  regions               Sequence of region data. Should be tuples of name, origin and size: <name1> <origin1> <size1> <nameN> <originN> <sizeN>
+  regions               Sequence of region data. Should be tuples of name, origin and size: 
+                                    <name1> <origin1> <size1> <nameN> <originN> <sizeN>
 
 options:
   -h, --help            show this help message and exit
-  -o OUT, --out OUT     The path to the markdown output report file. Diagram and table images will be written using this path and name (using png extension). Default:
-                        'out/report.md'
+  -o OUT, --out OUT     The path to the markdown output report file. 
+                                    Diagram and table images will be written using this path and name (using png extension).
+                                    Default: 'out/report.md'
   -l LIMIT, --limit LIMIT
-                        The 'height' in pixels and 'max address' in bytes for the diagram. Please use hex format. Ignored when using JSON file input. Memory regions exceeding
-                        this value will be scaled to fit when drawn but collision measurements will use the original value. If you need to set 'height' and 'max address' to
-                        different values, please use the JSON input file instead.
+                        
+                                    The 'height' in pixels and 'max address' in bytes for the diagram. 
+                                    Please use hex format. Ignored when using JSON file input.
+                                    Memory regions exceeding this value will be scaled to fit when drawn 
+                                    but collision measurements will use the original value. 
+                                    If you need to set 'height' and 'max address' to different values, 
+                                    please use the JSON input file instead.
   -t THRESHOLD, --threshold THRESHOLD
-                        The threshold for replacing large empty sections with 'SKIPPED' regions. Any space over this value will be replaced. Please use hex. Default = 0x16
+                        The threshold for replacing large empty sections with 'SKIPPED' regions. 
+                                    Any space over this value will be replaced. Please use hex. Default = 0x16
   -n NAME, --name NAME  Provide a name for the memory map. Ignored when JSON file is provided.
   -f FILE, --file FILE  JSON input file for multiple memory maps (and links) support. Please see docs/example for help.
   -v                    Enable debug output.
-  --no_whitespace_trim  Force disable of whitespace trim in diagram images. If this option is set, diagram images may be created larger than requested.
+  --no_whitespace_trim  Force disable of whitespace trim in diagram images. 
+                                    If this option is set, diagram images may be created larger than requested.
+
+   EXAMPLES
+   --------
+   - Generate a map diagram called 'dram' that contains five regions called kernel, rootfs, dtb, uboot and uboot-scr where four of the five regions intersect/collide. 
+     The default report output path is used.
+                    
+       python3 -m mm.diagram kernel 0x10 0x50 rootfs 0x50 0x30 dtb 0x90 0x30 uboot 0xD0 0x50 uboot-scr 0x110 0x30 -l 0x3e8 -n dram
+
+   - Using JSON many other options can be set. 
+     Example json files can be found at https://cracked-machine.github.io/mmdiagram/examples.html
+                                   
+       python3 -m mm.diagram -f docs/example/example_two_maps.json    
 ```
 
 #### Examples
