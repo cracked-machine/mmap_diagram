@@ -60,6 +60,7 @@ jobs:
     # publish wheel
     - name: create wheel
       run: |
+        env
         . do_make && init && pkg 
         chmod 777 dist/*
     - name: upload wheel
