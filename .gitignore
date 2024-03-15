@@ -5,7 +5,6 @@ tests/lcov
 out
 custom
 .pytest_cache
-dist 
 
 docs/example/*
 !docs/example/example_two_maps_diagram.png
