@@ -21,11 +21,11 @@ jobs:
     - uses: actions/checkout@v3
     - name: Install dependencies
       run: |
-        . do_make && init 
+        make init 
     # run pytest
     - name: Test with pytest
       run: |
-        . do_make && test
+        make test
     - name: upload code coverage
       uses: actions/upload-artifact@v4
       with:
@@ -60,7 +60,8 @@ jobs:
     # publish wheel
     - name: create wheel
       run: |
-        . do_make && init && pkg 
+        env
+        make init pkg 
         chmod 777 dist/*
     - name: upload wheel
       uses: actions/upload-artifact@v4
